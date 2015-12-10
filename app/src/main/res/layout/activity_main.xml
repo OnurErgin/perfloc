@@ -1,0 +1,124 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity">
+
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="300px"
+        android:id="@+id/SensorListView"
+        android:background="#ff6e2d"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="# APs"
+        android:id="@+id/numAPs"
+        android:layout_alignTop="@+id/WiFiScanTime"
+        android:layout_toStartOf="@+id/WiFiScanTime" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="ms"
+        android:id="@+id/WiFiScanTime"
+        android:layout_alignTop="@+id/toggleButton"
+        android:layout_alignEnd="@+id/SensorListView" />
+
+    <ToggleButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New ToggleButton"
+        android:id="@+id/toggleButton"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:checked="false" />
+
+    <ExpandableListView
+        android:layout_width="wrap_content"
+        android:layout_height="1200px"
+        android:id="@+id/expandableListView"
+        android:layout_above="@+id/SensorListView"
+        android:layout_alignParentStart="true"
+        android:layout_gravity="bottom"
+        android:background="#dadbdb" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="serviceState"
+        android:id="@+id/serviceState"
+        android:layout_below="@+id/numAPs"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="callState"
+        android:id="@+id/callState"
+        android:layout_below="@+id/serviceState"
+        android:layout_alignEnd="@+id/serviceState" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="cellLocation"
+        android:id="@+id/cellLocation"
+        android:layout_below="@+id/callState"
+        android:layout_alignEnd="@+id/callState" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="callForwarding"
+        android:id="@+id/callForwarding"
+        android:layout_below="@+id/cellLocation"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="messageWaiting"
+        android:id="@+id/messageWaiting"
+        android:layout_below="@+id/callForwarding"
+        android:layout_alignEnd="@+id/expandableListView" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="cellInfo"
+        android:id="@+id/cellInfo"
+        android:layout_below="@+id/expandableListView"
+        android:layout_alignEnd="@+id/SensorListView" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="dataActivity"
+        android:id="@+id/dataActivity"
+        android:layout_below="@+id/cellInfo"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Dot_Counter"
+        android:id="@+id/dotCounter"
+        android:layout_above="@+id/expandableListView"
+        android:layout_alignParentStart="true" />
+
+</RelativeLayout>
