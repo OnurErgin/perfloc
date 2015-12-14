@@ -43,7 +43,10 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
 
     public int getChildrenCount(int groupPosition) {
 
-        return this.childDataSource.get(this.parentDataSource.get(groupPosition)).size();
+        if (this.childDataSource.get(this.parentDataSource.get(groupPosition)) != null)
+            return this.childDataSource.get(this.parentDataSource.get(groupPosition)).size();
+        else
+            return 0;
 
     }
 

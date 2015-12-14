@@ -21,7 +21,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.os.Vibrator;
-import android.provider.MediaStore;
 import android.telephony.CellInfo;
 import android.telephony.CellInfoCdma;
 import android.telephony.CellInfoGsm;
@@ -35,19 +34,20 @@ import android.telephony.CellSignalStrengthWcdma;
 import android.telephony.PhoneStateListener;
 import android.telephony.ServiceState;
 import android.telephony.TelephonyManager;
+import android.text.InputType;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
-
-import org.w3c.dom.Text;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -60,9 +60,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-import gov.nist.perfloc.WiFi.WiFiRSSIMeasurement;
+//import gov.nist.perfloc.WiFi.WiFiRSSIMeasurement;
 
 public class MainActivity extends Activity {
 
@@ -75,7 +74,7 @@ public class MainActivity extends Activity {
 
     ToggleButton StartStopButton;
 
-    TextView numAPs, WiFiScanTime, tv_dotcounter;
+    TextView numAPs, WiFiScanTime, tv_dotcounter, tv_sensor_event_counter, tv_timer_sec;
 
     // Expandable List Adapter related definitions
     ExpandableListAdapter expListAdapter;
@@ -95,6 +94,8 @@ public class MainActivity extends Activity {
 
     // Sensor related definitions
     HashMap<String, float[]> sensorHashMap;
+    HashMap<String, Long> sensorLastTimestampHashMap;
+    HashMap<String, Long> sensorCurrentTimestampHashMap;
 
     //SensorManager mSensorManager;
     //List<Sensor> sensorList;
@@ -103,6 +104,8 @@ public class MainActivity extends Activity {
 
     private ExecutorService pool;
     volatile int dotCounter = 0;
+    volatile long senor_event_counter = 0;
+    private int sensor_sampling_frequency = SensorManager.SENSOR_DELAY_FASTEST;
 
     volatile int numberOfAPs=0, WiFiScanDuration=0, numberOfCellTowers=0, numberOfSensors=0;
 
@@ -127,7 +130,7 @@ public class MainActivity extends Activity {
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
         PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakelockTag");
         wakeLock.acquire();
-        Log.v("Wake Lock (isHeld) status: ", wakeLock.isHeld() + ".");
+        Log.v("WakeLock (isHeld?): ", wakeLock.isHeld() + ".");
 
 
         WiFi_output_file = dirname + "/" + WiFi_output_file.replaceAll("\\s+","") + "." + protocol_buffer_file_extension;
@@ -143,6 +146,10 @@ public class MainActivity extends Activity {
         numAPs = (TextView) findViewById(R.id.numAPs);
         WiFiScanTime = (TextView) findViewById(R.id.WiFiScanTime);
         tv_dotcounter = (TextView) findViewById(R.id.dotCounter);
+        tv_sensor_event_counter = (TextView) findViewById(R.id.sensor_event_counter);
+        tv_sensor_event_counter.setText(tv_sensor_event_counter + "");
+        findViewById(R.id.title_sensor_event_counter);
+        tv_timer_sec = (TextView) findViewById(R.id.timer_sec);
 
         expListView = (ExpandableListView) findViewById(R.id.expandableListView);
 
@@ -266,22 +273,31 @@ public class MainActivity extends Activity {
                 PhoneStateListener.LISTEN_SERVICE_STATE |
                 PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
 
-        final readBuiltinSensors rbs = new readBuiltinSensors(MainActivity.this, 10);
-        pool = Executors.newFixedThreadPool(2);
+        final readBuiltinSensors rbs = new readBuiltinSensors(MainActivity.this, 100);
+        final applicationTimer aT = new applicationTimer();
+        //pool = Executors.newFixedThreadPool(2); // Either use a thread pool, or create a separate thread each time and call Thread.start()
+        //final Thread tRBS = new Thread(rbs);
 
         StartStopButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Thread tRBS = new Thread(rbs);
+          //      Thread tRBS = new Thread(rbs);
                 if (isChecked) {
                     registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
                     wifi.startScan();
 
-                    pool.execute(rbs);
+                    Thread tRBS = new Thread(rbs);
+                    tRBS.start();
+
+                    Thread taT = new Thread (aT);
+                    taT.start();
+
+          //          pool.execute(rbs);
                     Log.v("POOL: ", "Runnable executed.");
                 } else {
                     unregisterReceiver(wifiReceiver);
 
                     rbs.terminate();
+                    aT.terminate();
                     Log.v("POOL: ", "Runnable stopped.");
                 }
                 v.vibrate(500);
@@ -375,7 +391,7 @@ public class MainActivity extends Activity {
                 wifis[i*2] = ((wifiScanList.get(i)).toString());
 
                 // Test Protocol Buffers
-                WiFiRSSIMeasurement.Builder wifi_info = WiFiRSSIMeasurement.newBuilder();
+                /*WiFiRSSIMeasurement.Builder wifi_info = WiFiRSSIMeasurement.newBuilder();
                 wifi_info.setAp(WiFiRSSIMeasurement.AccessPoint.newBuilder()
                                 .setBssi(wifiScanList.get(i).BSSID)
                                 .setRssi(wifiScanList.get(i).level)
@@ -390,7 +406,7 @@ public class MainActivity extends Activity {
                 } catch(IOException e){
                     Log.v("WiFi_BOS write", e.toString());
                 }
-                wifis[i*2 + 1] = wifi_info.toString();
+                wifis[i*2 + 1] = wifi_info.toString();*/
             }
             wifi.startScan();
 
@@ -532,6 +548,30 @@ public class MainActivity extends Activity {
                         .setNegativeButton("No", dialogClickListener).show();
 
                 return true;
+            case R.id.set_sensor_freq:
+                AlertDialog.Builder freq_dialog_builder = new AlertDialog.Builder(this);
+                final EditText input = new EditText(this);
+                input.setInputType(InputType.TYPE_NUMBER_VARIATION_NORMAL | InputType.TYPE_CLASS_NUMBER);
+                freq_dialog_builder.setView(input);
+
+                freq_dialog_builder.setMessage("Change Sensor sampling frequency (microseconds)\\ Current:" + sensor_sampling_frequency).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        sensor_sampling_frequency = Integer.parseInt(input.getText().toString());
+                        Toast.makeText(getApplicationContext(), "Set to: " + sensor_sampling_frequency,
+                                        Toast.LENGTH_SHORT).show();
+                    }
+                });
+                freq_dialog_builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                        Toast.makeText(getApplicationContext(), "not changed.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                freq_dialog_builder.show();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -549,6 +589,9 @@ public class MainActivity extends Activity {
                 case DialogInterface.BUTTON_NEGATIVE:
                     //No button clicked
                     // do nothing
+                    //Toast toast = Toast.makeText(getApplicationContext(), "cancelled", Toast.LENGTH_SHORT);
+                    //toast.show();
+                    Toast.makeText(getApplicationContext(), "cancelled", Toast.LENGTH_SHORT).show();
                     break;
             }
         }
@@ -586,12 +629,22 @@ public class MainActivity extends Activity {
 
             @Override
             public void onSensorChanged(SensorEvent event) {
+                senor_event_counter++;
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        tv_sensor_event_counter.setText(senor_event_counter+"");
+                    }
+                });
+
                 Sensor cSensor = event.sensor;
                 //noAPs_tv.setText("" + cSensor.getType());
                 String sensorHashKey = event.sensor.getType() + ": " +  event.sensor.getStringType(); // wakeup + non-wakeup sensors together
                 //String sensorHashKey = event.sensor.getType() + ": " +  event.sensor.getName(); // wakeup + non-wakeup sensors separate
                 //String sensorHashKey = event.sensor.getType() + "" ;
                 sensorHashMap.put(sensorHashKey, event.values);
+                sensorLastTimestampHashMap.put(sensorHashKey,sensorCurrentTimestampHashMap.get(sensorHashKey));
+                sensorCurrentTimestampHashMap.put(sensorHashKey, new Long(event.timestamp));
                 if(event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
                     float[] time_x = {(float) Calendar.getInstance().get(Calendar.SECOND)};
                     sensorHashMap.put(sensorHashKey, time_x);
@@ -651,6 +704,7 @@ public class MainActivity extends Activity {
         };
 
         public void terminate() {
+            unRegisterSensors(mSensorManager);
             running = false;
         }
 
@@ -684,11 +738,13 @@ public class MainActivity extends Activity {
                 sensorList = sensorsToRegister;
             */
 
-            registerSensors(mSensorManager, sensorList);
+            //registerSensors(mSensorManager, sensorList);
             //numberOfSensors = sensorList.size();
 
             SensorList_text = new ArrayList<String>();
             sensorHashMap = new HashMap<String, float[]>();
+            sensorLastTimestampHashMap = new  HashMap<String, Long>();
+            sensorCurrentTimestampHashMap = new  HashMap<String, Long>();
 
             for (int i = 0; i < sensorList.size(); i++) {
                 String sensorHashKey = sensorList.get(i).getType() + ": " + sensorList.get(i).getStringType(); // wakeup + non-wakeup sensors together
@@ -725,6 +781,7 @@ public class MainActivity extends Activity {
 
             running = true;
 
+            registerSensors(mSensorManager, sensorList);
 
             while (running) {
                 final String sensors[] = new String[5];
@@ -739,7 +796,9 @@ public class MainActivity extends Activity {
                 List<String> keyList = new ArrayList<String>(sensorHashMap.keySet());
                 SensorList_text = new ArrayList<String>();
                 for (int i = 0; i < keyList.size();i++){
-                    SensorList_text.add(keyList.get(i) + ": " + Arrays.toString(sensorHashMap.get(keyList.get(i))));
+                    if (sensorLastTimestampHashMap.get(keyList.get(i)) != null )
+                    SensorList_text.add(keyList.get(i) + ": " + Arrays.toString(sensorHashMap.get(keyList.get(i))) +
+                                         " in " + (sensorCurrentTimestampHashMap.get(keyList.get(i)) - sensorLastTimestampHashMap.get(keyList.get(i)))/1000000 + "msec" );
                 }
 
                 Collections.sort(SensorList_text, String.CASE_INSENSITIVE_ORDER);
@@ -799,9 +858,18 @@ public class MainActivity extends Activity {
         }
 
         private void registerSensors (SensorManager tSensorManager, List<Sensor> listOfSensors){
+            //SENSOR_DELAY_GAME = 20.000 microsecond
+            //SENSOR_DELAY_NORMAL = 180.000 microsecond
+            //SENSOR_DELAY_UI = 60.000 microsecond mSensorManager.SENSOR_DELAY_UI
+            //SENSOR_DELAY_FASTEST = As fast as possible
+
             for (int i = 0; i < listOfSensors.size(); i++) {
-                mSensorManager.registerListener(mSensorListener, listOfSensors.get(i),mSensorManager.SENSOR_DELAY_FASTEST);
+                mSensorManager.registerListener(mSensorListener, listOfSensors.get(i), sensor_sampling_frequency);
             }
+        }
+
+        private void unRegisterSensors (SensorManager tSensorManager){
+                mSensorManager.unregisterListener(mSensorListener);
         }
 
         private class  SensorReading {
@@ -810,6 +878,57 @@ public class MainActivity extends Activity {
         }
 
 
+    }
+
+    private class applicationTimer implements Runnable {
+
+        int timer_sec = 0;
+        boolean running;
+
+        public applicationTimer() {
+
+        }
+
+        public void terminate(){
+            running = false;
+        }
+
+        @Override
+        public void run() {
+            running = true;
+
+            while (running) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    Log.e("THREAD_SLEEP", e.toString());
+                }
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        //slv.setAdapter(new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, sensors));
+                        timer_sec++;
+                        tv_timer_sec.setText( (int) Math.floor(timer_sec / 60) + " min : " +
+                                              (timer_sec%60) + " sec");
+                    }
+                });
+            }
+        }
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();  // Always call the superclass method first
+
+        //StartStopButton.setChecked(false);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();  // Always call the superclass method first
+
+        //StartStopButton.setChecked(false);
     }
 
 }

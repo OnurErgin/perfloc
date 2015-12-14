@@ -6,4 +6,6 @@
         android:orderInCategory="100" android:showAsAction="never" />
     <item android:id="@+id/renew_files" android:title="@string/renew_files"
         android:orderInCategory="100" android:showAsAction="never" />
+    <item android:id="@+id/set_sensor_freq" android:title="@string/SensorFrequency"
+        android:orderInCategory="100" android:showAsAction="never" />
 </menu>

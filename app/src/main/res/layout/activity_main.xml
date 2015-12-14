@@ -121,4 +121,32 @@
         android:layout_above="@+id/expandableListView"
         android:layout_alignParentStart="true" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="SensorEventCounter"
+        android:id="@+id/sensor_event_counter"
+        android:layout_alignBottom="@+id/dotCounter"
+        android:layout_toEndOf="@+id/toggleButton"
+        android:layout_marginStart="16dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Sensor Event Counter"
+        android:id="@+id/title_sensor_event_counter"
+        android:layout_alignBottom="@+id/messageWaiting"
+        android:layout_alignStart="@+id/sensor_event_counter" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Timer (seconds)"
+        android:id="@+id/timer_sec"
+        android:layout_alignBottom="@+id/SensorListView"
+        android:layout_alignEnd="@+id/toggleButton" />
+
 </RelativeLayout>
