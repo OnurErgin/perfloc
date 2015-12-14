@@ -8,4 +8,8 @@
         android:orderInCategory="100" android:showAsAction="never" />
     <item android:id="@+id/set_sensor_freq" android:title="@string/SensorFrequency"
         android:orderInCategory="100" android:showAsAction="never" />
+    <item android:id="@+id/unindex_files" android:title="@string/UnindexFiles"
+        android:orderInCategory="100" android:showAsAction="never" />
+    <item android:id="@+id/set_prefix" android:title="@string/set_prefix"
+        android:orderInCategory="100" android:showAsAction="never" />
 </menu>

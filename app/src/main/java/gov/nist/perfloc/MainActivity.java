@@ -114,6 +114,8 @@ public class MainActivity extends Activity {
             Dots_output_file = android.os.Build.MODEL + "_Dots";
     File dirname = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
     String protocol_buffer_file_extension = "pbs"; // (p)rotocol(b)uffer(s)erialized
+    String current_file_prefix = "1";
+    List<Uri> indexed_URIs;
 
     BufferedOutputStream WiFi_BOS, Sensor_BOS, Dots_BOS;
 
@@ -133,11 +135,9 @@ public class MainActivity extends Activity {
         Log.v("WakeLock (isHeld?): ", wakeLock.isHeld() + ".");
 
 
-        WiFi_output_file = dirname + "/" + WiFi_output_file.replaceAll("\\s+","") + "." + protocol_buffer_file_extension;
-        Sensors_output_file = dirname + "/" + Sensors_output_file.replaceAll("\\s+","") + "." + protocol_buffer_file_extension;
-        Dots_output_file = dirname + "/" + Dots_output_file.replaceAll("\\s+","") + "." + protocol_buffer_file_extension;
 
-        createOutputFiles();
+
+        createOutputFiles(current_file_prefix);
 
         v = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
 
@@ -165,7 +165,7 @@ public class MainActivity extends Activity {
         final PhoneStateListener phone = new PhoneStateListener() {
             @Override
             public void onCellInfoChanged(List<CellInfo> cellInfo) {
-                int i = 0;
+                int i;
                 super.onCellInfoChanged(cellInfo);
                 TextView call_info = (TextView)findViewById(R.id.cellInfo);
                 if (cellInfo != null) {
@@ -339,7 +339,12 @@ public class MainActivity extends Activity {
         }
     }
 
-    private boolean createOutputFiles(){
+    private boolean createOutputFiles(String prefix){
+
+        WiFi_output_file = dirname + "/" + prefix + "_" + WiFi_output_file.replaceAll("\\s+","") + "." + protocol_buffer_file_extension;
+        Sensors_output_file = dirname + "/" + prefix + "_" + Sensors_output_file.replaceAll("\\s+","") + "." + protocol_buffer_file_extension;
+        Dots_output_file = dirname + "/" + prefix + "_" + Dots_output_file.replaceAll("\\s+","") + "." + protocol_buffer_file_extension;
+
         try {
             WiFi_BOS = new BufferedOutputStream(new FileOutputStream(WiFi_output_file));
             Sensor_BOS = new BufferedOutputStream(new FileOutputStream(Sensors_output_file));
@@ -347,6 +352,18 @@ public class MainActivity extends Activity {
         } catch (IOException e) {
             Log.e("BOS_File", e.toString());
         }
+
+        indexed_URIs = new ArrayList<>();
+
+        return true;
+    }
+
+    private boolean unIndexFiles () {
+        for (Uri uri : indexed_URIs) {
+            getContentResolver().delete(uri, null, null);
+        }
+        indexed_URIs.clear();
+
         return true;
     }
 
@@ -391,8 +408,8 @@ public class MainActivity extends Activity {
                 wifis[i*2] = ((wifiScanList.get(i)).toString());
 
                 // Test Protocol Buffers
-                /*WiFiRSSIMeasurement.Builder wifi_info = WiFiRSSIMeasurement.newBuilder();
-                wifi_info.setAp(WiFiRSSIMeasurement.AccessPoint.newBuilder()
+                WiFi.WiFiRSSIMeasurement.Builder wifi_info = WiFi.WiFiRSSIMeasurement.newBuilder();
+                wifi_info.setAp(WiFi.WiFiRSSIMeasurement.AccessPoint.newBuilder()
                                 .setBssi(wifiScanList.get(i).BSSID)
                                 .setRssi(wifiScanList.get(i).level)
                 );
@@ -406,7 +423,8 @@ public class MainActivity extends Activity {
                 } catch(IOException e){
                     Log.v("WiFi_BOS write", e.toString());
                 }
-                wifis[i*2 + 1] = wifi_info.toString();*/
+                wifis[i*2 + 1] = wifi_info.toString();
+                // End Test Protocol Buffers
             }
             wifi.startScan();
 
@@ -513,6 +531,9 @@ public class MainActivity extends Activity {
             case R.id.action_settings:
                 return true;
             case R.id.flush_files:
+
+                unIndexFiles();
+
                 try {
                     WiFi_BOS.flush();
                     Sensor_BOS.flush();
@@ -538,6 +559,7 @@ public class MainActivity extends Activity {
                             @Override
                             public void onScanCompleted(String path, Uri uri) {
                                 Log.v("Media Scanner", "file " + path + " was scanned successfully: " + uri);
+                                indexed_URIs.add(uri);
                             }
                         }
                 );
@@ -548,6 +570,10 @@ public class MainActivity extends Activity {
                         .setNegativeButton("No", dialogClickListener).show();
 
                 return true;
+            case R.id.unindex_files:
+                unIndexFiles();
+                //indexed_URIs = new ArrayList<>();
+                return true;
             case R.id.set_sensor_freq:
                 AlertDialog.Builder freq_dialog_builder = new AlertDialog.Builder(this);
                 final EditText input = new EditText(this);
@@ -557,9 +583,16 @@ public class MainActivity extends Activity {
                 freq_dialog_builder.setMessage("Change Sensor sampling frequency (microseconds)\\ Current:" + sensor_sampling_frequency).setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        sensor_sampling_frequency = Integer.parseInt(input.getText().toString());
-                        Toast.makeText(getApplicationContext(), "Set to: " + sensor_sampling_frequency,
-                                        Toast.LENGTH_SHORT).show();
+
+                        String t_input =  input.getText().toString();
+                        if ( t_input.length() == 0 ) {
+                            Toast.makeText(getApplicationContext(), "Error: empty input" , Toast.LENGTH_LONG).show();
+
+                        } else {
+                            sensor_sampling_frequency = Integer.parseInt(t_input);
+                            Toast.makeText(getApplicationContext(), "Set to: " + sensor_sampling_frequency,
+                                    Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
                 freq_dialog_builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -572,6 +605,38 @@ public class MainActivity extends Activity {
 
                 freq_dialog_builder.show();
                 return true;
+            case R.id.set_prefix:
+                AlertDialog.Builder prefix_dialog_builder = new AlertDialog.Builder(this);
+                final EditText prefix_input = new EditText(this);
+                prefix_input.setInputType(InputType.TYPE_NUMBER_VARIATION_NORMAL | InputType.TYPE_CLASS_NUMBER);
+                prefix_dialog_builder .setView(prefix_input);
+
+                prefix_dialog_builder .setMessage("Set file prefix// Current:" + current_file_prefix).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String t_input = prefix_input.getText().toString();
+                        if ( t_input.length() == 0 ) {
+                            Toast.makeText(getApplicationContext(), "Error: empty input" , Toast.LENGTH_LONG).show();
+
+                        } else {
+                            current_file_prefix = t_input;
+                            Toast.makeText(getApplicationContext(), "Set to: " + current_file_prefix,
+                                    Toast.LENGTH_SHORT).show();
+
+                            createOutputFiles(current_file_prefix);
+                        }
+                    }
+                });
+                prefix_dialog_builder .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                        Toast.makeText(getApplicationContext(), "not changed.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                prefix_dialog_builder.show();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -583,7 +648,9 @@ public class MainActivity extends Activity {
             switch (which){
                 case DialogInterface.BUTTON_POSITIVE:
                     //Yes button clicked
-                    createOutputFiles();
+
+                    for(File file: dirname.listFiles()) file.delete();
+                    createOutputFiles(current_file_prefix);
                     break;
 
                 case DialogInterface.BUTTON_NEGATIVE:

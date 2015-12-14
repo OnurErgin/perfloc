@@ -6,4 +6,6 @@
     <string name="flush_files">Flush Files</string>
     <string name="renew_files">Renew Files</string>
     <string name="SensorFrequency">Sensor Frequency</string>
+    <string name="UnindexFiles">Un-index Files</string>
+    <string name="set_prefix">Set File Prefix</string>
 </resources>
