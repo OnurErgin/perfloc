@@ -21,6 +21,10 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.os.Vibrator;
+import android.telephony.CellIdentityCdma;
+import android.telephony.CellIdentityGsm;
+import android.telephony.CellIdentityLte;
+import android.telephony.CellIdentityWcdma;
 import android.telephony.CellInfo;
 import android.telephony.CellInfoCdma;
 import android.telephony.CellInfoGsm;
@@ -63,6 +67,7 @@ import java.util.concurrent.ExecutorService;
 
 //import gov.nist.perfloc.WiFi.WiFiRSSIMeasurement;
 
+
 public class MainActivity extends Activity {
 
     Vibrator v;
@@ -80,7 +85,7 @@ public class MainActivity extends Activity {
     ExpandableListAdapter expListAdapter;
     List<String> listDataHeader;
     HashMap<String, List<String>> listDataChild;
-    List<String> WiFiList, CellList, SensorList_text;
+    List<String> WiFiList_text, CellList_text, SensorList_text;
 
     // WiFi Scanning related definitions
     WifiManager wifi;
@@ -111,15 +116,28 @@ public class MainActivity extends Activity {
 
     String  WiFi_output_file = android.os.Build.MODEL + "_WiFi",
             Sensors_output_file = android.os.Build.MODEL + "_Sensors",
-            Dots_output_file = android.os.Build.MODEL + "_Dots";
+            Dots_output_file = android.os.Build.MODEL + "_Dots",
+            Cellular_output_file = android.os.Build.MODEL + "_Cellular";
+
     File dirname = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
     String protocol_buffer_file_extension = "pbs"; // (p)rotocol(b)uffer(s)erialized
     String current_file_prefix = "1";
     List<Uri> indexed_URIs;
 
-    BufferedOutputStream WiFi_BOS, Sensor_BOS, Dots_BOS;
+    BufferedOutputStream WiFi_BOS, Sensor_BOS, Dots_BOS, Cellular_BOS;
 
     //String a; a.replaceAll("\\s+","");
+
+    // Protocol Buffer ArrayLists
+    List<DotData.DotReading> list_dot_readings;
+    List<WifiData.WiFiReading> list_wifi_readings;
+    List<CellularData.CellularReading> list_cellular_readings;
+    List<SensorData.SensorReading> list_sensor_readings;
+
+    int seq_nr_dot = 0;
+    int seq_nr_wifi = 0;
+    int seq_nr_cellular = 0;
+    int seq_nr_sensorevent = 0;
 
 
     @Override
@@ -135,7 +153,10 @@ public class MainActivity extends Activity {
         Log.v("WakeLock (isHeld?): ", wakeLock.isHeld() + ".");
 
 
-
+        list_cellular_readings = new ArrayList<>();
+        list_dot_readings = new ArrayList<>();
+        list_wifi_readings = new ArrayList<>();
+        list_sensor_readings = new ArrayList<>();
 
         createOutputFiles(current_file_prefix);
 
@@ -158,6 +179,7 @@ public class MainActivity extends Activity {
         expListAdapter = new ExpandableListViewAdapter(getApplicationContext(), listDataHeader, listDataChild);
         expListView.setAdapter(expListAdapter);
 
+        WiFiList_text = new ArrayList<>();
 
         wifi=(WifiManager)getSystemService(Context.WIFI_SERVICE);
         wifiReceiver = new WifiScanReceiver();
@@ -333,7 +355,9 @@ public class MainActivity extends Activity {
                 Log.v("MEDIA BUTTON", "Button pressed2!...");
                 //StartStopButton.toggle();
                 dotCounter++;
-                tv_dotcounter.setText(dotCounter +"");
+                tv_dotcounter.setText(dotCounter + "");
+
+                list_dot_readings.add( prepareDotProtobuf(++seq_nr_dot) );
             }
             abortBroadcast();
         }
@@ -344,11 +368,13 @@ public class MainActivity extends Activity {
         WiFi_output_file = dirname + "/" + prefix + "_" + WiFi_output_file.replaceAll("\\s+","") + "." + protocol_buffer_file_extension;
         Sensors_output_file = dirname + "/" + prefix + "_" + Sensors_output_file.replaceAll("\\s+","") + "." + protocol_buffer_file_extension;
         Dots_output_file = dirname + "/" + prefix + "_" + Dots_output_file.replaceAll("\\s+","") + "." + protocol_buffer_file_extension;
+        Cellular_output_file = dirname + "/" + prefix + "_" + Cellular_output_file.replaceAll("\\s+","") + "." + protocol_buffer_file_extension;
 
         try {
             WiFi_BOS = new BufferedOutputStream(new FileOutputStream(WiFi_output_file));
             Sensor_BOS = new BufferedOutputStream(new FileOutputStream(Sensors_output_file));
             Dots_BOS = new BufferedOutputStream(new FileOutputStream(Dots_output_file));
+            Cellular_BOS = new BufferedOutputStream(new FileOutputStream(Cellular_output_file));
         } catch (IOException e) {
             Log.e("BOS_File", e.toString());
         }
@@ -367,6 +393,31 @@ public class MainActivity extends Activity {
         return true;
     }
 
+    private void writeProtobufsToFile () {
+        // TODO: Count the number of times readings are delimited written into the files.
+        // At each recall to this function, the writing must continue from that index on.
+        // This holds for all except for SensorReadings.
+
+        try {
+            for (DotData.DotReading d : list_dot_readings){
+                d.writeDelimitedTo(Dots_BOS);
+            }
+            /*for (SensorData.SensorReading s : list_sensor_readings) {
+                s.writeDelimitedTo(Sensor_BOS);
+            }*/
+            for (WifiData.WiFiReading w : list_wifi_readings) {
+                w.writeDelimitedTo(WiFi_BOS);
+            }
+            for (CellularData.CellularReading c : list_cellular_readings) {
+                c.writeDelimitedTo(Cellular_BOS);
+            }
+        }
+        catch(IOException e) {
+            Log.e("WriteProtoBufs2File", e.toString());
+        }
+
+    }
+
     private void prepareListData() {
         listDataHeader = new ArrayList<String>();
         listDataChild = new HashMap<String, List<String>>();
@@ -377,18 +428,206 @@ public class MainActivity extends Activity {
         listDataHeader.add(numberOfSensors + " Sensors");
 
         // Adding child data
-        //WiFiList = new ArrayList<String>();
-        //CellList = new ArrayList<String>();
+        //WiFiList_text = new ArrayList<String>();
+        //CellList_text = new ArrayList<String>();
         //SensorList_text = new ArrayList<String>();
 
-        listDataChild.put(listDataHeader.get(0), WiFiList);
-        listDataChild.put(listDataHeader.get(1), CellList);
+        listDataChild.put(listDataHeader.get(0), WiFiList_text);
+        listDataChild.put(listDataHeader.get(1), CellList_text);
         listDataChild.put(listDataHeader.get(2), SensorList_text);
 
     }
 
-    private void prepareLTEprotobuf() {
+    private DotData.DotReading prepareDotProtobuf(int dot_number) {
+        DotData.DotReading.Builder dot_info = DotData.DotReading.newBuilder();
 
+        dot_info.setDotNr(dot_number)
+                .setTimestamp(System.currentTimeMillis());
+
+        return dot_info.build();
+    }
+
+    private WifiData.WiFiReading prepareWiFiProtobuf (List<ScanResult> wifiScanList) {
+
+        WifiData.WiFiReading.Builder wifi_data = WifiData.WiFiReading.newBuilder();
+
+        wifi_data.setSequenceNr(++seq_nr_wifi)
+                 .setTimestamp(System.currentTimeMillis())
+                 .setLastDotNr(seq_nr_dot);
+
+        for (ScanResult sr : wifiScanList) {
+            WifiData.WiFiReading.WiFiAP.Builder wifi_ap = WifiData.WiFiReading.WiFiAP.newBuilder();
+
+            wifi_ap.setBssid(sr.BSSID)
+                    .setSsid(sr.SSID)
+                    .setCapabilities(sr.capabilities)
+                    .setFrequency(sr.frequency)
+                    .setTimestamp(sr.timestamp);
+
+            wifi_data.addWifiAp(wifi_ap);
+        }
+
+        return wifi_data.build();
+    }
+
+    private CellularData.CellularReading prepareCellularProtobuf (List<CellInfo> cInfoList) {
+
+        CellularData.CellularReading.Builder cellular_data = CellularData.CellularReading.newBuilder();
+
+        cellular_data.setSequenceNr(++seq_nr_cellular)
+                     .setTimestamp(System.currentTimeMillis())
+                     .setLastDotNr(seq_nr_dot);
+
+        for (CellInfo info : cInfoList){
+
+            CellularData.CellularReading.CellInfo.Builder cell_info = CellularData.CellularReading.CellInfo.newBuilder();
+
+            cell_info.setTimestamp(info.getTimeStamp())
+                     .setRegistered(info.isRegistered());
+
+            if (info instanceof CellInfoGsm) {
+
+                cell_info.setNetworkType(CellularData.CellularReading.NetworkType.GSM);
+
+                CellIdentityGsm cid_gsm = ((CellInfoGsm) info).getCellIdentity();
+
+                CellularData.CellularReading.CellIdentityGsm.Builder gsm_info = CellularData.CellularReading.CellIdentityGsm.newBuilder();
+                gsm_info.setCid(cid_gsm.getCid())
+                        .setLac(cid_gsm.getLac())
+                        .setMcc(cid_gsm.getMcc())
+                        .setMnc(cid_gsm.getMnc())
+                        .setPsc(cid_gsm.getPsc())
+                        .setHashCode(cid_gsm.hashCode());
+
+                CellSignalStrengthGsm signalstrength_gsm = ((CellInfoGsm) info).getCellSignalStrength();
+
+                CellularData.CellularReading.CellSignalStrengthGsm.Builder gsm_ss = CellularData.CellularReading.CellSignalStrengthGsm.newBuilder();
+                gsm_ss.setAsuLevel(signalstrength_gsm.getAsuLevel())
+                        .setDbm(signalstrength_gsm.getDbm())
+                        .setLevel(signalstrength_gsm.getLevel())
+                        .setHashCode(signalstrength_gsm.hashCode());
+
+                cell_info.setGsmInfo(gsm_info);
+                cell_info.setGsmSignalStrength(gsm_ss);
+
+            } else if (info instanceof CellInfoCdma) {
+
+                cell_info.setNetworkType(CellularData.CellularReading.NetworkType.CDMA);
+
+                CellIdentityCdma cid_cdma = ((CellInfoCdma) info).getCellIdentity();
+
+                CellularData.CellularReading.CellIdentityCmda.Builder cdma_info = CellularData.CellularReading.CellIdentityCmda.newBuilder();
+                cdma_info.setBasestationId(cid_cdma.getBasestationId())
+                         .setLatitude(cid_cdma.getLatitude())
+                         .setLongitude(cid_cdma.getLongitude())
+                         .setNetworkId(cid_cdma.getNetworkId())
+                         .setSystemId(cid_cdma.getSystemId())
+                         .setHashCode(cid_cdma.hashCode());
+
+                CellSignalStrengthCdma signalstrength_cdma = ((CellInfoCdma) info).getCellSignalStrength();
+
+                CellularData.CellularReading.CellSignalStrengthCdma.Builder cdma_ss = CellularData.CellularReading.CellSignalStrengthCdma.newBuilder();
+                cdma_ss.setAsuLevel(signalstrength_cdma.getAsuLevel())
+                        .setCdmaDbm(signalstrength_cdma.getCdmaDbm())
+                        .setCdmaEcio(signalstrength_cdma.getCdmaEcio())
+                        .setCdmaLevel(signalstrength_cdma.getCdmaLevel())
+                        .setDbm(signalstrength_cdma.getDbm())
+                        .setEvdoDbm(signalstrength_cdma.getEvdoDbm())
+                        .setEvdoEcio(signalstrength_cdma.getEvdoEcio())
+                        .setEvdoLevel(signalstrength_cdma.getEvdoLevel())
+                        .setEvdoSnr(signalstrength_cdma.getEvdoSnr())
+                        .setLevel(signalstrength_cdma.getLevel())
+                        .setHashCode(signalstrength_cdma.hashCode());
+
+                cell_info.setCdmaInfo(cdma_info);
+                cell_info.setCdmaSignalStrength(cdma_ss);
+
+            } else if (info instanceof CellInfoLte) {
+
+                cell_info.setNetworkType(CellularData.CellularReading.NetworkType.LTE);
+
+                CellIdentityLte cid_lte = ((CellInfoLte) info).getCellIdentity();
+
+                CellularData.CellularReading.CellIdentityLte.Builder lte_info = CellularData.CellularReading.CellIdentityLte.newBuilder();
+                lte_info.setCi(cid_lte.getCi())
+                        .setMcc(cid_lte.getMcc())
+                        .setMnc(cid_lte.getMnc())
+                        .setPci(cid_lte.getPci())
+                        .setTac(cid_lte.getTac())
+                        .setHashCode(cid_lte.hashCode());
+
+                CellSignalStrengthLte signalstrength_lte = ((CellInfoLte) info).getCellSignalStrength();
+
+                CellularData.CellularReading.CellSignalStrengthLte.Builder lte_ss = CellularData.CellularReading.CellSignalStrengthLte.newBuilder();
+                lte_ss.setAsuLevel(signalstrength_lte.getAsuLevel())
+                        .setDbm(signalstrength_lte.getDbm())
+                        .setLevel(signalstrength_lte.getLevel())
+                        .setTimingAdvance(signalstrength_lte.getTimingAdvance())
+                        .setHashCode(signalstrength_lte.hashCode());
+
+                cell_info.setLteInfo(lte_info);
+                cell_info.setLteSignalStrength(lte_ss);
+
+            } else if (info instanceof CellInfoWcdma) {
+
+                cell_info.setNetworkType(CellularData.CellularReading.NetworkType.WCDMA);
+
+                CellIdentityWcdma cid_wcdma = ((CellInfoWcdma) info).getCellIdentity();
+
+                CellularData.CellularReading.CellIdentityWcdma.Builder wcdma_info = CellularData.CellularReading.CellIdentityWcdma.newBuilder();
+                wcdma_info.setCid(cid_wcdma.getCid())
+                          .setLac(cid_wcdma.getLac())
+                          .setMcc(cid_wcdma.getMcc())
+                          .setMnc(cid_wcdma.getMnc())
+                          .setPsc(cid_wcdma.getPsc())
+                          .setHashCode(cid_wcdma.hashCode());
+
+                CellSignalStrengthWcdma signalstrength_wcdma = ((CellInfoWcdma) info).getCellSignalStrength();
+
+                CellularData.CellularReading.CellSignalStrengthWcdma.Builder wcdma_ss = CellularData.CellularReading.CellSignalStrengthWcdma.newBuilder();
+                wcdma_ss.setAsuLevel(signalstrength_wcdma.getAsuLevel())
+                        .setDbm(signalstrength_wcdma.getDbm())
+                        .setLevel(signalstrength_wcdma.getLevel())
+                        .setHashCode(signalstrength_wcdma.hashCode());
+
+                cell_info.setWcdmaInfo(wcdma_info);
+                cell_info.setWcdmaSignalStrength(wcdma_ss);
+            }
+
+            cellular_data.addCellularInfo(cell_info);
+        }
+
+        return cellular_data.build();
+    }
+
+    private SensorData.SensorReading prepareSensorProtobuf (SensorEvent event) {
+        // 1 event, 1 SensorReading !
+
+        // Create Sensor Data
+        SensorData.SensorReading.Builder sensor_data = SensorData.SensorReading.newBuilder();
+
+        sensor_data.setTimestamp(System.currentTimeMillis())
+                    .setSequenceNr(++seq_nr_sensorevent)
+                    .setLastDotNr(seq_nr_dot);
+
+        // Create SensorEvent
+        SensorData.SensorReading.SensorEvent.Builder sensor_event = SensorData.SensorReading.SensorEvent.newBuilder();
+
+        sensor_event.setSensorType(event.sensor.getType())
+                    .setTimestamp(event.timestamp)
+                    .setAccuracy(event.accuracy);
+
+
+        // Fill values
+        SensorData.SensorReading.SensorEvent.SensorValues.Builder sensor_values = SensorData.SensorReading.SensorEvent.SensorValues.newBuilder();
+        for (int i=0; i < event.values.length; i++)
+            sensor_values.addValue(event.values[i]);
+
+        sensor_event.setValues(sensor_values);  // sensor_event is ready
+
+        sensor_data.setSensorEvent(sensor_event);   // sensor_data is ready
+
+        return sensor_data.build();
     }
 
     private class WifiScanReceiver extends BroadcastReceiver {
@@ -399,8 +638,23 @@ public class MainActivity extends Activity {
             time_diff = (time_current - time_prev);
             //WiFiScanTime.setText("\u0394".toUpperCase() + "t(ms):" + time_diff);
 
+            WifiData.WiFiReading wifi_reading = prepareWiFiProtobuf(wifi.getScanResults());
+            list_wifi_readings.add(wifi_reading);
+
+            List<WifiData.WiFiReading.WiFiAP> wifi_ap_list = wifi_reading.getWifiApList();
+
+            WiFiList_text.clear();
+            for (WifiData.WiFiReading.WiFiAP ap : wifi_ap_list) {
+                WiFiList_text.add(ap.toString());
+            }
+            numberOfAPs = wifi_ap_list.size();
+            numAPs.setText("# APs: " + numberOfAPs);
+
+            if (numberOfAPs == 0) WiFiList_text = new ArrayList<>();
+
+
             /* Scan WiFi and display */
-            List<ScanResult> wifiScanList = wifi.getScanResults();
+            /*List<ScanResult> wifiScanList = wifi.getScanResults();
             wifis = new String[wifiScanList.size()*2];
 
             for (int i = 0; i < wifiScanList.size(); i++) {
@@ -424,19 +678,33 @@ public class MainActivity extends Activity {
                     Log.v("WiFi_BOS write", e.toString());
                 }
                 wifis[i*2 + 1] = wifi_info.toString();
-                // End Test Protocol Buffers
-            }
+                 // End Test Protocol Buffers
+            }*/
             wifi.startScan();
 
-            numAPs.setText("# APs: " + wifiScanList.size());
+            //numAPs.setText("# APs: " + wifiScanList.size());
 
-            WiFiList = Arrays.asList(wifis);
-            numberOfAPs = wifiScanList.size();
+            //WiFiList_text = Arrays.asList(wifis);
+            //numberOfAPs = wifiScanList.size();
             WiFiScanDuration = (int) time_diff;
 
             // Get CellInfo and display
             boolean cellularSensingOn = true;
             if (cellularSensingOn) {
+
+                CellularData.CellularReading cellular_reading = prepareCellularProtobuf(tm.getAllCellInfo());
+                list_cellular_readings.add(cellular_reading);
+
+                List<CellularData.CellularReading.CellInfo> cell_info_list = cellular_reading.getCellularInfoList();
+
+                CellList_text = new ArrayList<String>();
+
+                for (CellularData.CellularReading.CellInfo cInfo : cell_info_list) {
+                    CellList_text.add(cInfo.toString());
+                }
+                numberOfCellTowers = cell_info_list.size();
+                //numberOfAPs = wifi_ap_list.size();
+                //numAPs.setText("# APs: " + numberOfAPs);
 
                 List<CellInfo> cInfoList = tm.getAllCellInfo();
 
@@ -480,9 +748,9 @@ public class MainActivity extends Activity {
                                                                             "\n ASU=" + CellASU +
                                                                             "\n LEVEL=" + CellLEVEL ;
                 }
-                CellList = Arrays.asList(AllCellStrings);
-                numberOfCellTowers = cInfoList.size();
-            } else CellList = new ArrayList<String>();
+                //CellList_text = Arrays.asList(AllCellStrings);
+                //numberOfCellTowers = cInfoList.size();
+            } else CellList_text = new ArrayList<String>();
 
             prepareListData();
 
@@ -534,23 +802,22 @@ public class MainActivity extends Activity {
 
                 unIndexFiles();
 
+                writeProtobufsToFile();
+
                 try {
                     WiFi_BOS.flush();
                     Sensor_BOS.flush();
                     Dots_BOS.flush();
+                    Cellular_BOS.flush();
                 } catch (IOException e) {
                     Log.v("Flush BOS:",e.toString());
                 }
+
                 //sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(outFile)));
                 File wifiFile = new File(WiFi_output_file);
                 File sensorFile = new File(Sensors_output_file);
                 File dotFile = new File(Dots_output_file);
-                //if (wifiFile.exists())
-                //  getContentResolver().delete(Uri.fromFile(new File(WiFi_output_file)), null, null);
-                //sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(wifiFile)));
-                //sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(sensorFile)));
-                //sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(dotFile)));
-                //MediaStore.Files();
+
                 MediaScannerConnection.scanFile(
                         getApplicationContext(),
                         new String[]{wifiFile.getAbsolutePath(), sensorFile.getAbsolutePath(), dotFile.getAbsolutePath()},
@@ -649,8 +916,12 @@ public class MainActivity extends Activity {
                 case DialogInterface.BUTTON_POSITIVE:
                     //Yes button clicked
 
+                    unIndexFiles();
                     for(File file: dirname.listFiles()) file.delete();
                     createOutputFiles(current_file_prefix);
+                    list_dot_readings.clear();
+                    list_sensor_readings.clear();
+
                     break;
 
                 case DialogInterface.BUTTON_NEGATIVE:
@@ -697,6 +968,14 @@ public class MainActivity extends Activity {
             @Override
             public void onSensorChanged(SensorEvent event) {
                 senor_event_counter++;
+
+                //list_sensor_readings.add(prepareSensorProtobuf(event));
+                try {
+                    prepareSensorProtobuf(event).writeDelimitedTo(Sensor_BOS);
+                } catch (IOException e) {
+                    Log.e("BOS exception:", e.toString());
+                }
+
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
