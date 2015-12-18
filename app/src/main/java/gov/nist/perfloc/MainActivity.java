@@ -3,6 +3,7 @@ package gov.nist.perfloc;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,7 +13,12 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.AudioManager;
 import android.media.MediaScannerConnection;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.media.session.MediaSession;
+import android.media.session.PlaybackState;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
@@ -20,6 +26,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.PowerManager;
+import android.os.SystemClock;
 import android.os.Vibrator;
 import android.telephony.CellIdentityCdma;
 import android.telephony.CellIdentityGsm;
@@ -43,6 +50,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SoundEffectConstants;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -72,6 +80,7 @@ public class MainActivity extends Activity {
 
     Vibrator v;
     private final Handler handler = new Handler();
+    static AudioManager am;
 
     // View related definitions
     ListView SensorListView;
@@ -98,9 +107,9 @@ public class MainActivity extends Activity {
     TelephonyManager tm;
 
     // Sensor related definitions
-    HashMap<String, float[]> sensorHashMap;
-    HashMap<String, Long> sensorLastTimestampHashMap;
-    HashMap<String, Long> sensorCurrentTimestampHashMap;
+    HashMap<Sensor, float[]> sensorHashMap; // 112
+    HashMap<Sensor, Long> sensorLastTimestampHashMap; // 112
+    HashMap<Sensor, Long> sensorCurrentTimestampHashMap; // 112
 
     //SensorManager mSensorManager;
     //List<Sensor> sensorList;
@@ -152,6 +161,18 @@ public class MainActivity extends Activity {
         wakeLock.acquire();
         Log.v("WakeLock (isHeld?): ", wakeLock.isHeld() + ".");
 
+        am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        am.setMode(AudioManager.MODE_NORMAL);
+        //am.setWiredHeadsetOn(false);
+        am.setSpeakerphoneOn(true);
+
+        try {
+            Log.e("AudioMAnagaer:", am.toString());
+        } catch (NullPointerException e) {
+            Log.e("Null pointer:", e.toString());
+        }
+        for (int i=0; i<100; i++)
+            am.playSoundEffect(AudioManager.FX_KEY_CLICK);
 
         list_cellular_readings = new ArrayList<>();
         list_dot_readings = new ArrayList<>();
@@ -302,7 +323,7 @@ public class MainActivity extends Activity {
 
         StartStopButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-          //      Thread tRBS = new Thread(rbs);
+                //      Thread tRBS = new Thread(rbs);
                 if (isChecked) {
                     registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
                     wifi.startScan();
@@ -310,10 +331,10 @@ public class MainActivity extends Activity {
                     Thread tRBS = new Thread(rbs);
                     tRBS.start();
 
-                    Thread taT = new Thread (aT);
+                    Thread taT = new Thread(aT);
                     taT.start();
 
-          //          pool.execute(rbs);
+                    //          pool.execute(rbs);
                     Log.v("POOL: ", "Runnable executed.");
                 } else {
                     unregisterReceiver(wifiReceiver);
@@ -330,6 +351,63 @@ public class MainActivity extends Activity {
         IntentFilter filter = new IntentFilter(Intent.ACTION_MEDIA_BUTTON);
         filter.setPriority(10000);
         registerReceiver(new MediaButtonIntentReceiver(), filter);
+
+        IntentFilter filter1 = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
+        filter1.setPriority(10000);
+        registerReceiver(new HeadsetIntentReceiver(), filter1);
+
+
+        if(false ) {
+            final MediaSession session = new MediaSession(getApplicationContext(), "TAG");
+            PlaybackState state = new PlaybackState.Builder()
+                    .setActions(
+                            PlaybackState.ACTION_PLAY | PlaybackState.ACTION_PLAY_PAUSE |
+                                    PlaybackState.ACTION_PLAY_FROM_MEDIA_ID | PlaybackState.ACTION_PAUSE |
+                                    PlaybackState.ACTION_SKIP_TO_NEXT | PlaybackState.ACTION_SKIP_TO_PREVIOUS)
+                    .build();
+            session.setPlaybackState(state);
+
+            session.setCallback(new MediaSession.Callback() {
+                @Override
+                public boolean onMediaButtonEvent(final Intent mediaButtonIntent) {
+                    Log.i("TAG", "GOT EVENT");
+                    return super.onMediaButtonEvent(mediaButtonIntent);
+                }
+            });
+
+            session.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS |
+                    MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
+
+            session.setActive(true);
+        }
+
+    }
+
+    public class HeadsetIntentReceiver extends BroadcastReceiver {
+
+        public HeadsetIntentReceiver() {
+            super();
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i("HEADSET", "Plugged!! or unplugged");
+            String TAG = "Inent: ";
+
+            if (intent.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
+                int state = intent.getIntExtra("state", -1);
+                switch (state) {
+                    case 0:
+                        Log.d(TAG, "Headset is unplugged");
+                        break;
+                    case 1:
+                        Log.d(TAG, "Headset is plugged");
+                        break;
+                    default:
+                        Log.d(TAG, "I have no idea what the headset state is");
+                }
+            }
+        }
     }
 
     public class MediaButtonIntentReceiver extends BroadcastReceiver {
@@ -356,8 +434,21 @@ public class MainActivity extends Activity {
                 //StartStopButton.toggle();
                 dotCounter++;
                 tv_dotcounter.setText(dotCounter + "");
+                list_dot_readings.add(prepareDotProtobuf(++seq_nr_dot));
 
-                list_dot_readings.add( prepareDotProtobuf(++seq_nr_dot) );
+                //am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+
+                am.playSoundEffect(AudioManager.FX_KEYPRESS_INVALID);
+
+                /*
+                try {
+                    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                    Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+                    r.play();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                */
             }
             abortBroadcast();
         }
@@ -985,9 +1076,10 @@ public class MainActivity extends Activity {
 
                 Sensor cSensor = event.sensor;
                 //noAPs_tv.setText("" + cSensor.getType());
-                String sensorHashKey = event.sensor.getType() + ": " +  event.sensor.getStringType(); // wakeup + non-wakeup sensors together
+                // 112 String sensorHashKey = event.sensor.getType() + ": " +  event.sensor.getStringType(); // wakeup + non-wakeup sensors together
                 //String sensorHashKey = event.sensor.getType() + ": " +  event.sensor.getName(); // wakeup + non-wakeup sensors separate
                 //String sensorHashKey = event.sensor.getType() + "" ;
+                Sensor sensorHashKey = event.sensor;
                 sensorHashMap.put(sensorHashKey, event.values);
                 sensorLastTimestampHashMap.put(sensorHashKey,sensorCurrentTimestampHashMap.get(sensorHashKey));
                 sensorCurrentTimestampHashMap.put(sensorHashKey, new Long(event.timestamp));
@@ -1088,22 +1180,39 @@ public class MainActivity extends Activity {
             //numberOfSensors = sensorList.size();
 
             SensorList_text = new ArrayList<String>();
-            sensorHashMap = new HashMap<String, float[]>();
-            sensorLastTimestampHashMap = new  HashMap<String, Long>();
-            sensorCurrentTimestampHashMap = new  HashMap<String, Long>();
+            // sensorHashMap = new HashMap<String, float[]>(); // 112
+            sensorHashMap = new HashMap<Sensor, float[]>();
+            sensorLastTimestampHashMap = new  HashMap<Sensor, Long>(); // 112
+            sensorCurrentTimestampHashMap = new  HashMap<Sensor, Long>(); // 112
+
+            List<Sensor> defaultSensorList = new ArrayList<>(); //112
 
             for (int i = 0; i < sensorList.size(); i++) {
-                String sensorHashKey = sensorList.get(i).getType() + ": " + sensorList.get(i).getStringType(); // wakeup + non-wakeup sensors together
+                // 112 String sensorHashKey = sensorList.get(i).getType() + ": " + sensorList.get(i).getStringType(); // wakeup + non-wakeup sensors together
                 //String sensorHashKey = sensorList.get(i).getType() + ": " + sensorList.get(i).getName(); // wakeup + non-wakeup sensors separate
                 //String sensorHashKey = sensorList.get(i).getType() + "";
-                sensorHashMap.put(sensorHashKey, null);
+
+                //Sensor sensorHashKey = sensorList.get(i);
+
+                Sensor sensorHashKey = mSensorManager.getDefaultSensor(sensorList.get(i).getType()); // 112
+
+                if (! defaultSensorList.contains(sensorHashKey)) {
+                    defaultSensorList.add(sensorHashKey);
+                    sensorHashMap.put(sensorHashKey, null);
+                }
+
                 //SensorList_text.add("" + sensorList.get(i).getName());
             }
+            sensorList = defaultSensorList;
 
-            List<String> keyList = new ArrayList<String>(sensorHashMap.keySet());
+            if (defaultSensorList.size() != sensorHashMap.size())
+                Log.e("DEADLY ERROR!!!!", "defaultSensorList.size() != sensorHashMap.size() : " + defaultSensorList.size() + " != " + sensorHashMap.size() );
+
+            //List<String> keyList = new ArrayList<String>(sensorHashMap.keySet()); //112
+            List<Sensor> keyList = new ArrayList<>(sensorHashMap.keySet());
             SensorList_text = new ArrayList<String>();
             for (int i = 0; i < keyList.size();i++){
-                SensorList_text.add(keyList.get(i) + ": " + Arrays.toString(sensorHashMap.get(keyList.get(i))));
+                SensorList_text.add(keyList.get(i) + ": " + Arrays.toString(sensorHashMap.get(keyList.get(i))) + "isWakeup?" + keyList.get(i).isWakeUpSensor());
             }
             numberOfSensors = sensorHashMap.size();
             handler.post(new Runnable() {
@@ -1139,12 +1248,13 @@ public class MainActivity extends Activity {
 
                 //SensorList_text = Arrays.asList(sensors);
 
-                List<String> keyList = new ArrayList<String>(sensorHashMap.keySet());
+                //List<String> keyList = new ArrayList<String>(sensorHashMap.keySet()); // 112
+                List<Sensor> keyList = new ArrayList<>(sensorHashMap.keySet());
                 SensorList_text = new ArrayList<String>();
                 for (int i = 0; i < keyList.size();i++){
                     if (sensorLastTimestampHashMap.get(keyList.get(i)) != null )
                     SensorList_text.add(keyList.get(i) + ": " + Arrays.toString(sensorHashMap.get(keyList.get(i))) +
-                                         " in " + (sensorCurrentTimestampHashMap.get(keyList.get(i)) - sensorLastTimestampHashMap.get(keyList.get(i)))/1000000 + "msec" );
+                                         " in " + (sensorCurrentTimestampHashMap.get(keyList.get(i)) - sensorLastTimestampHashMap.get(keyList.get(i)))/1000000 + "msec" + "isWakeup: " );
                 }
 
                 Collections.sort(SensorList_text, String.CASE_INSENSITIVE_ORDER);

@@ -47,7 +47,8 @@
         android:layout_above="@+id/SensorListView"
         android:layout_alignParentStart="true"
         android:layout_gravity="bottom"
-        android:background="#dadbdb" />
+        android:background="#dadbdb"
+        android:layout_below="@+id/messageWaiting" />
 
     <TextView
         android:layout_width="wrap_content"
