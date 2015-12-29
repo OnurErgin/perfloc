@@ -13,6 +13,9 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.MediaScannerConnection;
 import android.media.Ringtone;
@@ -61,6 +64,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import junit.framework.TestCase;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -83,12 +88,11 @@ public class MainActivity extends Activity {
     static AudioManager am;
 
     // View related definitions
-    ListView SensorListView;
     ExpandableListView expListView;
 
     ToggleButton StartStopButton;
 
-    TextView numAPs, WiFiScanTime, tv_dotcounter, tv_sensor_event_counter, tv_timer_sec;
+    TextView numAPs, WiFiScanTime, tv_dotcounter, tv_sensor_event_counter, tv_timer_sec, tv_bottomView;
 
     // Expandable List Adapter related definitions
     ExpandableListAdapter expListAdapter;
@@ -105,6 +109,9 @@ public class MainActivity extends Activity {
 
     // Cell Tower and Telephony related definitions
     TelephonyManager tm;
+
+    // Location Services: GPS
+    LocationManager locationManager;
 
     // Sensor related definitions
     HashMap<Sensor, float[]> sensorHashMap; // 112
@@ -161,6 +168,12 @@ public class MainActivity extends Activity {
         wakeLock.acquire();
         Log.v("WakeLock (isHeld?): ", wakeLock.isHeld() + ".");
 
+        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        LocationListener locationListener = getLocationListener();
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+
+        //tv_bottomView.setText(locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).toString());
+
         am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         am.setMode(AudioManager.MODE_NORMAL);
         //am.setWiredHeadsetOn(false);
@@ -171,8 +184,8 @@ public class MainActivity extends Activity {
         } catch (NullPointerException e) {
             Log.e("Null pointer:", e.toString());
         }
-        for (int i=0; i<100; i++)
-            am.playSoundEffect(AudioManager.FX_KEY_CLICK);
+        for (int i=0; i<1; i++)
+            am.playSoundEffect(AudioManager.FX_KEYPRESS_INVALID);
 
         list_cellular_readings = new ArrayList<>();
         list_dot_readings = new ArrayList<>();
@@ -189,9 +202,10 @@ public class MainActivity extends Activity {
         WiFiScanTime = (TextView) findViewById(R.id.WiFiScanTime);
         tv_dotcounter = (TextView) findViewById(R.id.dotCounter);
         tv_sensor_event_counter = (TextView) findViewById(R.id.sensor_event_counter);
-        tv_sensor_event_counter.setText(tv_sensor_event_counter + "");
+            //tv_sensor_event_counter.setText(tv_sensor_event_counter + "");
         findViewById(R.id.title_sensor_event_counter);
         tv_timer_sec = (TextView) findViewById(R.id.timer_sec);
+        tv_bottomView = (TextView) findViewById(R.id.bottomView);
 
         expListView = (ExpandableListView) findViewById(R.id.expandableListView);
 
@@ -205,116 +219,9 @@ public class MainActivity extends Activity {
         wifi=(WifiManager)getSystemService(Context.WIFI_SERVICE);
         wifiReceiver = new WifiScanReceiver();
 
-        final PhoneStateListener phone = new PhoneStateListener() {
-            @Override
-            public void onCellInfoChanged(List<CellInfo> cellInfo) {
-                int i;
-                super.onCellInfoChanged(cellInfo);
-                TextView call_info = (TextView)findViewById(R.id.cellInfo);
-                if (cellInfo != null) {
-                    for (i = 0; i < cellInfo.size(); i++);
-                    call_info.setText(i + "Cell Info Available");
-                    } else {
-                    call_info.setText("No Cell Info Available");
-                    }
-                }
-            @Override
-            public void onDataActivity(int direction) {
-                super.onDataActivity(direction);
-                TextView data_activity = (TextView)findViewById(R.id.dataActivity);
-                switch (direction) {
-                    case TelephonyManager.DATA_ACTIVITY_NONE:
-                        data_activity.setText("No Data Activity");
-                        break;
-                    case TelephonyManager.DATA_ACTIVITY_IN:
-                        data_activity.setText("Incoming Data Activity");
-                        break;
-                    case TelephonyManager.DATA_ACTIVITY_OUT:
-                        data_activity.setText("Outgoing Data Activity");
-                        break;
-                    case TelephonyManager.DATA_ACTIVITY_INOUT:
-                        data_activity.setText("Bi-directional Data Activity");
-                        break;
-                    case TelephonyManager.DATA_ACTIVITY_DORMANT:
-                        data_activity.setText("Dormant Data Activity");
-                        break;
-                    default:
-                        break;
-                    }
-                }
-            @Override
-            public void onServiceStateChanged(ServiceState serviceState) {
-                super.onServiceStateChanged(serviceState);
-                TextView service_state = (TextView)findViewById(R.id.serviceState);
-                switch (serviceState.getState()) {
-                    case ServiceState.STATE_IN_SERVICE:
-                        service_state.setText("Phone in service");
-                        break;
-                    case ServiceState.STATE_OUT_OF_SERVICE:
-                        service_state.setText("Phone out of service");
-                        break;
-                    case ServiceState.STATE_EMERGENCY_ONLY:
-                        service_state.setText("Emergency service only");
-                        break;
-                    case ServiceState.STATE_POWER_OFF:
-                        service_state.setText("Powered Off");
-                        break;
-                    }
-                }
-            @Override
-            public void onCallStateChanged(int state, String incomingNumber) {
-                super.onCallStateChanged(state, incomingNumber);
-                TextView callState = (TextView)findViewById(R.id.callState);
-                switch (state) {
-                    case TelephonyManager.CALL_STATE_IDLE:
-                        callState.setText("Call State is IDLE");
-                        break;
-                    case TelephonyManager.CALL_STATE_RINGING:
-                        callState.setText("Call State is RINGING");
-                        break;
-                    case TelephonyManager.CALL_STATE_OFFHOOK:
-                        callState.setText("Call State is OFFHOOK");
-                        break;
-                    default:
-                        break;
-                    }
-                }
-            @Override
-            public void onCellLocationChanged(CellLocation location) {
-                super.onCellLocationChanged(location);
-                TextView cell_location = (TextView)findViewById(R.id.cellLocation);
-                cell_location.setText(location.toString());
-                }
-            @Override
-            public void onCallForwardingIndicatorChanged(boolean cfi) {
-                super.onCallForwardingIndicatorChanged(cfi);
-                TextView call_forwarding = (TextView)findViewById(R.id.callForwarding);
-                if (cfi)
-                    call_forwarding.setText("Call forward ON");
-                else
-                    call_forwarding.setText("Call forward OFF");
-                }
-            @Override
-            public void onMessageWaitingIndicatorChanged(boolean mwi) {
-                super.onMessageWaitingIndicatorChanged(mwi);
-                TextView message_waiting = (TextView)findViewById(R.id.messageWaiting);
-                if (mwi)
-                        message_waiting.setText("Call forward ON");
-                    else
-                        message_waiting.setText("Call forward OFF");
-                }
-            };
 
         tm  = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        tm.listen(phone,PhoneStateListener.LISTEN_CALL_FORWARDING_INDICATOR |
-                PhoneStateListener.LISTEN_CALL_STATE |
-                PhoneStateListener.LISTEN_CELL_INFO |
-                PhoneStateListener.LISTEN_CELL_LOCATION |
-                PhoneStateListener.LISTEN_DATA_ACTIVITY |
-                PhoneStateListener.LISTEN_DATA_CONNECTION_STATE |
-                PhoneStateListener.LISTEN_MESSAGE_WAITING_INDICATOR |
-                PhoneStateListener.LISTEN_SERVICE_STATE |
-                PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+        //listenPhoneState(tm);
 
         final readBuiltinSensors rbs = new readBuiltinSensors(MainActivity.this, 100);
         final applicationTimer aT = new applicationTimer();
@@ -582,8 +489,8 @@ public class MainActivity extends Activity {
 
                 CellIdentityGsm cid_gsm = ((CellInfoGsm) info).getCellIdentity();
 
-                CellularData.CellularReading.CellIdentityGsm.Builder gsm_info = CellularData.CellularReading.CellIdentityGsm.newBuilder();
-                gsm_info.setCid(cid_gsm.getCid())
+                CellularData.CellularReading.CellIdentityGsm.Builder gsm_identity = CellularData.CellularReading.CellIdentityGsm.newBuilder();
+                gsm_identity.setCid(cid_gsm.getCid())
                         .setLac(cid_gsm.getLac())
                         .setMcc(cid_gsm.getMcc())
                         .setMnc(cid_gsm.getMnc())
@@ -598,7 +505,7 @@ public class MainActivity extends Activity {
                         .setLevel(signalstrength_gsm.getLevel())
                         .setHashCode(signalstrength_gsm.hashCode());
 
-                cell_info.setGsmInfo(gsm_info);
+                cell_info.setGsmIdentity(gsm_identity);
                 cell_info.setGsmSignalStrength(gsm_ss);
 
             } else if (info instanceof CellInfoCdma) {
@@ -607,8 +514,8 @@ public class MainActivity extends Activity {
 
                 CellIdentityCdma cid_cdma = ((CellInfoCdma) info).getCellIdentity();
 
-                CellularData.CellularReading.CellIdentityCmda.Builder cdma_info = CellularData.CellularReading.CellIdentityCmda.newBuilder();
-                cdma_info.setBasestationId(cid_cdma.getBasestationId())
+                CellularData.CellularReading.CellIdentityCmda.Builder cdma_identity = CellularData.CellularReading.CellIdentityCmda.newBuilder();
+                cdma_identity.setBasestationId(cid_cdma.getBasestationId())
                          .setLatitude(cid_cdma.getLatitude())
                          .setLongitude(cid_cdma.getLongitude())
                          .setNetworkId(cid_cdma.getNetworkId())
@@ -630,7 +537,7 @@ public class MainActivity extends Activity {
                         .setLevel(signalstrength_cdma.getLevel())
                         .setHashCode(signalstrength_cdma.hashCode());
 
-                cell_info.setCdmaInfo(cdma_info);
+                cell_info.setCdmaIdentity(cdma_identity);
                 cell_info.setCdmaSignalStrength(cdma_ss);
 
             } else if (info instanceof CellInfoLte) {
@@ -639,8 +546,8 @@ public class MainActivity extends Activity {
 
                 CellIdentityLte cid_lte = ((CellInfoLte) info).getCellIdentity();
 
-                CellularData.CellularReading.CellIdentityLte.Builder lte_info = CellularData.CellularReading.CellIdentityLte.newBuilder();
-                lte_info.setCi(cid_lte.getCi())
+                CellularData.CellularReading.CellIdentityLte.Builder lte_identity = CellularData.CellularReading.CellIdentityLte.newBuilder();
+                lte_identity.setCi(cid_lte.getCi())
                         .setMcc(cid_lte.getMcc())
                         .setMnc(cid_lte.getMnc())
                         .setPci(cid_lte.getPci())
@@ -656,7 +563,7 @@ public class MainActivity extends Activity {
                         .setTimingAdvance(signalstrength_lte.getTimingAdvance())
                         .setHashCode(signalstrength_lte.hashCode());
 
-                cell_info.setLteInfo(lte_info);
+                cell_info.setLteIdentity(lte_identity);
                 cell_info.setLteSignalStrength(lte_ss);
 
             } else if (info instanceof CellInfoWcdma) {
@@ -665,8 +572,8 @@ public class MainActivity extends Activity {
 
                 CellIdentityWcdma cid_wcdma = ((CellInfoWcdma) info).getCellIdentity();
 
-                CellularData.CellularReading.CellIdentityWcdma.Builder wcdma_info = CellularData.CellularReading.CellIdentityWcdma.newBuilder();
-                wcdma_info.setCid(cid_wcdma.getCid())
+                CellularData.CellularReading.CellIdentityWcdma.Builder wcdma_identity = CellularData.CellularReading.CellIdentityWcdma.newBuilder();
+                wcdma_identity.setCid(cid_wcdma.getCid())
                           .setLac(cid_wcdma.getLac())
                           .setMcc(cid_wcdma.getMcc())
                           .setMnc(cid_wcdma.getMnc())
@@ -681,7 +588,7 @@ public class MainActivity extends Activity {
                         .setLevel(signalstrength_wcdma.getLevel())
                         .setHashCode(signalstrength_wcdma.hashCode());
 
-                cell_info.setWcdmaInfo(wcdma_info);
+                cell_info.setWcdmaIdentity(wcdma_identity);
                 cell_info.setWcdmaSignalStrength(wcdma_ss);
             }
 
@@ -1387,4 +1294,138 @@ public class MainActivity extends Activity {
         //StartStopButton.setChecked(false);
     }
 
+    private LocationListener getLocationListener() {
+        // Define a listener that responds to location updates
+        Log.v("LocationListener: ", "Location Listener started.");
+
+        LocationListener locationListener = new LocationListener() {
+            public void onLocationChanged(Location location) {
+                // Called when a new location is found by the network location provider.
+                tv_bottomView.setText(location.toString());
+                Log.v("LocationListener: ", "Location UPDATE arrived!");
+            }
+
+            public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+            public void onProviderEnabled(String provider) {}
+
+            public void onProviderDisabled(String provider) {}
+        };
+        return locationListener;
+    }
+
+    private PhoneStateListener getPhoneStateListener() {
+        final PhoneStateListener phone = new PhoneStateListener() {
+            @Override
+            public void onCellInfoChanged(List<CellInfo> cellInfo) {
+                int i;
+                super.onCellInfoChanged(cellInfo);
+                TextView call_info = (TextView)findViewById(R.id.cellInfo);
+                if (cellInfo != null) {
+                    for (i = 0; i < cellInfo.size(); i++);
+                    call_info.setText(i + "Cell Info Available");
+                } else {
+                    call_info.setText("No Cell Info Available");
+                }
+            }
+            @Override
+            public void onDataActivity(int direction) {
+                super.onDataActivity(direction);
+                TextView data_activity = (TextView)findViewById(R.id.dataActivity);
+                switch (direction) {
+                    case TelephonyManager.DATA_ACTIVITY_NONE:
+                        data_activity.setText("No Data Activity");
+                        break;
+                    case TelephonyManager.DATA_ACTIVITY_IN:
+                        data_activity.setText("Incoming Data Activity");
+                        break;
+                    case TelephonyManager.DATA_ACTIVITY_OUT:
+                        data_activity.setText("Outgoing Data Activity");
+                        break;
+                    case TelephonyManager.DATA_ACTIVITY_INOUT:
+                        data_activity.setText("Bi-directional Data Activity");
+                        break;
+                    case TelephonyManager.DATA_ACTIVITY_DORMANT:
+                        data_activity.setText("Dormant Data Activity");
+                        break;
+                    default:
+                        break;
+                }
+            }
+            @Override
+            public void onServiceStateChanged(ServiceState serviceState) {
+                super.onServiceStateChanged(serviceState);
+                TextView service_state = (TextView)findViewById(R.id.serviceState);
+                switch (serviceState.getState()) {
+                    case ServiceState.STATE_IN_SERVICE:
+                        service_state.setText("Phone in service");
+                        break;
+                    case ServiceState.STATE_OUT_OF_SERVICE:
+                        service_state.setText("Phone out of service");
+                        break;
+                    case ServiceState.STATE_EMERGENCY_ONLY:
+                        service_state.setText("Emergency service only");
+                        break;
+                    case ServiceState.STATE_POWER_OFF:
+                        service_state.setText("Powered Off");
+                        break;
+                }
+            }
+            @Override
+            public void onCallStateChanged(int state, String incomingNumber) {
+                super.onCallStateChanged(state, incomingNumber);
+                TextView callState = (TextView)findViewById(R.id.callState);
+                switch (state) {
+                    case TelephonyManager.CALL_STATE_IDLE:
+                        callState.setText("Call State is IDLE");
+                        break;
+                    case TelephonyManager.CALL_STATE_RINGING:
+                        callState.setText("Call State is RINGING");
+                        break;
+                    case TelephonyManager.CALL_STATE_OFFHOOK:
+                        callState.setText("Call State is OFFHOOK");
+                        break;
+                    default:
+                        break;
+                }
+            }
+            @Override
+            public void onCellLocationChanged(CellLocation location) {
+                super.onCellLocationChanged(location);
+                TextView cell_location = (TextView)findViewById(R.id.cellLocation);
+                cell_location.setText(location.toString());
+            }
+            @Override
+            public void onCallForwardingIndicatorChanged(boolean cfi) {
+                super.onCallForwardingIndicatorChanged(cfi);
+                TextView call_forwarding = (TextView)findViewById(R.id.callForwarding);
+                if (cfi)
+                    call_forwarding.setText("Call forward ON");
+                else
+                    call_forwarding.setText("Call forward OFF");
+            }
+            @Override
+            public void onMessageWaitingIndicatorChanged(boolean mwi) {
+                super.onMessageWaitingIndicatorChanged(mwi);
+                TextView message_waiting = (TextView)findViewById(R.id.messageWaiting);
+                if (mwi)
+                    message_waiting.setText("Call forward ON");
+                else
+                    message_waiting.setText("Call forward OFF");
+            }
+        };
+        return phone;
+    }
+
+    private void listenPhoneState(TelephonyManager _tm) {
+        _tm.listen(getPhoneStateListener(),PhoneStateListener.LISTEN_CALL_FORWARDING_INDICATOR |
+                PhoneStateListener.LISTEN_CALL_STATE |
+                PhoneStateListener.LISTEN_CELL_INFO |
+                PhoneStateListener.LISTEN_CELL_LOCATION |
+                PhoneStateListener.LISTEN_DATA_ACTIVITY |
+                PhoneStateListener.LISTEN_DATA_CONNECTION_STATE |
+                PhoneStateListener.LISTEN_MESSAGE_WAITING_INDICATOR |
+                PhoneStateListener.LISTEN_SERVICE_STATE |
+                PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+    }
 }

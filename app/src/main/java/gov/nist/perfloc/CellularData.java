@@ -397,29 +397,29 @@ public final class CellularData {
       gov.nist.perfloc.CellularData.CellularReading.NetworkType getNetworkType();
 
       /**
-       * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_info = 5;</code>
+       * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_identity = 5;</code>
        *
        * <pre>
        * CDMA parameters
        * </pre>
        */
-      boolean hasCdmaInfo();
+      boolean hasCdmaIdentity();
       /**
-       * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_info = 5;</code>
+       * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_identity = 5;</code>
        *
        * <pre>
        * CDMA parameters
        * </pre>
        */
-      gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda getCdmaInfo();
+      gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda getCdmaIdentity();
       /**
-       * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_info = 5;</code>
+       * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_identity = 5;</code>
        *
        * <pre>
        * CDMA parameters
        * </pre>
        */
-      gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmdaOrBuilder getCdmaInfoOrBuilder();
+      gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmdaOrBuilder getCdmaIdentityOrBuilder();
 
       /**
        * <code>optional .perfloc.CellularReading.CellSignalStrengthCdma cdma_signal_strength = 6;</code>
@@ -435,29 +435,29 @@ public final class CellularData {
       gov.nist.perfloc.CellularData.CellularReading.CellSignalStrengthCdmaOrBuilder getCdmaSignalStrengthOrBuilder();
 
       /**
-       * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_info = 7;</code>
+       * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_identity = 7;</code>
        *
        * <pre>
        * GSM parameters
        * </pre>
        */
-      boolean hasGsmInfo();
+      boolean hasGsmIdentity();
       /**
-       * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_info = 7;</code>
+       * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_identity = 7;</code>
        *
        * <pre>
        * GSM parameters
        * </pre>
        */
-      gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm getGsmInfo();
+      gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm getGsmIdentity();
       /**
-       * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_info = 7;</code>
+       * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_identity = 7;</code>
        *
        * <pre>
        * GSM parameters
        * </pre>
        */
-      gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsmOrBuilder getGsmInfoOrBuilder();
+      gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsmOrBuilder getGsmIdentityOrBuilder();
 
       /**
        * <code>optional .perfloc.CellularReading.CellSignalStrengthGsm gsm_signal_strength = 8;</code>
@@ -473,29 +473,29 @@ public final class CellularData {
       gov.nist.perfloc.CellularData.CellularReading.CellSignalStrengthGsmOrBuilder getGsmSignalStrengthOrBuilder();
 
       /**
-       * <code>optional .perfloc.CellularReading.CellIdentityLte lte_info = 9;</code>
+       * <code>optional .perfloc.CellularReading.CellIdentityLte lte_identity = 9;</code>
        *
        * <pre>
        * LTE parameters
        * </pre>
        */
-      boolean hasLteInfo();
+      boolean hasLteIdentity();
       /**
-       * <code>optional .perfloc.CellularReading.CellIdentityLte lte_info = 9;</code>
+       * <code>optional .perfloc.CellularReading.CellIdentityLte lte_identity = 9;</code>
        *
        * <pre>
        * LTE parameters
        * </pre>
        */
-      gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte getLteInfo();
+      gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte getLteIdentity();
       /**
-       * <code>optional .perfloc.CellularReading.CellIdentityLte lte_info = 9;</code>
+       * <code>optional .perfloc.CellularReading.CellIdentityLte lte_identity = 9;</code>
        *
        * <pre>
        * LTE parameters
        * </pre>
        */
-      gov.nist.perfloc.CellularData.CellularReading.CellIdentityLteOrBuilder getLteInfoOrBuilder();
+      gov.nist.perfloc.CellularData.CellularReading.CellIdentityLteOrBuilder getLteIdentityOrBuilder();
 
       /**
        * <code>optional .perfloc.CellularReading.CellSignalStrengthLte lte_signal_strength = 10;</code>
@@ -511,29 +511,29 @@ public final class CellularData {
       gov.nist.perfloc.CellularData.CellularReading.CellSignalStrengthLteOrBuilder getLteSignalStrengthOrBuilder();
 
       /**
-       * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_info = 11;</code>
+       * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_identity = 11;</code>
        *
        * <pre>
        * WCDMA parameters 
        * </pre>
        */
-      boolean hasWcdmaInfo();
+      boolean hasWcdmaIdentity();
       /**
-       * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_info = 11;</code>
+       * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_identity = 11;</code>
        *
        * <pre>
        * WCDMA parameters 
        * </pre>
        */
-      gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma getWcdmaInfo();
+      gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma getWcdmaIdentity();
       /**
-       * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_info = 11;</code>
+       * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_identity = 11;</code>
        *
        * <pre>
        * WCDMA parameters 
        * </pre>
        */
-      gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdmaOrBuilder getWcdmaInfoOrBuilder();
+      gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdmaOrBuilder getWcdmaIdentityOrBuilder();
 
       /**
        * <code>optional .perfloc.CellularReading.CellSignalStrengthWcdma wcdma_signal_strength = 12;</code>
@@ -629,12 +629,12 @@ public final class CellularData {
               case 42: {
                 gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda.Builder subBuilder = null;
                 if (((bitField0_ & 0x00000010) == 0x00000010)) {
-                  subBuilder = cdmaInfo_.toBuilder();
+                  subBuilder = cdmaIdentity_.toBuilder();
                 }
-                cdmaInfo_ = input.readMessage(gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda.PARSER, extensionRegistry);
+                cdmaIdentity_ = input.readMessage(gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda.PARSER, extensionRegistry);
                 if (subBuilder != null) {
-                  subBuilder.mergeFrom(cdmaInfo_);
-                  cdmaInfo_ = subBuilder.buildPartial();
+                  subBuilder.mergeFrom(cdmaIdentity_);
+                  cdmaIdentity_ = subBuilder.buildPartial();
                 }
                 bitField0_ |= 0x00000010;
                 break;
@@ -655,12 +655,12 @@ public final class CellularData {
               case 58: {
                 gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm.Builder subBuilder = null;
                 if (((bitField0_ & 0x00000040) == 0x00000040)) {
-                  subBuilder = gsmInfo_.toBuilder();
+                  subBuilder = gsmIdentity_.toBuilder();
                 }
-                gsmInfo_ = input.readMessage(gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm.PARSER, extensionRegistry);
+                gsmIdentity_ = input.readMessage(gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm.PARSER, extensionRegistry);
                 if (subBuilder != null) {
-                  subBuilder.mergeFrom(gsmInfo_);
-                  gsmInfo_ = subBuilder.buildPartial();
+                  subBuilder.mergeFrom(gsmIdentity_);
+                  gsmIdentity_ = subBuilder.buildPartial();
                 }
                 bitField0_ |= 0x00000040;
                 break;
@@ -681,12 +681,12 @@ public final class CellularData {
               case 74: {
                 gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte.Builder subBuilder = null;
                 if (((bitField0_ & 0x00000100) == 0x00000100)) {
-                  subBuilder = lteInfo_.toBuilder();
+                  subBuilder = lteIdentity_.toBuilder();
                 }
-                lteInfo_ = input.readMessage(gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte.PARSER, extensionRegistry);
+                lteIdentity_ = input.readMessage(gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte.PARSER, extensionRegistry);
                 if (subBuilder != null) {
-                  subBuilder.mergeFrom(lteInfo_);
-                  lteInfo_ = subBuilder.buildPartial();
+                  subBuilder.mergeFrom(lteIdentity_);
+                  lteIdentity_ = subBuilder.buildPartial();
                 }
                 bitField0_ |= 0x00000100;
                 break;
@@ -707,12 +707,12 @@ public final class CellularData {
               case 90: {
                 gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma.Builder subBuilder = null;
                 if (((bitField0_ & 0x00000400) == 0x00000400)) {
-                  subBuilder = wcdmaInfo_.toBuilder();
+                  subBuilder = wcdmaIdentity_.toBuilder();
                 }
-                wcdmaInfo_ = input.readMessage(gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma.PARSER, extensionRegistry);
+                wcdmaIdentity_ = input.readMessage(gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma.PARSER, extensionRegistry);
                 if (subBuilder != null) {
-                  subBuilder.mergeFrom(wcdmaInfo_);
-                  wcdmaInfo_ = subBuilder.buildPartial();
+                  subBuilder.mergeFrom(wcdmaIdentity_);
+                  wcdmaIdentity_ = subBuilder.buildPartial();
                 }
                 bitField0_ |= 0x00000400;
                 break;
@@ -862,37 +862,37 @@ public final class CellularData {
         return networkType_;
       }
 
-      public static final int CDMA_INFO_FIELD_NUMBER = 5;
-      private gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda cdmaInfo_;
+      public static final int CDMA_IDENTITY_FIELD_NUMBER = 5;
+      private gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda cdmaIdentity_;
       /**
-       * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_info = 5;</code>
+       * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_identity = 5;</code>
        *
        * <pre>
        * CDMA parameters
        * </pre>
        */
-      public boolean hasCdmaInfo() {
+      public boolean hasCdmaIdentity() {
         return ((bitField0_ & 0x00000010) == 0x00000010);
       }
       /**
-       * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_info = 5;</code>
+       * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_identity = 5;</code>
        *
        * <pre>
        * CDMA parameters
        * </pre>
        */
-      public gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda getCdmaInfo() {
-        return cdmaInfo_;
+      public gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda getCdmaIdentity() {
+        return cdmaIdentity_;
       }
       /**
-       * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_info = 5;</code>
+       * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_identity = 5;</code>
        *
        * <pre>
        * CDMA parameters
        * </pre>
        */
-      public gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmdaOrBuilder getCdmaInfoOrBuilder() {
-        return cdmaInfo_;
+      public gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmdaOrBuilder getCdmaIdentityOrBuilder() {
+        return cdmaIdentity_;
       }
 
       public static final int CDMA_SIGNAL_STRENGTH_FIELD_NUMBER = 6;
@@ -916,37 +916,37 @@ public final class CellularData {
         return cdmaSignalStrength_;
       }
 
-      public static final int GSM_INFO_FIELD_NUMBER = 7;
-      private gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm gsmInfo_;
+      public static final int GSM_IDENTITY_FIELD_NUMBER = 7;
+      private gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm gsmIdentity_;
       /**
-       * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_info = 7;</code>
+       * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_identity = 7;</code>
        *
        * <pre>
        * GSM parameters
        * </pre>
        */
-      public boolean hasGsmInfo() {
+      public boolean hasGsmIdentity() {
         return ((bitField0_ & 0x00000040) == 0x00000040);
       }
       /**
-       * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_info = 7;</code>
+       * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_identity = 7;</code>
        *
        * <pre>
        * GSM parameters
        * </pre>
        */
-      public gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm getGsmInfo() {
-        return gsmInfo_;
+      public gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm getGsmIdentity() {
+        return gsmIdentity_;
       }
       /**
-       * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_info = 7;</code>
+       * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_identity = 7;</code>
        *
        * <pre>
        * GSM parameters
        * </pre>
        */
-      public gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsmOrBuilder getGsmInfoOrBuilder() {
-        return gsmInfo_;
+      public gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsmOrBuilder getGsmIdentityOrBuilder() {
+        return gsmIdentity_;
       }
 
       public static final int GSM_SIGNAL_STRENGTH_FIELD_NUMBER = 8;
@@ -970,37 +970,37 @@ public final class CellularData {
         return gsmSignalStrength_;
       }
 
-      public static final int LTE_INFO_FIELD_NUMBER = 9;
-      private gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte lteInfo_;
+      public static final int LTE_IDENTITY_FIELD_NUMBER = 9;
+      private gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte lteIdentity_;
       /**
-       * <code>optional .perfloc.CellularReading.CellIdentityLte lte_info = 9;</code>
+       * <code>optional .perfloc.CellularReading.CellIdentityLte lte_identity = 9;</code>
        *
        * <pre>
        * LTE parameters
        * </pre>
        */
-      public boolean hasLteInfo() {
+      public boolean hasLteIdentity() {
         return ((bitField0_ & 0x00000100) == 0x00000100);
       }
       /**
-       * <code>optional .perfloc.CellularReading.CellIdentityLte lte_info = 9;</code>
+       * <code>optional .perfloc.CellularReading.CellIdentityLte lte_identity = 9;</code>
        *
        * <pre>
        * LTE parameters
        * </pre>
        */
-      public gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte getLteInfo() {
-        return lteInfo_;
+      public gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte getLteIdentity() {
+        return lteIdentity_;
       }
       /**
-       * <code>optional .perfloc.CellularReading.CellIdentityLte lte_info = 9;</code>
+       * <code>optional .perfloc.CellularReading.CellIdentityLte lte_identity = 9;</code>
        *
        * <pre>
        * LTE parameters
        * </pre>
        */
-      public gov.nist.perfloc.CellularData.CellularReading.CellIdentityLteOrBuilder getLteInfoOrBuilder() {
-        return lteInfo_;
+      public gov.nist.perfloc.CellularData.CellularReading.CellIdentityLteOrBuilder getLteIdentityOrBuilder() {
+        return lteIdentity_;
       }
 
       public static final int LTE_SIGNAL_STRENGTH_FIELD_NUMBER = 10;
@@ -1024,37 +1024,37 @@ public final class CellularData {
         return lteSignalStrength_;
       }
 
-      public static final int WCDMA_INFO_FIELD_NUMBER = 11;
-      private gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma wcdmaInfo_;
+      public static final int WCDMA_IDENTITY_FIELD_NUMBER = 11;
+      private gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma wcdmaIdentity_;
       /**
-       * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_info = 11;</code>
+       * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_identity = 11;</code>
        *
        * <pre>
        * WCDMA parameters 
        * </pre>
        */
-      public boolean hasWcdmaInfo() {
+      public boolean hasWcdmaIdentity() {
         return ((bitField0_ & 0x00000400) == 0x00000400);
       }
       /**
-       * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_info = 11;</code>
+       * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_identity = 11;</code>
        *
        * <pre>
        * WCDMA parameters 
        * </pre>
        */
-      public gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma getWcdmaInfo() {
-        return wcdmaInfo_;
+      public gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma getWcdmaIdentity() {
+        return wcdmaIdentity_;
       }
       /**
-       * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_info = 11;</code>
+       * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_identity = 11;</code>
        *
        * <pre>
        * WCDMA parameters 
        * </pre>
        */
-      public gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdmaOrBuilder getWcdmaInfoOrBuilder() {
-        return wcdmaInfo_;
+      public gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdmaOrBuilder getWcdmaIdentityOrBuilder() {
+        return wcdmaIdentity_;
       }
 
       public static final int WCDMA_SIGNAL_STRENGTH_FIELD_NUMBER = 12;
@@ -1083,13 +1083,13 @@ public final class CellularData {
         hashCode_ = 0;
         registered_ = false;
         networkType_ = gov.nist.perfloc.CellularData.CellularReading.NetworkType.CDMA;
-        cdmaInfo_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda.getDefaultInstance();
+        cdmaIdentity_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda.getDefaultInstance();
         cdmaSignalStrength_ = gov.nist.perfloc.CellularData.CellularReading.CellSignalStrengthCdma.getDefaultInstance();
-        gsmInfo_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm.getDefaultInstance();
+        gsmIdentity_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm.getDefaultInstance();
         gsmSignalStrength_ = gov.nist.perfloc.CellularData.CellularReading.CellSignalStrengthGsm.getDefaultInstance();
-        lteInfo_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte.getDefaultInstance();
+        lteIdentity_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte.getDefaultInstance();
         lteSignalStrength_ = gov.nist.perfloc.CellularData.CellularReading.CellSignalStrengthLte.getDefaultInstance();
-        wcdmaInfo_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma.getDefaultInstance();
+        wcdmaIdentity_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma.getDefaultInstance();
         wcdmaSignalStrength_ = gov.nist.perfloc.CellularData.CellularReading.CellSignalStrengthWcdma.getDefaultInstance();
       }
       private byte memoizedIsInitialized = -1;
@@ -1118,25 +1118,25 @@ public final class CellularData {
           output.writeEnum(4, networkType_.getNumber());
         }
         if (((bitField0_ & 0x00000010) == 0x00000010)) {
-          output.writeMessage(5, cdmaInfo_);
+          output.writeMessage(5, cdmaIdentity_);
         }
         if (((bitField0_ & 0x00000020) == 0x00000020)) {
           output.writeMessage(6, cdmaSignalStrength_);
         }
         if (((bitField0_ & 0x00000040) == 0x00000040)) {
-          output.writeMessage(7, gsmInfo_);
+          output.writeMessage(7, gsmIdentity_);
         }
         if (((bitField0_ & 0x00000080) == 0x00000080)) {
           output.writeMessage(8, gsmSignalStrength_);
         }
         if (((bitField0_ & 0x00000100) == 0x00000100)) {
-          output.writeMessage(9, lteInfo_);
+          output.writeMessage(9, lteIdentity_);
         }
         if (((bitField0_ & 0x00000200) == 0x00000200)) {
           output.writeMessage(10, lteSignalStrength_);
         }
         if (((bitField0_ & 0x00000400) == 0x00000400)) {
-          output.writeMessage(11, wcdmaInfo_);
+          output.writeMessage(11, wcdmaIdentity_);
         }
         if (((bitField0_ & 0x00000800) == 0x00000800)) {
           output.writeMessage(12, wcdmaSignalStrength_);
@@ -1168,7 +1168,7 @@ public final class CellularData {
         }
         if (((bitField0_ & 0x00000010) == 0x00000010)) {
           size += com.google.protobuf.CodedOutputStream
-            .computeMessageSize(5, cdmaInfo_);
+            .computeMessageSize(5, cdmaIdentity_);
         }
         if (((bitField0_ & 0x00000020) == 0x00000020)) {
           size += com.google.protobuf.CodedOutputStream
@@ -1176,7 +1176,7 @@ public final class CellularData {
         }
         if (((bitField0_ & 0x00000040) == 0x00000040)) {
           size += com.google.protobuf.CodedOutputStream
-            .computeMessageSize(7, gsmInfo_);
+            .computeMessageSize(7, gsmIdentity_);
         }
         if (((bitField0_ & 0x00000080) == 0x00000080)) {
           size += com.google.protobuf.CodedOutputStream
@@ -1184,7 +1184,7 @@ public final class CellularData {
         }
         if (((bitField0_ & 0x00000100) == 0x00000100)) {
           size += com.google.protobuf.CodedOutputStream
-            .computeMessageSize(9, lteInfo_);
+            .computeMessageSize(9, lteIdentity_);
         }
         if (((bitField0_ & 0x00000200) == 0x00000200)) {
           size += com.google.protobuf.CodedOutputStream
@@ -1192,7 +1192,7 @@ public final class CellularData {
         }
         if (((bitField0_ & 0x00000400) == 0x00000400)) {
           size += com.google.protobuf.CodedOutputStream
-            .computeMessageSize(11, wcdmaInfo_);
+            .computeMessageSize(11, wcdmaIdentity_);
         }
         if (((bitField0_ & 0x00000800) == 0x00000800)) {
           size += com.google.protobuf.CodedOutputStream
@@ -1307,13 +1307,13 @@ public final class CellularData {
         }
         private void maybeForceBuilderInitialization() {
           if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-            getCdmaInfoFieldBuilder();
+            getCdmaIdentityFieldBuilder();
             getCdmaSignalStrengthFieldBuilder();
-            getGsmInfoFieldBuilder();
+            getGsmIdentityFieldBuilder();
             getGsmSignalStrengthFieldBuilder();
-            getLteInfoFieldBuilder();
+            getLteIdentityFieldBuilder();
             getLteSignalStrengthFieldBuilder();
-            getWcdmaInfoFieldBuilder();
+            getWcdmaIdentityFieldBuilder();
             getWcdmaSignalStrengthFieldBuilder();
           }
         }
@@ -1331,10 +1331,10 @@ public final class CellularData {
           bitField0_ = (bitField0_ & ~0x00000004);
           networkType_ = gov.nist.perfloc.CellularData.CellularReading.NetworkType.CDMA;
           bitField0_ = (bitField0_ & ~0x00000008);
-          if (cdmaInfoBuilder_ == null) {
-            cdmaInfo_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda.getDefaultInstance();
+          if (cdmaIdentityBuilder_ == null) {
+            cdmaIdentity_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda.getDefaultInstance();
           } else {
-            cdmaInfoBuilder_.clear();
+            cdmaIdentityBuilder_.clear();
           }
           bitField0_ = (bitField0_ & ~0x00000010);
           if (cdmaSignalStrengthBuilder_ == null) {
@@ -1343,10 +1343,10 @@ public final class CellularData {
             cdmaSignalStrengthBuilder_.clear();
           }
           bitField0_ = (bitField0_ & ~0x00000020);
-          if (gsmInfoBuilder_ == null) {
-            gsmInfo_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm.getDefaultInstance();
+          if (gsmIdentityBuilder_ == null) {
+            gsmIdentity_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm.getDefaultInstance();
           } else {
-            gsmInfoBuilder_.clear();
+            gsmIdentityBuilder_.clear();
           }
           bitField0_ = (bitField0_ & ~0x00000040);
           if (gsmSignalStrengthBuilder_ == null) {
@@ -1355,10 +1355,10 @@ public final class CellularData {
             gsmSignalStrengthBuilder_.clear();
           }
           bitField0_ = (bitField0_ & ~0x00000080);
-          if (lteInfoBuilder_ == null) {
-            lteInfo_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte.getDefaultInstance();
+          if (lteIdentityBuilder_ == null) {
+            lteIdentity_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte.getDefaultInstance();
           } else {
-            lteInfoBuilder_.clear();
+            lteIdentityBuilder_.clear();
           }
           bitField0_ = (bitField0_ & ~0x00000100);
           if (lteSignalStrengthBuilder_ == null) {
@@ -1367,10 +1367,10 @@ public final class CellularData {
             lteSignalStrengthBuilder_.clear();
           }
           bitField0_ = (bitField0_ & ~0x00000200);
-          if (wcdmaInfoBuilder_ == null) {
-            wcdmaInfo_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma.getDefaultInstance();
+          if (wcdmaIdentityBuilder_ == null) {
+            wcdmaIdentity_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma.getDefaultInstance();
           } else {
-            wcdmaInfoBuilder_.clear();
+            wcdmaIdentityBuilder_.clear();
           }
           bitField0_ = (bitField0_ & ~0x00000400);
           if (wcdmaSignalStrengthBuilder_ == null) {
@@ -1426,10 +1426,10 @@ public final class CellularData {
           if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
             to_bitField0_ |= 0x00000010;
           }
-          if (cdmaInfoBuilder_ == null) {
-            result.cdmaInfo_ = cdmaInfo_;
+          if (cdmaIdentityBuilder_ == null) {
+            result.cdmaIdentity_ = cdmaIdentity_;
           } else {
-            result.cdmaInfo_ = cdmaInfoBuilder_.build();
+            result.cdmaIdentity_ = cdmaIdentityBuilder_.build();
           }
           if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
             to_bitField0_ |= 0x00000020;
@@ -1442,10 +1442,10 @@ public final class CellularData {
           if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
             to_bitField0_ |= 0x00000040;
           }
-          if (gsmInfoBuilder_ == null) {
-            result.gsmInfo_ = gsmInfo_;
+          if (gsmIdentityBuilder_ == null) {
+            result.gsmIdentity_ = gsmIdentity_;
           } else {
-            result.gsmInfo_ = gsmInfoBuilder_.build();
+            result.gsmIdentity_ = gsmIdentityBuilder_.build();
           }
           if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
             to_bitField0_ |= 0x00000080;
@@ -1458,10 +1458,10 @@ public final class CellularData {
           if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
             to_bitField0_ |= 0x00000100;
           }
-          if (lteInfoBuilder_ == null) {
-            result.lteInfo_ = lteInfo_;
+          if (lteIdentityBuilder_ == null) {
+            result.lteIdentity_ = lteIdentity_;
           } else {
-            result.lteInfo_ = lteInfoBuilder_.build();
+            result.lteIdentity_ = lteIdentityBuilder_.build();
           }
           if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
             to_bitField0_ |= 0x00000200;
@@ -1474,10 +1474,10 @@ public final class CellularData {
           if (((from_bitField0_ & 0x00000400) == 0x00000400)) {
             to_bitField0_ |= 0x00000400;
           }
-          if (wcdmaInfoBuilder_ == null) {
-            result.wcdmaInfo_ = wcdmaInfo_;
+          if (wcdmaIdentityBuilder_ == null) {
+            result.wcdmaIdentity_ = wcdmaIdentity_;
           } else {
-            result.wcdmaInfo_ = wcdmaInfoBuilder_.build();
+            result.wcdmaIdentity_ = wcdmaIdentityBuilder_.build();
           }
           if (((from_bitField0_ & 0x00000800) == 0x00000800)) {
             to_bitField0_ |= 0x00000800;
@@ -1515,26 +1515,26 @@ public final class CellularData {
           if (other.hasNetworkType()) {
             setNetworkType(other.getNetworkType());
           }
-          if (other.hasCdmaInfo()) {
-            mergeCdmaInfo(other.getCdmaInfo());
+          if (other.hasCdmaIdentity()) {
+            mergeCdmaIdentity(other.getCdmaIdentity());
           }
           if (other.hasCdmaSignalStrength()) {
             mergeCdmaSignalStrength(other.getCdmaSignalStrength());
           }
-          if (other.hasGsmInfo()) {
-            mergeGsmInfo(other.getGsmInfo());
+          if (other.hasGsmIdentity()) {
+            mergeGsmIdentity(other.getGsmIdentity());
           }
           if (other.hasGsmSignalStrength()) {
             mergeGsmSignalStrength(other.getGsmSignalStrength());
           }
-          if (other.hasLteInfo()) {
-            mergeLteInfo(other.getLteInfo());
+          if (other.hasLteIdentity()) {
+            mergeLteIdentity(other.getLteIdentity());
           }
           if (other.hasLteSignalStrength()) {
             mergeLteSignalStrength(other.getLteSignalStrength());
           }
-          if (other.hasWcdmaInfo()) {
-            mergeWcdmaInfo(other.getWcdmaInfo());
+          if (other.hasWcdmaIdentity()) {
+            mergeWcdmaIdentity(other.getWcdmaIdentity());
           }
           if (other.hasWcdmaSignalStrength()) {
             mergeWcdmaSignalStrength(other.getWcdmaSignalStrength());
@@ -1761,139 +1761,139 @@ public final class CellularData {
           return this;
         }
 
-        private gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda cdmaInfo_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda.getDefaultInstance();
+        private gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda cdmaIdentity_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda.getDefaultInstance();
         private com.google.protobuf.SingleFieldBuilder<
-            gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda, gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda.Builder, gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmdaOrBuilder> cdmaInfoBuilder_;
+            gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda, gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda.Builder, gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmdaOrBuilder> cdmaIdentityBuilder_;
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_info = 5;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_identity = 5;</code>
          *
          * <pre>
          * CDMA parameters
          * </pre>
          */
-        public boolean hasCdmaInfo() {
+        public boolean hasCdmaIdentity() {
           return ((bitField0_ & 0x00000010) == 0x00000010);
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_info = 5;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_identity = 5;</code>
          *
          * <pre>
          * CDMA parameters
          * </pre>
          */
-        public gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda getCdmaInfo() {
-          if (cdmaInfoBuilder_ == null) {
-            return cdmaInfo_;
+        public gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda getCdmaIdentity() {
+          if (cdmaIdentityBuilder_ == null) {
+            return cdmaIdentity_;
           } else {
-            return cdmaInfoBuilder_.getMessage();
+            return cdmaIdentityBuilder_.getMessage();
           }
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_info = 5;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_identity = 5;</code>
          *
          * <pre>
          * CDMA parameters
          * </pre>
          */
-        public Builder setCdmaInfo(gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda value) {
-          if (cdmaInfoBuilder_ == null) {
+        public Builder setCdmaIdentity(gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda value) {
+          if (cdmaIdentityBuilder_ == null) {
             if (value == null) {
               throw new NullPointerException();
             }
-            cdmaInfo_ = value;
+            cdmaIdentity_ = value;
             onChanged();
           } else {
-            cdmaInfoBuilder_.setMessage(value);
+            cdmaIdentityBuilder_.setMessage(value);
           }
           bitField0_ |= 0x00000010;
           return this;
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_info = 5;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_identity = 5;</code>
          *
          * <pre>
          * CDMA parameters
          * </pre>
          */
-        public Builder setCdmaInfo(
+        public Builder setCdmaIdentity(
             gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda.Builder builderForValue) {
-          if (cdmaInfoBuilder_ == null) {
-            cdmaInfo_ = builderForValue.build();
+          if (cdmaIdentityBuilder_ == null) {
+            cdmaIdentity_ = builderForValue.build();
             onChanged();
           } else {
-            cdmaInfoBuilder_.setMessage(builderForValue.build());
+            cdmaIdentityBuilder_.setMessage(builderForValue.build());
           }
           bitField0_ |= 0x00000010;
           return this;
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_info = 5;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_identity = 5;</code>
          *
          * <pre>
          * CDMA parameters
          * </pre>
          */
-        public Builder mergeCdmaInfo(gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda value) {
-          if (cdmaInfoBuilder_ == null) {
+        public Builder mergeCdmaIdentity(gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda value) {
+          if (cdmaIdentityBuilder_ == null) {
             if (((bitField0_ & 0x00000010) == 0x00000010) &&
-                cdmaInfo_ != gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda.getDefaultInstance()) {
-              cdmaInfo_ =
-                gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda.newBuilder(cdmaInfo_).mergeFrom(value).buildPartial();
+                cdmaIdentity_ != gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda.getDefaultInstance()) {
+              cdmaIdentity_ =
+                gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda.newBuilder(cdmaIdentity_).mergeFrom(value).buildPartial();
             } else {
-              cdmaInfo_ = value;
+              cdmaIdentity_ = value;
             }
             onChanged();
           } else {
-            cdmaInfoBuilder_.mergeFrom(value);
+            cdmaIdentityBuilder_.mergeFrom(value);
           }
           bitField0_ |= 0x00000010;
           return this;
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_info = 5;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_identity = 5;</code>
          *
          * <pre>
          * CDMA parameters
          * </pre>
          */
-        public Builder clearCdmaInfo() {
-          if (cdmaInfoBuilder_ == null) {
-            cdmaInfo_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda.getDefaultInstance();
+        public Builder clearCdmaIdentity() {
+          if (cdmaIdentityBuilder_ == null) {
+            cdmaIdentity_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda.getDefaultInstance();
             onChanged();
           } else {
-            cdmaInfoBuilder_.clear();
+            cdmaIdentityBuilder_.clear();
           }
           bitField0_ = (bitField0_ & ~0x00000010);
           return this;
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_info = 5;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_identity = 5;</code>
          *
          * <pre>
          * CDMA parameters
          * </pre>
          */
-        public gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda.Builder getCdmaInfoBuilder() {
+        public gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda.Builder getCdmaIdentityBuilder() {
           bitField0_ |= 0x00000010;
           onChanged();
-          return getCdmaInfoFieldBuilder().getBuilder();
+          return getCdmaIdentityFieldBuilder().getBuilder();
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_info = 5;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_identity = 5;</code>
          *
          * <pre>
          * CDMA parameters
          * </pre>
          */
-        public gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmdaOrBuilder getCdmaInfoOrBuilder() {
-          if (cdmaInfoBuilder_ != null) {
-            return cdmaInfoBuilder_.getMessageOrBuilder();
+        public gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmdaOrBuilder getCdmaIdentityOrBuilder() {
+          if (cdmaIdentityBuilder_ != null) {
+            return cdmaIdentityBuilder_.getMessageOrBuilder();
           } else {
-            return cdmaInfo_;
+            return cdmaIdentity_;
           }
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_info = 5;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityCmda cdma_identity = 5;</code>
          *
          * <pre>
          * CDMA parameters
@@ -1901,16 +1901,16 @@ public final class CellularData {
          */
         private com.google.protobuf.SingleFieldBuilder<
             gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda, gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda.Builder, gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmdaOrBuilder> 
-            getCdmaInfoFieldBuilder() {
-          if (cdmaInfoBuilder_ == null) {
-            cdmaInfoBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            getCdmaIdentityFieldBuilder() {
+          if (cdmaIdentityBuilder_ == null) {
+            cdmaIdentityBuilder_ = new com.google.protobuf.SingleFieldBuilder<
                 gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda, gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmda.Builder, gov.nist.perfloc.CellularData.CellularReading.CellIdentityCmdaOrBuilder>(
-                    getCdmaInfo(),
+                    getCdmaIdentity(),
                     getParentForChildren(),
                     isClean());
-            cdmaInfo_ = null;
+            cdmaIdentity_ = null;
           }
-          return cdmaInfoBuilder_;
+          return cdmaIdentityBuilder_;
         }
 
         private gov.nist.perfloc.CellularData.CellularReading.CellSignalStrengthCdma cdmaSignalStrength_ = gov.nist.perfloc.CellularData.CellularReading.CellSignalStrengthCdma.getDefaultInstance();
@@ -2029,139 +2029,139 @@ public final class CellularData {
           return cdmaSignalStrengthBuilder_;
         }
 
-        private gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm gsmInfo_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm.getDefaultInstance();
+        private gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm gsmIdentity_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm.getDefaultInstance();
         private com.google.protobuf.SingleFieldBuilder<
-            gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm, gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm.Builder, gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsmOrBuilder> gsmInfoBuilder_;
+            gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm, gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm.Builder, gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsmOrBuilder> gsmIdentityBuilder_;
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_info = 7;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_identity = 7;</code>
          *
          * <pre>
          * GSM parameters
          * </pre>
          */
-        public boolean hasGsmInfo() {
+        public boolean hasGsmIdentity() {
           return ((bitField0_ & 0x00000040) == 0x00000040);
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_info = 7;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_identity = 7;</code>
          *
          * <pre>
          * GSM parameters
          * </pre>
          */
-        public gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm getGsmInfo() {
-          if (gsmInfoBuilder_ == null) {
-            return gsmInfo_;
+        public gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm getGsmIdentity() {
+          if (gsmIdentityBuilder_ == null) {
+            return gsmIdentity_;
           } else {
-            return gsmInfoBuilder_.getMessage();
+            return gsmIdentityBuilder_.getMessage();
           }
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_info = 7;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_identity = 7;</code>
          *
          * <pre>
          * GSM parameters
          * </pre>
          */
-        public Builder setGsmInfo(gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm value) {
-          if (gsmInfoBuilder_ == null) {
+        public Builder setGsmIdentity(gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm value) {
+          if (gsmIdentityBuilder_ == null) {
             if (value == null) {
               throw new NullPointerException();
             }
-            gsmInfo_ = value;
+            gsmIdentity_ = value;
             onChanged();
           } else {
-            gsmInfoBuilder_.setMessage(value);
+            gsmIdentityBuilder_.setMessage(value);
           }
           bitField0_ |= 0x00000040;
           return this;
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_info = 7;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_identity = 7;</code>
          *
          * <pre>
          * GSM parameters
          * </pre>
          */
-        public Builder setGsmInfo(
+        public Builder setGsmIdentity(
             gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm.Builder builderForValue) {
-          if (gsmInfoBuilder_ == null) {
-            gsmInfo_ = builderForValue.build();
+          if (gsmIdentityBuilder_ == null) {
+            gsmIdentity_ = builderForValue.build();
             onChanged();
           } else {
-            gsmInfoBuilder_.setMessage(builderForValue.build());
+            gsmIdentityBuilder_.setMessage(builderForValue.build());
           }
           bitField0_ |= 0x00000040;
           return this;
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_info = 7;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_identity = 7;</code>
          *
          * <pre>
          * GSM parameters
          * </pre>
          */
-        public Builder mergeGsmInfo(gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm value) {
-          if (gsmInfoBuilder_ == null) {
+        public Builder mergeGsmIdentity(gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm value) {
+          if (gsmIdentityBuilder_ == null) {
             if (((bitField0_ & 0x00000040) == 0x00000040) &&
-                gsmInfo_ != gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm.getDefaultInstance()) {
-              gsmInfo_ =
-                gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm.newBuilder(gsmInfo_).mergeFrom(value).buildPartial();
+                gsmIdentity_ != gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm.getDefaultInstance()) {
+              gsmIdentity_ =
+                gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm.newBuilder(gsmIdentity_).mergeFrom(value).buildPartial();
             } else {
-              gsmInfo_ = value;
+              gsmIdentity_ = value;
             }
             onChanged();
           } else {
-            gsmInfoBuilder_.mergeFrom(value);
+            gsmIdentityBuilder_.mergeFrom(value);
           }
           bitField0_ |= 0x00000040;
           return this;
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_info = 7;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_identity = 7;</code>
          *
          * <pre>
          * GSM parameters
          * </pre>
          */
-        public Builder clearGsmInfo() {
-          if (gsmInfoBuilder_ == null) {
-            gsmInfo_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm.getDefaultInstance();
+        public Builder clearGsmIdentity() {
+          if (gsmIdentityBuilder_ == null) {
+            gsmIdentity_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm.getDefaultInstance();
             onChanged();
           } else {
-            gsmInfoBuilder_.clear();
+            gsmIdentityBuilder_.clear();
           }
           bitField0_ = (bitField0_ & ~0x00000040);
           return this;
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_info = 7;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_identity = 7;</code>
          *
          * <pre>
          * GSM parameters
          * </pre>
          */
-        public gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm.Builder getGsmInfoBuilder() {
+        public gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm.Builder getGsmIdentityBuilder() {
           bitField0_ |= 0x00000040;
           onChanged();
-          return getGsmInfoFieldBuilder().getBuilder();
+          return getGsmIdentityFieldBuilder().getBuilder();
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_info = 7;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_identity = 7;</code>
          *
          * <pre>
          * GSM parameters
          * </pre>
          */
-        public gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsmOrBuilder getGsmInfoOrBuilder() {
-          if (gsmInfoBuilder_ != null) {
-            return gsmInfoBuilder_.getMessageOrBuilder();
+        public gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsmOrBuilder getGsmIdentityOrBuilder() {
+          if (gsmIdentityBuilder_ != null) {
+            return gsmIdentityBuilder_.getMessageOrBuilder();
           } else {
-            return gsmInfo_;
+            return gsmIdentity_;
           }
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_info = 7;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityGsm gsm_identity = 7;</code>
          *
          * <pre>
          * GSM parameters
@@ -2169,16 +2169,16 @@ public final class CellularData {
          */
         private com.google.protobuf.SingleFieldBuilder<
             gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm, gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm.Builder, gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsmOrBuilder> 
-            getGsmInfoFieldBuilder() {
-          if (gsmInfoBuilder_ == null) {
-            gsmInfoBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            getGsmIdentityFieldBuilder() {
+          if (gsmIdentityBuilder_ == null) {
+            gsmIdentityBuilder_ = new com.google.protobuf.SingleFieldBuilder<
                 gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm, gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsm.Builder, gov.nist.perfloc.CellularData.CellularReading.CellIdentityGsmOrBuilder>(
-                    getGsmInfo(),
+                    getGsmIdentity(),
                     getParentForChildren(),
                     isClean());
-            gsmInfo_ = null;
+            gsmIdentity_ = null;
           }
-          return gsmInfoBuilder_;
+          return gsmIdentityBuilder_;
         }
 
         private gov.nist.perfloc.CellularData.CellularReading.CellSignalStrengthGsm gsmSignalStrength_ = gov.nist.perfloc.CellularData.CellularReading.CellSignalStrengthGsm.getDefaultInstance();
@@ -2297,139 +2297,139 @@ public final class CellularData {
           return gsmSignalStrengthBuilder_;
         }
 
-        private gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte lteInfo_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte.getDefaultInstance();
+        private gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte lteIdentity_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte.getDefaultInstance();
         private com.google.protobuf.SingleFieldBuilder<
-            gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte, gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte.Builder, gov.nist.perfloc.CellularData.CellularReading.CellIdentityLteOrBuilder> lteInfoBuilder_;
+            gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte, gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte.Builder, gov.nist.perfloc.CellularData.CellularReading.CellIdentityLteOrBuilder> lteIdentityBuilder_;
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityLte lte_info = 9;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityLte lte_identity = 9;</code>
          *
          * <pre>
          * LTE parameters
          * </pre>
          */
-        public boolean hasLteInfo() {
+        public boolean hasLteIdentity() {
           return ((bitField0_ & 0x00000100) == 0x00000100);
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityLte lte_info = 9;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityLte lte_identity = 9;</code>
          *
          * <pre>
          * LTE parameters
          * </pre>
          */
-        public gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte getLteInfo() {
-          if (lteInfoBuilder_ == null) {
-            return lteInfo_;
+        public gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte getLteIdentity() {
+          if (lteIdentityBuilder_ == null) {
+            return lteIdentity_;
           } else {
-            return lteInfoBuilder_.getMessage();
+            return lteIdentityBuilder_.getMessage();
           }
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityLte lte_info = 9;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityLte lte_identity = 9;</code>
          *
          * <pre>
          * LTE parameters
          * </pre>
          */
-        public Builder setLteInfo(gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte value) {
-          if (lteInfoBuilder_ == null) {
+        public Builder setLteIdentity(gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte value) {
+          if (lteIdentityBuilder_ == null) {
             if (value == null) {
               throw new NullPointerException();
             }
-            lteInfo_ = value;
+            lteIdentity_ = value;
             onChanged();
           } else {
-            lteInfoBuilder_.setMessage(value);
+            lteIdentityBuilder_.setMessage(value);
           }
           bitField0_ |= 0x00000100;
           return this;
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityLte lte_info = 9;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityLte lte_identity = 9;</code>
          *
          * <pre>
          * LTE parameters
          * </pre>
          */
-        public Builder setLteInfo(
+        public Builder setLteIdentity(
             gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte.Builder builderForValue) {
-          if (lteInfoBuilder_ == null) {
-            lteInfo_ = builderForValue.build();
+          if (lteIdentityBuilder_ == null) {
+            lteIdentity_ = builderForValue.build();
             onChanged();
           } else {
-            lteInfoBuilder_.setMessage(builderForValue.build());
+            lteIdentityBuilder_.setMessage(builderForValue.build());
           }
           bitField0_ |= 0x00000100;
           return this;
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityLte lte_info = 9;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityLte lte_identity = 9;</code>
          *
          * <pre>
          * LTE parameters
          * </pre>
          */
-        public Builder mergeLteInfo(gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte value) {
-          if (lteInfoBuilder_ == null) {
+        public Builder mergeLteIdentity(gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte value) {
+          if (lteIdentityBuilder_ == null) {
             if (((bitField0_ & 0x00000100) == 0x00000100) &&
-                lteInfo_ != gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte.getDefaultInstance()) {
-              lteInfo_ =
-                gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte.newBuilder(lteInfo_).mergeFrom(value).buildPartial();
+                lteIdentity_ != gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte.getDefaultInstance()) {
+              lteIdentity_ =
+                gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte.newBuilder(lteIdentity_).mergeFrom(value).buildPartial();
             } else {
-              lteInfo_ = value;
+              lteIdentity_ = value;
             }
             onChanged();
           } else {
-            lteInfoBuilder_.mergeFrom(value);
+            lteIdentityBuilder_.mergeFrom(value);
           }
           bitField0_ |= 0x00000100;
           return this;
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityLte lte_info = 9;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityLte lte_identity = 9;</code>
          *
          * <pre>
          * LTE parameters
          * </pre>
          */
-        public Builder clearLteInfo() {
-          if (lteInfoBuilder_ == null) {
-            lteInfo_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte.getDefaultInstance();
+        public Builder clearLteIdentity() {
+          if (lteIdentityBuilder_ == null) {
+            lteIdentity_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte.getDefaultInstance();
             onChanged();
           } else {
-            lteInfoBuilder_.clear();
+            lteIdentityBuilder_.clear();
           }
           bitField0_ = (bitField0_ & ~0x00000100);
           return this;
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityLte lte_info = 9;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityLte lte_identity = 9;</code>
          *
          * <pre>
          * LTE parameters
          * </pre>
          */
-        public gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte.Builder getLteInfoBuilder() {
+        public gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte.Builder getLteIdentityBuilder() {
           bitField0_ |= 0x00000100;
           onChanged();
-          return getLteInfoFieldBuilder().getBuilder();
+          return getLteIdentityFieldBuilder().getBuilder();
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityLte lte_info = 9;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityLte lte_identity = 9;</code>
          *
          * <pre>
          * LTE parameters
          * </pre>
          */
-        public gov.nist.perfloc.CellularData.CellularReading.CellIdentityLteOrBuilder getLteInfoOrBuilder() {
-          if (lteInfoBuilder_ != null) {
-            return lteInfoBuilder_.getMessageOrBuilder();
+        public gov.nist.perfloc.CellularData.CellularReading.CellIdentityLteOrBuilder getLteIdentityOrBuilder() {
+          if (lteIdentityBuilder_ != null) {
+            return lteIdentityBuilder_.getMessageOrBuilder();
           } else {
-            return lteInfo_;
+            return lteIdentity_;
           }
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityLte lte_info = 9;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityLte lte_identity = 9;</code>
          *
          * <pre>
          * LTE parameters
@@ -2437,16 +2437,16 @@ public final class CellularData {
          */
         private com.google.protobuf.SingleFieldBuilder<
             gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte, gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte.Builder, gov.nist.perfloc.CellularData.CellularReading.CellIdentityLteOrBuilder> 
-            getLteInfoFieldBuilder() {
-          if (lteInfoBuilder_ == null) {
-            lteInfoBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            getLteIdentityFieldBuilder() {
+          if (lteIdentityBuilder_ == null) {
+            lteIdentityBuilder_ = new com.google.protobuf.SingleFieldBuilder<
                 gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte, gov.nist.perfloc.CellularData.CellularReading.CellIdentityLte.Builder, gov.nist.perfloc.CellularData.CellularReading.CellIdentityLteOrBuilder>(
-                    getLteInfo(),
+                    getLteIdentity(),
                     getParentForChildren(),
                     isClean());
-            lteInfo_ = null;
+            lteIdentity_ = null;
           }
-          return lteInfoBuilder_;
+          return lteIdentityBuilder_;
         }
 
         private gov.nist.perfloc.CellularData.CellularReading.CellSignalStrengthLte lteSignalStrength_ = gov.nist.perfloc.CellularData.CellularReading.CellSignalStrengthLte.getDefaultInstance();
@@ -2565,139 +2565,139 @@ public final class CellularData {
           return lteSignalStrengthBuilder_;
         }
 
-        private gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma wcdmaInfo_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma.getDefaultInstance();
+        private gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma wcdmaIdentity_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma.getDefaultInstance();
         private com.google.protobuf.SingleFieldBuilder<
-            gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma, gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma.Builder, gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdmaOrBuilder> wcdmaInfoBuilder_;
+            gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma, gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma.Builder, gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdmaOrBuilder> wcdmaIdentityBuilder_;
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_info = 11;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_identity = 11;</code>
          *
          * <pre>
          * WCDMA parameters 
          * </pre>
          */
-        public boolean hasWcdmaInfo() {
+        public boolean hasWcdmaIdentity() {
           return ((bitField0_ & 0x00000400) == 0x00000400);
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_info = 11;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_identity = 11;</code>
          *
          * <pre>
          * WCDMA parameters 
          * </pre>
          */
-        public gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma getWcdmaInfo() {
-          if (wcdmaInfoBuilder_ == null) {
-            return wcdmaInfo_;
+        public gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma getWcdmaIdentity() {
+          if (wcdmaIdentityBuilder_ == null) {
+            return wcdmaIdentity_;
           } else {
-            return wcdmaInfoBuilder_.getMessage();
+            return wcdmaIdentityBuilder_.getMessage();
           }
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_info = 11;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_identity = 11;</code>
          *
          * <pre>
          * WCDMA parameters 
          * </pre>
          */
-        public Builder setWcdmaInfo(gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma value) {
-          if (wcdmaInfoBuilder_ == null) {
+        public Builder setWcdmaIdentity(gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma value) {
+          if (wcdmaIdentityBuilder_ == null) {
             if (value == null) {
               throw new NullPointerException();
             }
-            wcdmaInfo_ = value;
+            wcdmaIdentity_ = value;
             onChanged();
           } else {
-            wcdmaInfoBuilder_.setMessage(value);
+            wcdmaIdentityBuilder_.setMessage(value);
           }
           bitField0_ |= 0x00000400;
           return this;
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_info = 11;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_identity = 11;</code>
          *
          * <pre>
          * WCDMA parameters 
          * </pre>
          */
-        public Builder setWcdmaInfo(
+        public Builder setWcdmaIdentity(
             gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma.Builder builderForValue) {
-          if (wcdmaInfoBuilder_ == null) {
-            wcdmaInfo_ = builderForValue.build();
+          if (wcdmaIdentityBuilder_ == null) {
+            wcdmaIdentity_ = builderForValue.build();
             onChanged();
           } else {
-            wcdmaInfoBuilder_.setMessage(builderForValue.build());
+            wcdmaIdentityBuilder_.setMessage(builderForValue.build());
           }
           bitField0_ |= 0x00000400;
           return this;
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_info = 11;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_identity = 11;</code>
          *
          * <pre>
          * WCDMA parameters 
          * </pre>
          */
-        public Builder mergeWcdmaInfo(gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma value) {
-          if (wcdmaInfoBuilder_ == null) {
+        public Builder mergeWcdmaIdentity(gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma value) {
+          if (wcdmaIdentityBuilder_ == null) {
             if (((bitField0_ & 0x00000400) == 0x00000400) &&
-                wcdmaInfo_ != gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma.getDefaultInstance()) {
-              wcdmaInfo_ =
-                gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma.newBuilder(wcdmaInfo_).mergeFrom(value).buildPartial();
+                wcdmaIdentity_ != gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma.getDefaultInstance()) {
+              wcdmaIdentity_ =
+                gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma.newBuilder(wcdmaIdentity_).mergeFrom(value).buildPartial();
             } else {
-              wcdmaInfo_ = value;
+              wcdmaIdentity_ = value;
             }
             onChanged();
           } else {
-            wcdmaInfoBuilder_.mergeFrom(value);
+            wcdmaIdentityBuilder_.mergeFrom(value);
           }
           bitField0_ |= 0x00000400;
           return this;
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_info = 11;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_identity = 11;</code>
          *
          * <pre>
          * WCDMA parameters 
          * </pre>
          */
-        public Builder clearWcdmaInfo() {
-          if (wcdmaInfoBuilder_ == null) {
-            wcdmaInfo_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma.getDefaultInstance();
+        public Builder clearWcdmaIdentity() {
+          if (wcdmaIdentityBuilder_ == null) {
+            wcdmaIdentity_ = gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma.getDefaultInstance();
             onChanged();
           } else {
-            wcdmaInfoBuilder_.clear();
+            wcdmaIdentityBuilder_.clear();
           }
           bitField0_ = (bitField0_ & ~0x00000400);
           return this;
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_info = 11;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_identity = 11;</code>
          *
          * <pre>
          * WCDMA parameters 
          * </pre>
          */
-        public gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma.Builder getWcdmaInfoBuilder() {
+        public gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma.Builder getWcdmaIdentityBuilder() {
           bitField0_ |= 0x00000400;
           onChanged();
-          return getWcdmaInfoFieldBuilder().getBuilder();
+          return getWcdmaIdentityFieldBuilder().getBuilder();
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_info = 11;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_identity = 11;</code>
          *
          * <pre>
          * WCDMA parameters 
          * </pre>
          */
-        public gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdmaOrBuilder getWcdmaInfoOrBuilder() {
-          if (wcdmaInfoBuilder_ != null) {
-            return wcdmaInfoBuilder_.getMessageOrBuilder();
+        public gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdmaOrBuilder getWcdmaIdentityOrBuilder() {
+          if (wcdmaIdentityBuilder_ != null) {
+            return wcdmaIdentityBuilder_.getMessageOrBuilder();
           } else {
-            return wcdmaInfo_;
+            return wcdmaIdentity_;
           }
         }
         /**
-         * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_info = 11;</code>
+         * <code>optional .perfloc.CellularReading.CellIdentityWcdma wcdma_identity = 11;</code>
          *
          * <pre>
          * WCDMA parameters 
@@ -2705,16 +2705,16 @@ public final class CellularData {
          */
         private com.google.protobuf.SingleFieldBuilder<
             gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma, gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma.Builder, gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdmaOrBuilder> 
-            getWcdmaInfoFieldBuilder() {
-          if (wcdmaInfoBuilder_ == null) {
-            wcdmaInfoBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            getWcdmaIdentityFieldBuilder() {
+          if (wcdmaIdentityBuilder_ == null) {
+            wcdmaIdentityBuilder_ = new com.google.protobuf.SingleFieldBuilder<
                 gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma, gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdma.Builder, gov.nist.perfloc.CellularData.CellularReading.CellIdentityWcdmaOrBuilder>(
-                    getWcdmaInfo(),
+                    getWcdmaIdentity(),
                     getParentForChildren(),
                     isClean());
-            wcdmaInfo_ = null;
+            wcdmaIdentity_ = null;
           }
-          return wcdmaInfoBuilder_;
+          return wcdmaIdentityBuilder_;
         }
 
         private gov.nist.perfloc.CellularData.CellularReading.CellSignalStrengthWcdma wcdmaSignalStrength_ = gov.nist.perfloc.CellularData.CellularReading.CellSignalStrengthWcdma.getDefaultInstance();
@@ -11640,54 +11640,55 @@ public final class CellularData {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\023cellular_data.proto\022\007perfloc\"\277\016\n\017Cellu" +
+      "\n\023cellular_data.proto\022\007perfloc\"\317\016\n\017Cellu" +
       "larReading\022\023\n\013sequence_nr\030\001 \001(\005\022\021\n\ttimes" +
       "tamp\030\002 \001(\003\022\023\n\013last_dot_nr\030\003 \001(\005\0228\n\rcellu" +
       "lar_info\030\004 \003(\0132!.perfloc.CellularReading" +
-      ".CellInfo\032\260\005\n\010CellInfo\022\021\n\ttimestamp\030\001 \001(" +
+      ".CellInfo\032\300\005\n\010CellInfo\022\021\n\ttimestamp\030\001 \001(" +
       "\004\022\021\n\thash_code\030\002 \001(\005\022\022\n\nregistered\030\003 \001(\010" +
       "\022:\n\014network_type\030\004 \001(\0162$.perfloc.Cellula" +
-      "rReading.NetworkType\022<\n\tcdma_info\030\005 \001(\0132" +
-      ").perfloc.CellularReading.CellIdentityCm" +
-      "da\022M\n\024cdma_signal_strength\030\006 \001(\0132/.perfl",
-      "oc.CellularReading.CellSignalStrengthCdm" +
-      "a\022:\n\010gsm_info\030\007 \001(\0132(.perfloc.CellularRe" +
-      "ading.CellIdentityGsm\022K\n\023gsm_signal_stre" +
-      "ngth\030\010 \001(\0132..perfloc.CellularReading.Cel" +
-      "lSignalStrengthGsm\022:\n\010lte_info\030\t \001(\0132(.p" +
-      "erfloc.CellularReading.CellIdentityLte\022K" +
-      "\n\023lte_signal_strength\030\n \001(\0132..perfloc.Ce" +
-      "llularReading.CellSignalStrengthLte\022>\n\nw" +
-      "cdma_info\030\013 \001(\0132*.perfloc.CellularReadin" +
-      "g.CellIdentityWcdma\022O\n\025wcdma_signal_stre",
-      "ngth\030\014 \001(\01320.perfloc.CellularReading.Cel" +
-      "lSignalStrengthWcdma\032\211\001\n\020CellIdentityCmd" +
-      "a\022\026\n\016basestation_id\030\001 \001(\005\022\020\n\010latitude\030\002 " +
-      "\001(\005\022\021\n\tlongitude\030\003 \001(\005\022\022\n\nnetwork_id\030\004 \001" +
-      "(\005\022\021\n\tsystem_id\030\005 \001(\005\022\021\n\thash_code\030\006 \001(\005" +
-      "\032e\n\017CellIdentityGsm\022\013\n\003cid\030\001 \001(\005\022\013\n\003lac\030" +
-      "\002 \001(\005\022\013\n\003mcc\030\003 \001(\005\022\013\n\003mnc\030\004 \001(\005\022\013\n\003psc\030\005" +
-      " \001(\005\022\021\n\thash_code\030\006 \001(\005\032d\n\017CellIdentityL" +
-      "te\022\n\n\002ci\030\001 \001(\005\022\013\n\003mcc\030\002 \001(\005\022\013\n\003mnc\030\003 \001(\005" +
-      "\022\013\n\003pci\030\004 \001(\005\022\013\n\003tac\030\005 \001(\005\022\021\n\thash_code\030",
-      "\006 \001(\005\032g\n\021CellIdentityWcdma\022\013\n\003cid\030\001 \001(\005\022" +
-      "\013\n\003lac\030\002 \001(\005\022\013\n\003mcc\030\003 \001(\005\022\013\n\003mnc\030\004 \001(\005\022\013" +
-      "\n\003psc\030\005 \001(\005\022\021\n\thash_code\030\006 \001(\005\032\336\001\n\026CellS" +
-      "ignalStrengthCdma\022\021\n\tasu_level\030\001 \001(\005\022\020\n\010" +
-      "cdma_dbm\030\002 \001(\005\022\021\n\tcdma_ecio\030\003 \001(\005\022\022\n\ncdm" +
-      "a_level\030\004 \001(\005\022\013\n\003dbm\030\005 \001(\005\022\020\n\010evdo_dbm\030\006" +
-      " \001(\005\022\021\n\tevdo_ecio\030\007 \001(\005\022\022\n\nevdo_level\030\010 " +
-      "\001(\005\022\020\n\010evdo_snr\030\t \001(\005\022\r\n\005level\030\n \001(\005\022\021\n\t" +
-      "hash_code\030\013 \001(\005\032Y\n\025CellSignalStrengthGsm" +
-      "\022\021\n\tasu_level\030\001 \001(\005\022\013\n\003dbm\030\002 \001(\005\022\r\n\005leve",
-      "l\030\003 \001(\005\022\021\n\thash_code\030\004 \001(\005\032q\n\025CellSignal" +
-      "StrengthLte\022\021\n\tasu_level\030\001 \001(\005\022\013\n\003dbm\030\002 " +
-      "\001(\005\022\r\n\005level\030\003 \001(\005\022\026\n\016timing_advance\030\004 \001" +
-      "(\005\022\021\n\thash_code\030\005 \001(\005\032[\n\027CellSignalStren" +
-      "gthWcdma\022\021\n\tasu_level\030\001 \001(\005\022\013\n\003dbm\030\002 \001(\005" +
-      "\022\r\n\005level\030\003 \001(\005\022\021\n\thash_code\030\004 \001(\005\"4\n\013Ne" +
-      "tworkType\022\010\n\004CDMA\020\000\022\007\n\003GSM\020\001\022\007\n\003LTE\020\002\022\t\n" +
-      "\005WCDMA\020\003B\022\n\020gov.nist.perfloc"
+      "rReading.NetworkType\022@\n\rcdma_identity\030\005 " +
+      "\001(\0132).perfloc.CellularReading.CellIdenti" +
+      "tyCmda\022M\n\024cdma_signal_strength\030\006 \001(\0132/.p",
+      "erfloc.CellularReading.CellSignalStrengt" +
+      "hCdma\022>\n\014gsm_identity\030\007 \001(\0132(.perfloc.Ce" +
+      "llularReading.CellIdentityGsm\022K\n\023gsm_sig" +
+      "nal_strength\030\010 \001(\0132..perfloc.CellularRea" +
+      "ding.CellSignalStrengthGsm\022>\n\014lte_identi" +
+      "ty\030\t \001(\0132(.perfloc.CellularReading.CellI" +
+      "dentityLte\022K\n\023lte_signal_strength\030\n \001(\0132" +
+      "..perfloc.CellularReading.CellSignalStre" +
+      "ngthLte\022B\n\016wcdma_identity\030\013 \001(\0132*.perflo" +
+      "c.CellularReading.CellIdentityWcdma\022O\n\025w",
+      "cdma_signal_strength\030\014 \001(\01320.perfloc.Cel" +
+      "lularReading.CellSignalStrengthWcdma\032\211\001\n" +
+      "\020CellIdentityCmda\022\026\n\016basestation_id\030\001 \001(" +
+      "\005\022\020\n\010latitude\030\002 \001(\005\022\021\n\tlongitude\030\003 \001(\005\022\022" +
+      "\n\nnetwork_id\030\004 \001(\005\022\021\n\tsystem_id\030\005 \001(\005\022\021\n" +
+      "\thash_code\030\006 \001(\005\032e\n\017CellIdentityGsm\022\013\n\003c" +
+      "id\030\001 \001(\005\022\013\n\003lac\030\002 \001(\005\022\013\n\003mcc\030\003 \001(\005\022\013\n\003mn" +
+      "c\030\004 \001(\005\022\013\n\003psc\030\005 \001(\005\022\021\n\thash_code\030\006 \001(\005\032" +
+      "d\n\017CellIdentityLte\022\n\n\002ci\030\001 \001(\005\022\013\n\003mcc\030\002 " +
+      "\001(\005\022\013\n\003mnc\030\003 \001(\005\022\013\n\003pci\030\004 \001(\005\022\013\n\003tac\030\005 \001",
+      "(\005\022\021\n\thash_code\030\006 \001(\005\032g\n\021CellIdentityWcd" +
+      "ma\022\013\n\003cid\030\001 \001(\005\022\013\n\003lac\030\002 \001(\005\022\013\n\003mcc\030\003 \001(" +
+      "\005\022\013\n\003mnc\030\004 \001(\005\022\013\n\003psc\030\005 \001(\005\022\021\n\thash_code" +
+      "\030\006 \001(\005\032\336\001\n\026CellSignalStrengthCdma\022\021\n\tasu" +
+      "_level\030\001 \001(\005\022\020\n\010cdma_dbm\030\002 \001(\005\022\021\n\tcdma_e" +
+      "cio\030\003 \001(\005\022\022\n\ncdma_level\030\004 \001(\005\022\013\n\003dbm\030\005 \001" +
+      "(\005\022\020\n\010evdo_dbm\030\006 \001(\005\022\021\n\tevdo_ecio\030\007 \001(\005\022" +
+      "\022\n\nevdo_level\030\010 \001(\005\022\020\n\010evdo_snr\030\t \001(\005\022\r\n" +
+      "\005level\030\n \001(\005\022\021\n\thash_code\030\013 \001(\005\032Y\n\025CellS" +
+      "ignalStrengthGsm\022\021\n\tasu_level\030\001 \001(\005\022\013\n\003d",
+      "bm\030\002 \001(\005\022\r\n\005level\030\003 \001(\005\022\021\n\thash_code\030\004 \001" +
+      "(\005\032q\n\025CellSignalStrengthLte\022\021\n\tasu_level" +
+      "\030\001 \001(\005\022\013\n\003dbm\030\002 \001(\005\022\r\n\005level\030\003 \001(\005\022\026\n\016ti" +
+      "ming_advance\030\004 \001(\005\022\021\n\thash_code\030\005 \001(\005\032[\n" +
+      "\027CellSignalStrengthWcdma\022\021\n\tasu_level\030\001 " +
+      "\001(\005\022\013\n\003dbm\030\002 \001(\005\022\r\n\005level\030\003 \001(\005\022\021\n\thash_" +
+      "code\030\004 \001(\005\"4\n\013NetworkType\022\010\n\004CDMA\020\000\022\007\n\003G" +
+      "SM\020\001\022\007\n\003LTE\020\002\022\t\n\005WCDMA\020\003B\022\n\020gov.nist.per" +
+      "floc"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -11712,7 +11713,7 @@ public final class CellularData {
     internal_static_perfloc_CellularReading_CellInfo_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_perfloc_CellularReading_CellInfo_descriptor,
-        new java.lang.String[] { "Timestamp", "HashCode", "Registered", "NetworkType", "CdmaInfo", "CdmaSignalStrength", "GsmInfo", "GsmSignalStrength", "LteInfo", "LteSignalStrength", "WcdmaInfo", "WcdmaSignalStrength", });
+        new java.lang.String[] { "Timestamp", "HashCode", "Registered", "NetworkType", "CdmaIdentity", "CdmaSignalStrength", "GsmIdentity", "GsmSignalStrength", "LteIdentity", "LteSignalStrength", "WcdmaIdentity", "WcdmaSignalStrength", });
     internal_static_perfloc_CellularReading_CellIdentityCmda_descriptor =
       internal_static_perfloc_CellularReading_descriptor.getNestedTypes().get(1);
     internal_static_perfloc_CellularReading_CellIdentityCmda_fieldAccessorTable = new
