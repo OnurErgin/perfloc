@@ -64,6 +64,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.google.protobuf.DescriptorProtos;
+
 import junit.framework.TestCase;
 
 import java.io.BufferedOutputStream;
@@ -172,7 +174,10 @@ public class MainActivity extends Activity {
         LocationListener locationListener = getLocationListener();
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 
-        //tv_bottomView.setText(locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).toString());
+
+        Location last_loc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        if (last_loc != null)
+            tv_bottomView.setText("last_loc: " + last_loc.getProvider());
 
         am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         am.setMode(AudioManager.MODE_NORMAL);
@@ -1297,6 +1302,7 @@ public class MainActivity extends Activity {
     private LocationListener getLocationListener() {
         // Define a listener that responds to location updates
         Log.v("LocationListener: ", "Location Listener started.");
+        Log.v("LocationListener: ", "Provider: " + locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) +  " all providers: " + locationManager.getAllProviders().toString());
 
         LocationListener locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
