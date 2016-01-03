@@ -3,7 +3,6 @@ package gov.nist.perfloc;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,18 +17,16 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.MediaScannerConnection;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
 import android.media.session.MediaSession;
 import android.media.session.PlaybackState;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.PowerManager;
-import android.os.SystemClock;
 import android.os.Vibrator;
 import android.telephony.CellIdentityCdma;
 import android.telephony.CellIdentityGsm;
@@ -53,23 +50,18 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.SoundEffectConstants;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.google.protobuf.DescriptorProtos;
-
-import junit.framework.TestCase;
-
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -120,6 +112,8 @@ public class MainActivity extends Activity {
     HashMap<Sensor, Long> sensorLastTimestampHashMap; // 112
     HashMap<Sensor, Long> sensorCurrentTimestampHashMap; // 112
 
+    // Verbose info
+    HashMap<String, String> verbose;
     //SensorManager mSensorManager;
     //List<Sensor> sensorList;
     //float s_accelerometer[], s_gravity[], s_gyroscope[], s_proximity[], s_light[],
@@ -132,10 +126,12 @@ public class MainActivity extends Activity {
 
     volatile int numberOfAPs=0, WiFiScanDuration=0, numberOfCellTowers=0, numberOfSensors=0;
 
-    String  WiFi_output_file = android.os.Build.MODEL + "_WiFi",
-            Sensors_output_file = android.os.Build.MODEL + "_Sensors",
-            Dots_output_file = android.os.Build.MODEL + "_Dots",
-            Cellular_output_file = android.os.Build.MODEL + "_Cellular";
+    String  WiFi_output_file =  "_WiFi",
+            Sensors_output_file = "_Sensors",
+            Dots_output_file = "_Dots",
+            Cellular_output_file = "_Cellular";
+
+    String device_identifier = Build.MANUFACTURER + "_" + Build.MODEL + "_" + Build.BRAND;
 
     File dirname = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
     String protocol_buffer_file_extension = "pbs"; // (p)rotocol(b)uffer(s)erialized
@@ -156,6 +152,7 @@ public class MainActivity extends Activity {
     int seq_nr_wifi = 0;
     int seq_nr_cellular = 0;
     int seq_nr_sensorevent = 0;
+    int seq_nr_gpsfix = 0;
 
 
     @Override
@@ -170,14 +167,15 @@ public class MainActivity extends Activity {
         wakeLock.acquire();
         Log.v("WakeLock (isHeld?): ", wakeLock.isHeld() + ".");
 
+        verbose = new HashMap<>();
+
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         LocationListener locationListener = getLocationListener();
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 
-
-        Location last_loc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        /*Location last_loc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
         if (last_loc != null)
-            tv_bottomView.setText("last_loc: " + last_loc.getProvider());
+            tv_bottomView.setText("last_loc: " + last_loc.getProvider());*/
 
         am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         am.setMode(AudioManager.MODE_NORMAL);
@@ -346,8 +344,16 @@ public class MainActivity extends Activity {
                 //StartStopButton.toggle();
                 dotCounter++;
                 tv_dotcounter.setText(dotCounter + "");
-                list_dot_readings.add(prepareDotProtobuf(++seq_nr_dot));
+                //list_dot_readings.add(prepareDotProtobuf(++seq_nr_dot));
+                DotData.DotReading dot_reading = prepareDotProtobuf(++seq_nr_dot);
 
+                try {
+                    dot_reading.writeDelimitedTo(Dots_BOS);
+                } catch (IOException e) {
+                    Log.e("Dots_BOS exception:", e.toString());
+                }
+
+                verbose.put("seq_nr_dot", Integer.toString(dot_reading.getDotNr()));
                 //am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 
                 am.playSoundEffect(AudioManager.FX_KEYPRESS_INVALID);
@@ -368,10 +374,15 @@ public class MainActivity extends Activity {
 
     private boolean createOutputFiles(String prefix){
 
-        WiFi_output_file = dirname + "/" + prefix + "_" + WiFi_output_file.replaceAll("\\s+","") + "." + protocol_buffer_file_extension;
-        Sensors_output_file = dirname + "/" + prefix + "_" + Sensors_output_file.replaceAll("\\s+","") + "." + protocol_buffer_file_extension;
-        Dots_output_file = dirname + "/" + prefix + "_" + Dots_output_file.replaceAll("\\s+","") + "." + protocol_buffer_file_extension;
-        Cellular_output_file = dirname + "/" + prefix + "_" + Cellular_output_file.replaceAll("\\s+","") + "." + protocol_buffer_file_extension;
+        WiFi_output_file     = dirname + "/" + prefix + "_" + device_identifier + WiFi_output_file      + "." + protocol_buffer_file_extension;
+        Sensors_output_file  = dirname + "/" + prefix + "_" + device_identifier + Sensors_output_file   + "." + protocol_buffer_file_extension;
+        Dots_output_file     = dirname + "/" + prefix + "_" + device_identifier + Dots_output_file      + "." + protocol_buffer_file_extension;
+        Cellular_output_file = dirname + "/" + prefix + "_" + device_identifier + Cellular_output_file  + "." + protocol_buffer_file_extension;
+
+        WiFi_output_file     = WiFi_output_file.replaceAll("\\s+","");
+        Sensors_output_file  = Sensors_output_file.replaceAll("\\s+","");
+        Dots_output_file     = Dots_output_file.replaceAll("\\s+","");
+        Cellular_output_file = Cellular_output_file.replaceAll("\\s+","");
 
         try {
             WiFi_BOS = new BufferedOutputStream(new FileOutputStream(WiFi_output_file));
@@ -454,7 +465,7 @@ public class MainActivity extends Activity {
 
         WifiData.WiFiReading.Builder wifi_data = WifiData.WiFiReading.newBuilder();
 
-        wifi_data.setSequenceNr(++seq_nr_wifi)
+        wifi_data.setSequenceNr(seq_nr_wifi)
                  .setTimestamp(System.currentTimeMillis())
                  .setLastDotNr(seq_nr_dot);
 
@@ -465,6 +476,7 @@ public class MainActivity extends Activity {
                     .setSsid(sr.SSID)
                     .setCapabilities(sr.capabilities)
                     .setFrequency(sr.frequency)
+                    .setRssi(sr.level)
                     .setTimestamp(sr.timestamp);
 
             wifi_data.addWifiAp(wifi_ap);
@@ -477,7 +489,7 @@ public class MainActivity extends Activity {
 
         CellularData.CellularReading.Builder cellular_data = CellularData.CellularReading.newBuilder();
 
-        cellular_data.setSequenceNr(++seq_nr_cellular)
+        cellular_data.setSequenceNr(seq_nr_cellular)
                      .setTimestamp(System.currentTimeMillis())
                      .setLastDotNr(seq_nr_dot);
 
@@ -610,7 +622,7 @@ public class MainActivity extends Activity {
         SensorData.SensorReading.Builder sensor_data = SensorData.SensorReading.newBuilder();
 
         sensor_data.setTimestamp(System.currentTimeMillis())
-                    .setSequenceNr(++seq_nr_sensorevent)
+                    .setSequenceNr(seq_nr_sensorevent)
                     .setLastDotNr(seq_nr_dot);
 
         // Create SensorEvent
@@ -641,8 +653,17 @@ public class MainActivity extends Activity {
             time_diff = (time_current - time_prev);
             //WiFiScanTime.setText("\u0394".toUpperCase() + "t(ms):" + time_diff);
 
+            seq_nr_wifi = seq_nr_wifi + 1;
             WifiData.WiFiReading wifi_reading = prepareWiFiProtobuf(wifi.getScanResults());
-            list_wifi_readings.add(wifi_reading);
+
+            try {
+                wifi_reading.writeDelimitedTo(WiFi_BOS);
+            } catch (IOException e) {
+                Log.e("WiFi_BOS exception:", e.toString());
+            }
+            //list_wifi_readings.add(wifi_reading);
+
+            verbose.put("seq_nr_wifi", Integer.toString(wifi_reading.getSequenceNr()));
 
             List<WifiData.WiFiReading.WiFiAP> wifi_ap_list = wifi_reading.getWifiApList();
 
@@ -655,34 +676,6 @@ public class MainActivity extends Activity {
 
             if (numberOfAPs == 0) WiFiList_text = new ArrayList<>();
 
-
-            /* Scan WiFi and display */
-            /*List<ScanResult> wifiScanList = wifi.getScanResults();
-            wifis = new String[wifiScanList.size()*2];
-
-            for (int i = 0; i < wifiScanList.size(); i++) {
-                //wifis[i] = ((wifiScanList.get(i)).SSID) + " " + ((wifiScanList.get(i)).BSSID) + " " + ((wifiScanList.get(i)).toString());
-                wifis[i*2] = ((wifiScanList.get(i)).toString());
-
-                // Test Protocol Buffers
-                WiFi.WiFiRSSIMeasurement.Builder wifi_info = WiFi.WiFiRSSIMeasurement.newBuilder();
-                wifi_info.setAp(WiFi.WiFiRSSIMeasurement.AccessPoint.newBuilder()
-                                .setBssi(wifiScanList.get(i).BSSID)
-                                .setRssi(wifiScanList.get(i).level)
-                );
-                wifi_info.setMeasurementDevice(android.os.Build.MODEL);
-                wifi_info.setTimestamp(time_current);
-                wifi_info.setDotId(dot_current);
-                // wifi_info.build().writeTo();
-                //wifi_info.build().writeDelimitedTo(null); //WiFiRSSIMeasurement.parseDelimitedFrom(null);
-                try {
-                    wifi_info.build().writeDelimitedTo(WiFi_BOS);
-                } catch(IOException e){
-                    Log.v("WiFi_BOS write", e.toString());
-                }
-                wifis[i*2 + 1] = wifi_info.toString();
-                 // End Test Protocol Buffers
-            }*/
             wifi.startScan();
 
             //numAPs.setText("# APs: " + wifiScanList.size());
@@ -695,8 +688,17 @@ public class MainActivity extends Activity {
             boolean cellularSensingOn = true;
             if (cellularSensingOn) {
 
+                seq_nr_cellular = seq_nr_cellular + 1;
                 CellularData.CellularReading cellular_reading = prepareCellularProtobuf(tm.getAllCellInfo());
-                list_cellular_readings.add(cellular_reading);
+
+                try {
+                    cellular_reading.writeDelimitedTo(Cellular_BOS);
+                } catch (IOException e) {
+                    Log.e("Cellular_BOS exception:", e.toString());
+                }
+                //list_cellular_readings.add(cellular_reading);
+
+                verbose.put("seq_nr_cellular", Integer.toString(cellular_reading.getSequenceNr()));
 
                 List<CellularData.CellularReading.CellInfo> cell_info_list = cellular_reading.getCellularInfoList();
 
@@ -771,6 +773,8 @@ public class MainActivity extends Activity {
             if (SensorGroupExpanded) expListView.expandGroup(2);
 
             //expListView.setVerticalScrollbarPosition(mListPosition);
+
+            tv_bottomView.setText(verbose.toString());
         }
     }
     /* For ignoring Orientation change! */
@@ -805,7 +809,7 @@ public class MainActivity extends Activity {
 
                 unIndexFiles();
 
-                writeProtobufsToFile();
+                //writeProtobufsToFile();
 
                 try {
                     WiFi_BOS.flush();
@@ -836,8 +840,8 @@ public class MainActivity extends Activity {
                 return true;
             case R.id.renew_files:
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener)
-                        .setNegativeButton("No", dialogClickListener).show();
+                builder.setMessage("Are you sure?").setPositiveButton("Yes", renewDialogClickListener)
+                        .setNegativeButton("No", renewDialogClickListener).show();
 
                 return true;
             case R.id.unindex_files:
@@ -907,12 +911,15 @@ public class MainActivity extends Activity {
 
                 prefix_dialog_builder.show();
                 return true;
+            case R.id.count_messages:
+                countMessagesInOutputFiles();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+    DialogInterface.OnClickListener renewDialogClickListener = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
             switch (which){
@@ -941,16 +948,9 @@ public class MainActivity extends Activity {
 
     private class readBuiltinSensors implements Runnable {
 
-        public Activity activity;
-
         private volatile boolean running;
 
         private volatile int measuringFrequency;
-
-        // User motion bools
-        private volatile boolean userRunning = false;
-        private volatile boolean userTurning = false;
-
 
         SensorManager mSensorManager;
 
@@ -958,8 +958,7 @@ public class MainActivity extends Activity {
 
         volatile int flag = 0;
 
-        float s_accelerometer[], s_gravity[], s_gyroscope[], s_proximity[], s_light[],
-              s_magneticfield[], s_magneticfielduncalibrated[], s_geomagneticrotationvector[], s_rotationvector[], s_linearacceleration[];
+        float[] s_light;
 
 
         private SensorEventListener mSensorListener = new SensorEventListener() {
@@ -973,83 +972,38 @@ public class MainActivity extends Activity {
                 senor_event_counter++;
 
                 //list_sensor_readings.add(prepareSensorProtobuf(event));
+
+                seq_nr_sensorevent = seq_nr_sensorevent + 1;
+
+                SensorData.SensorReading sensor_event = prepareSensorProtobuf(event);
                 try {
-                    prepareSensorProtobuf(event).writeDelimitedTo(Sensor_BOS);
+                    sensor_event.writeDelimitedTo(Sensor_BOS);
                 } catch (IOException e) {
-                    Log.e("BOS exception:", e.toString());
+                    Log.e("Sensor_BOS exception:", e.toString());
                 }
+
+                // For displaying on the screen
+
+                verbose.put("seq_nr_sensorevent", Integer.toString(sensor_event.getSequenceNr()));
 
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        tv_sensor_event_counter.setText(senor_event_counter+"");
+                        tv_sensor_event_counter.setText(senor_event_counter + "");
                     }
                 });
 
-                Sensor cSensor = event.sensor;
-                //noAPs_tv.setText("" + cSensor.getType());
-                // 112 String sensorHashKey = event.sensor.getType() + ": " +  event.sensor.getStringType(); // wakeup + non-wakeup sensors together
-                //String sensorHashKey = event.sensor.getType() + ": " +  event.sensor.getName(); // wakeup + non-wakeup sensors separate
-                //String sensorHashKey = event.sensor.getType() + "" ;
                 Sensor sensorHashKey = event.sensor;
                 sensorHashMap.put(sensorHashKey, event.values);
                 sensorLastTimestampHashMap.put(sensorHashKey,sensorCurrentTimestampHashMap.get(sensorHashKey));
                 sensorCurrentTimestampHashMap.put(sensorHashKey, new Long(event.timestamp));
+
                 if(event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
                     float[] time_x = {(float) Calendar.getInstance().get(Calendar.SECOND)};
                     sensorHashMap.put(sensorHashKey, time_x);
                 }
-                switch (cSensor.getType()){
-                    case Sensor.TYPE_ACCELEROMETER:
-                        s_accelerometer = event.values; // 3 values
-                        break;
-
-                    case Sensor.TYPE_PROXIMITY:
-                        s_proximity = event.values; // 1 value
-                        break;
-
-                    case Sensor.TYPE_LIGHT:
-                        s_light = event.values; // 1 value
-                        break;
-
-                    case Sensor.TYPE_MAGNETIC_FIELD:
-                        s_magneticfield = event.values; // ?? values
-                        break;
-
-                    case Sensor.TYPE_GYROSCOPE:
-                        s_gyroscope = event.values; // 3 values
-                        break;
-
-                    case Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED:
-                        s_magneticfielduncalibrated = event.values; // 6 values
-                        break;
-
-                    case Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR:
-                        s_geomagneticrotationvector = event.values; // ?? values
-                        break;
-
-                    case Sensor.TYPE_ROTATION_VECTOR:
-                        s_rotationvector = event.values; // 4 values
-                        break;
-
-                    case Sensor.TYPE_GRAVITY:
-                        s_gravity = event.values; // 3 values
-                        break;
-
-                    case Sensor.TYPE_LINEAR_ACCELERATION:
-                        s_linearacceleration = event.values; // 3 values
-                        break;
-
-                    case Sensor.TYPE_ORIENTATION: // Deprecated.
-                        //TYPE_ORIENTATION is deprecated.  use SensorManager.getOrientation() instead.
-                        break;
-
-                    default:
-                        //noAPs_tv.setText("Sensor error:" + cSensor.getName());
-                        //DisplayRotation is unknown to me //Onur
-                        break;
-
-                }
+                else if (event.sensor.getType() == Sensor.TYPE_LIGHT)
+                    s_light = event.values;
             }
         };
 
@@ -1058,38 +1012,13 @@ public class MainActivity extends Activity {
             running = false;
         }
 
-        public void incrementFlag() {
-            flag = flag +1;
-        }
-
-        public void setUserRunning (boolean action) {
-            userRunning = action;
-        }
-
-        public void setUserTurning (boolean action) {
-            userTurning = action;
-        }
-
         public readBuiltinSensors(Activity _activity, int _measuringFrequency) {
             //this.activity = _activity;
             measuringFrequency = _measuringFrequency;
 
-            //_slv = (ListView)findViewById(R.id.sensor_listView);
 
             mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
             sensorList = mSensorManager.getSensorList(Sensor.TYPE_ALL);
-
-            /* Below code is to remove wake-up sensors from sensorList
-                List<Sensor> sensorsToRegister = new ArrayList<Sensor>();
-                for (Sensor s : sensorList) {
-                  if (!s.isWakeUpSensor())
-                      sensorsToRegister.add(s);
-                }
-                sensorList = sensorsToRegister;
-            */
-
-            //registerSensors(mSensorManager, sensorList);
-            //numberOfSensors = sensorList.size();
 
             SensorList_text = new ArrayList<String>();
             // sensorHashMap = new HashMap<String, float[]>(); // 112
@@ -1100,11 +1029,6 @@ public class MainActivity extends Activity {
             List<Sensor> defaultSensorList = new ArrayList<>(); //112
 
             for (int i = 0; i < sensorList.size(); i++) {
-                // 112 String sensorHashKey = sensorList.get(i).getType() + ": " + sensorList.get(i).getStringType(); // wakeup + non-wakeup sensors together
-                //String sensorHashKey = sensorList.get(i).getType() + ": " + sensorList.get(i).getName(); // wakeup + non-wakeup sensors separate
-                //String sensorHashKey = sensorList.get(i).getType() + "";
-
-                //Sensor sensorHashKey = sensorList.get(i);
 
                 Sensor sensorHashKey = mSensorManager.getDefaultSensor(sensorList.get(i).getType()); // 112
 
@@ -1113,7 +1037,6 @@ public class MainActivity extends Activity {
                     sensorHashMap.put(sensorHashKey, null);
                 }
 
-                //SensorList_text.add("" + sensorList.get(i).getName());
             }
             sensorList = defaultSensorList;
 
@@ -1151,18 +1074,11 @@ public class MainActivity extends Activity {
             registerSensors(mSensorManager, sensorList);
 
             while (running) {
-                final String sensors[] = new String[5];
-                sensors[0] = "Acceleration: " + Arrays.toString(s_accelerometer);
-                sensors[1] = "Gyroscope: " + Arrays.toString(s_gyroscope);
-                sensors[2] = "Magnetic Field: " + Arrays.toString(s_magneticfield);
-                sensors[3] = "Light: " + Arrays.toString(s_light);
-                sensors[4] = "Linear Acc.: " + Arrays.toString(s_linearacceleration);
 
-                //SensorList_text = Arrays.asList(sensors);
-
-                //List<String> keyList = new ArrayList<String>(sensorHashMap.keySet()); // 112
                 List<Sensor> keyList = new ArrayList<>(sensorHashMap.keySet());
+
                 SensorList_text = new ArrayList<String>();
+
                 for (int i = 0; i < keyList.size();i++){
                     if (sensorLastTimestampHashMap.get(keyList.get(i)) != null )
                     SensorList_text.add(keyList.get(i) + ": " + Arrays.toString(sensorHashMap.get(keyList.get(i))) +
@@ -1177,20 +1093,7 @@ public class MainActivity extends Activity {
                         //slv.setAdapter(new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, sensors));
                         if (s_light != null)
                             WiFiScanTime.setText(" Light: " + s_light[0]);
-
                         prepareListData();
-
-                        /*boolean WiFiGroupExpanded = expListView.isGroupExpanded(0);
-                        boolean CellGroupExpanded = expListView.isGroupExpanded(1);
-                        boolean SensorGroupExpanded = expListView.isGroupExpanded(2);
-
-                        expListAdapter = new ExpandableListViewAdapter(getApplicationContext(), listDataHeader, listDataChild);
-                        expListView.setAdapter(expListAdapter);
-
-                        if (WiFiGroupExpanded) expListView.expandGroup(0);
-                        if (CellGroupExpanded) expListView.expandGroup(1);
-                        if (SensorGroupExpanded) expListView.expandGroup(2);*/
-
                     }
                 });
 
@@ -1200,29 +1103,8 @@ public class MainActivity extends Activity {
                     Log.e("THREAD_SLEEP", e.toString());
                 }
 
-                try {
-                    String line = Math.ceil(System.currentTimeMillis() / 1) + " " + s_accelerometer[0] + " " + s_accelerometer[1] + " " + s_accelerometer[2] +
-                            " " + s_gyroscope[0] + " " + s_gyroscope[1] + " " + s_gyroscope[2] + " " +
-                            " " + userRunning + " " + userTurning + " " + flag + "\n";
-                    //testFileWriter = new FileWriter(testFile);
-                    //testFileWriter.append(line);
-                    //testFileWriter.flush();
-                    //fos.write(measurements.getBytes());
-                    //Log.v("FILE_WRITE", line + " is written to " + testFile.getAbsolutePath());
-                    //sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(outFile)));
-                } catch (Exception e) {
-                    Log.e("FILE", e.toString());
-                }
+
             } // while running
-            if (!running) {
-                try {
-                    //testFileWriter.flush();
-                    //testFileWriter.close();
-                    //Log.v("FILE_WRITE", "File writer closed: " + testFile.getAbsolutePath() + "\n");
-                } catch (Exception e) {
-                    Log.e("FILE", e.toString());
-                }
-            }
         }
 
         private void registerSensors (SensorManager tSensorManager, List<Sensor> listOfSensors){
@@ -1299,6 +1181,10 @@ public class MainActivity extends Activity {
         //StartStopButton.setChecked(false);
     }
 
+    @Override
+    public void onBackPressed() {
+    }
+
     private LocationListener getLocationListener() {
         // Define a listener that responds to location updates
         Log.v("LocationListener: ", "Location Listener started.");
@@ -1307,8 +1193,12 @@ public class MainActivity extends Activity {
         LocationListener locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
                 // Called when a new location is found by the network location provider.
-                tv_bottomView.setText(location.toString());
-                Log.v("LocationListener: ", "Location UPDATE arrived!");
+
+                seq_nr_gpsfix++;
+
+                verbose.put("seq_nr_gpsfix", Integer.toString(seq_nr_gpsfix));
+                verbose.put("GPS FIX: ", location.toString());
+                tv_bottomView.setText(verbose.toString());
             }
 
             public void onStatusChanged(String provider, int status, Bundle extras) {}
@@ -1433,5 +1323,89 @@ public class MainActivity extends Activity {
                 PhoneStateListener.LISTEN_MESSAGE_WAITING_INDICATOR |
                 PhoneStateListener.LISTEN_SERVICE_STATE |
                 PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+    }
+
+    private void countMessagesInOutputFiles() {
+        int dot_messages = 0;
+        int sensor_messages = 0;
+        int wifi_messages = 0;
+        int cell_messages = 0;
+
+        FileInputStream WiFi_FIS = null, Sensor_FIS = null, Cell_FIS = null, Dot_FIS = null;
+
+        try {
+            WiFi_FIS = new FileInputStream(WiFi_output_file);
+            Sensor_FIS = new FileInputStream (Sensors_output_file);
+            Cell_FIS = new FileInputStream(Cellular_output_file);
+            Dot_FIS = new FileInputStream(Dots_output_file);
+        } catch (IOException e) {
+            Log.e("FIS: ", e.toString());
+        }
+
+        try {
+            while (WifiData.WiFiReading.parseDelimitedFrom(WiFi_FIS) != null) {
+                wifi_messages++;
+            }
+            WiFi_FIS.close();
+
+            while (SensorData.SensorReading.parseDelimitedFrom(Sensor_FIS) != null) {
+                sensor_messages++;
+            }
+            Sensor_FIS.close();
+
+            while (CellularData.CellularReading.parseDelimitedFrom(Cell_FIS) != null) {
+                cell_messages++;
+            }
+            Cell_FIS.close();
+
+            while (DotData.DotReading.parseDelimitedFrom(Dot_FIS) != null) {
+                dot_messages++;
+            }
+            Dot_FIS.close();
+
+        } catch (IOException e) {
+            Log.e("Read_FIS: ", e.toString());
+        }
+
+        /*Toast.makeText(getApplicationContext(),
+                    "WiFi_Messages = " + Integer.toString(wifi_messages) +
+                    "\nSensor_Messages = " + Integer.toString(sensor_messages) +
+                    "\nCellular_Messages = " + Integer.toString(cell_messages) +
+                    "\nDot_Messages = " + Integer.toString(dot_messages) ,
+                Toast.LENGTH_LONG).show();
+        */
+        AlertDialog.Builder message_count_dialog_builder = new AlertDialog.Builder(this);
+
+        message_count_dialog_builder.setMessage(
+                "WiFi_Messages = " + Integer.toString(wifi_messages) +
+                        "\nSensor_Messages = " + Integer.toString(sensor_messages) +
+                        "\nCellular_Messages = " + Integer.toString(cell_messages) +
+                        "\nDot_Messages = " + Integer.toString(dot_messages)
+                )
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                        }
+                                    });
+
+
+                /*"Change Sensor sampling frequency (microseconds)\\ Current:" + sensor_sampling_frequency).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                String t_input =  input.getText().toString();
+                if ( t_input.length() == 0 ) {
+                    Toast.makeText(getApplicationContext(), "Error: empty input" , Toast.LENGTH_LONG).show();
+
+                } else {
+                    sensor_sampling_frequency = Integer.parseInt(t_input);
+                    Toast.makeText(getApplicationContext(), "Set to: " + sensor_sampling_frequency,
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+        });*/
+        message_count_dialog_builder.show();
+
     }
 }
