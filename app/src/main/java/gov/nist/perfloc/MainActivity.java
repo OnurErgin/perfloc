@@ -236,7 +236,7 @@ public class MainActivity extends Activity {
                 //      Thread tRBS = new Thread(rbs);
                 if (isChecked) {
                     registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-                    wifi.startScan();
+                    wifi.startScan(); time_current = System.currentTimeMillis();
 
                     Thread tRBS = new Thread(rbs);
                     tRBS.start();
@@ -251,6 +251,7 @@ public class MainActivity extends Activity {
 
                     rbs.terminate();
                     aT.terminate();
+                    flushFiles();
                     Log.v("POOL: ", "Runnable stopped.");
                 }
                 v.vibrate(500);
@@ -632,14 +633,12 @@ public class MainActivity extends Activity {
                     .setTimestamp(event.timestamp)
                     .setAccuracy(event.accuracy);
 
-
         // Fill values
         SensorData.SensorReading.SensorEvent.SensorValues.Builder sensor_values = SensorData.SensorReading.SensorEvent.SensorValues.newBuilder();
         for (int i=0; i < event.values.length; i++)
             sensor_values.addValue(event.values[i]);
 
         sensor_event.setValues(sensor_values);  // sensor_event is ready
-
         sensor_data.setSensorEvent(sensor_event);   // sensor_data is ready
 
         return sensor_data.build();
@@ -807,37 +806,7 @@ public class MainActivity extends Activity {
                 return true;
             case R.id.flush_files:
 
-                unIndexFiles();
-
-                //writeProtobufsToFile();
-
-                try {
-                    WiFi_BOS.flush();
-                    Sensor_BOS.flush();
-                    Dots_BOS.flush();
-                    Cellular_BOS.flush();
-                } catch (IOException e) {
-                    Log.v("Flush BOS:",e.toString());
-                }
-
-                //sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(outFile)));
-                File wifiFile = new File(WiFi_output_file);
-                File sensorFile = new File(Sensors_output_file);
-                File dotFile = new File(Dots_output_file);
-
-                MediaScannerConnection.scanFile(
-                        getApplicationContext(),
-                        new String[]{wifiFile.getAbsolutePath(), sensorFile.getAbsolutePath(), dotFile.getAbsolutePath()},
-                        null,
-                        new MediaScannerConnection.OnScanCompletedListener() {
-                            @Override
-                            public void onScanCompleted(String path, Uri uri) {
-                                Log.v("Media Scanner", "file " + path + " was scanned successfully: " + uri);
-                                indexed_URIs.add(uri);
-                            }
-                        }
-                );
-                return true;
+                return flushFiles();
             case R.id.renew_files:
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setMessage("Are you sure?").setPositiveButton("Yes", renewDialogClickListener)
@@ -945,6 +914,40 @@ public class MainActivity extends Activity {
         }
     };
 
+    private boolean flushFiles () {
+        unIndexFiles();
+
+        //writeProtobufsToFile();
+
+        try {
+            WiFi_BOS.flush();
+            Sensor_BOS.flush();
+            Dots_BOS.flush();
+            Cellular_BOS.flush();
+        } catch (IOException e) {
+            Log.v("Flush BOS:",e.toString());
+            return false;
+        }
+
+        //sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(outFile)));
+        File wifiFile = new File(WiFi_output_file);
+        File sensorFile = new File(Sensors_output_file);
+        File dotFile = new File(Dots_output_file);
+
+        MediaScannerConnection.scanFile(
+                getApplicationContext(),
+                new String[]{wifiFile.getAbsolutePath(), sensorFile.getAbsolutePath(), dotFile.getAbsolutePath()},
+                null,
+                new MediaScannerConnection.OnScanCompletedListener() {
+                    @Override
+                    public void onScanCompleted(String path, Uri uri) {
+                        Log.v("Media Scanner", "file " + path + " was scanned successfully: " + uri);
+                        indexed_URIs.add(uri);
+                    }
+                }
+        );
+        return true;
+    }
 
     private class readBuiltinSensors implements Runnable {
 
@@ -1028,13 +1031,28 @@ public class MainActivity extends Activity {
 
             List<Sensor> defaultSensorList = new ArrayList<>(); //112
 
+            List<Sensor> nullSensorList = new ArrayList<>(); //112
+
             for (int i = 0; i < sensorList.size(); i++) {
 
                 Sensor sensorHashKey = mSensorManager.getDefaultSensor(sensorList.get(i).getType()); // 112
 
                 if (! defaultSensorList.contains(sensorHashKey)) {
-                    defaultSensorList.add(sensorHashKey);
-                    sensorHashMap.put(sensorHashKey, null);
+                    if ( sensorHashKey != null) {
+                        defaultSensorList.add(sensorHashKey);
+                        sensorHashMap.put(sensorHashKey, null);
+                    } else {
+                        boolean newSensorType = true;
+                        for (Sensor _s : nullSensorList) {
+                            if (_s.getType() == sensorList.get(i).getType() )
+                                newSensorType = false;
+                        }
+                        nullSensorList.add(sensorList.get(i));
+                        if (newSensorType) {
+                            defaultSensorList.add(sensorList.get(i));
+                            sensorHashMap.put(sensorList.get(i),null);
+                        }
+                    }
                 }
 
             }
@@ -1047,7 +1065,7 @@ public class MainActivity extends Activity {
             List<Sensor> keyList = new ArrayList<>(sensorHashMap.keySet());
             SensorList_text = new ArrayList<String>();
             for (int i = 0; i < keyList.size();i++){
-                SensorList_text.add(keyList.get(i) + ": " + Arrays.toString(sensorHashMap.get(keyList.get(i))) + "isWakeup?" + keyList.get(i).isWakeUpSensor());
+                SensorList_text.add(keyList.get(i) + ": " + Arrays.toString(sensorHashMap.get(keyList.get(i))) + ", isWakeup?"  + keyList.get(i).isWakeUpSensor());
             }
             numberOfSensors = sensorHashMap.size();
             handler.post(new Runnable() {
