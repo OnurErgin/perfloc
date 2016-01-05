@@ -14,4 +14,6 @@
         android:orderInCategory="100" android:showAsAction="never" />
     <item android:id="@+id/count_messages" android:title="@string/count_messages"
         android:orderInCategory="100" android:showAsAction="never" />
+    <item android:id="@+id/save_metadata" android:title="@string/save_metadata"
+        android:orderInCategory="100" android:showAsAction="never" />
 </menu>

@@ -129,7 +129,8 @@ public class MainActivity extends Activity {
     String  WiFi_output_file =  "_WiFi",
             Sensors_output_file = "_Sensors",
             Dots_output_file = "_Dots",
-            Cellular_output_file = "_Cellular";
+            Cellular_output_file = "_Cellular",
+            Metadata_output_file = "_Metadata";
 
     String device_identifier = Build.MANUFACTURER + "_" + Build.MODEL + "_" + Build.BRAND;
 
@@ -138,7 +139,7 @@ public class MainActivity extends Activity {
     String current_file_prefix = "1";
     List<Uri> indexed_URIs;
 
-    BufferedOutputStream WiFi_BOS, Sensor_BOS, Dots_BOS, Cellular_BOS;
+    BufferedOutputStream WiFi_BOS, Sensor_BOS, Dots_BOS, Cellular_BOS, Metadata_BOS;
 
     //String a; a.replaceAll("\\s+","");
 
@@ -379,17 +380,20 @@ public class MainActivity extends Activity {
         Sensors_output_file  = dirname + "/" + prefix + "_" + device_identifier + Sensors_output_file   + "." + protocol_buffer_file_extension;
         Dots_output_file     = dirname + "/" + prefix + "_" + device_identifier + Dots_output_file      + "." + protocol_buffer_file_extension;
         Cellular_output_file = dirname + "/" + prefix + "_" + device_identifier + Cellular_output_file  + "." + protocol_buffer_file_extension;
+        Metadata_output_file = dirname + "/" + prefix + "_" + device_identifier + Metadata_output_file  + "." + protocol_buffer_file_extension;
 
         WiFi_output_file     = WiFi_output_file.replaceAll("\\s+","");
         Sensors_output_file  = Sensors_output_file.replaceAll("\\s+","");
         Dots_output_file     = Dots_output_file.replaceAll("\\s+","");
         Cellular_output_file = Cellular_output_file.replaceAll("\\s+","");
+        Metadata_output_file = Metadata_output_file.replaceAll("\\s+","");
 
         try {
             WiFi_BOS = new BufferedOutputStream(new FileOutputStream(WiFi_output_file));
             Sensor_BOS = new BufferedOutputStream(new FileOutputStream(Sensors_output_file));
             Dots_BOS = new BufferedOutputStream(new FileOutputStream(Dots_output_file));
             Cellular_BOS = new BufferedOutputStream(new FileOutputStream(Cellular_output_file));
+            Metadata_BOS = new BufferedOutputStream(new FileOutputStream(Metadata_output_file));
         } catch (IOException e) {
             Log.e("BOS_File", e.toString());
         }
@@ -882,6 +886,25 @@ public class MainActivity extends Activity {
                 return true;
             case R.id.count_messages:
                 countMessagesInOutputFiles();
+                return true;
+            case R.id.save_metadata:
+                //ScenarioDefinition scenario_metadata = new ScenarioDefinition(Integer.parseInt(current_file_prefix),null,Metadata_BOS);
+                ScenarioDefinition scenario_metadata = new ScenarioDefinition();
+                scenario_metadata.ScenarioDefinition();
+                /*File dotFile = new File(Dots_output_file);
+
+                MediaScannerConnection.scanFile(
+                        getApplicationContext(),
+                        new String[]{wifiFile.getAbsolutePath(), sensorFile.getAbsolutePath(), dotFile.getAbsolutePath()},
+                        null,
+                        new MediaScannerConnection.OnScanCompletedListener() {
+                            @Override
+                            public void onScanCompleted(String path, Uri uri) {
+                                Log.v("Media Scanner", "file " + path + " was scanned successfully: " + uri);
+                                indexed_URIs.add(uri);
+                            }
+                        }
+                );*/
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
