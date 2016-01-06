@@ -24,11 +24,8 @@ public class ScenarioDefinition {
 
     public MetaData.Metadata metadata;
 
-    public void ScenarioDefinition () {
-        Log.v(TAG_VERBOSE, "I AM HERE!!");
-    }
-    public void ScenarioDefinition (int _id, List<Sensor> sensors, BufferedOutputStream Metadata_BOS) {
-        Log.v (TAG_VERBOSE, "object created" + _id + sensors.toString() + Metadata_BOS.toString());
+    public ScenarioDefinition (int _id, List<Sensor> sensors, BufferedOutputStream Metadata_BOS) {
+        Log.v (TAG_VERBOSE, "object created" + _id + sensors.toString().replaceAll("\\}, ","\\}\n") + Metadata_BOS.toString());
     }
 
     public void prepare (int _id, List<Sensor> sensors, BufferedOutputStream Metadata_BOS) {

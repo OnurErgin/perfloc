@@ -70,36 +70,38 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-
-//import gov.nist.perfloc.WiFi.WiFiRSSIMeasurement;
-
 
 public class MainActivity extends Activity {
 
     Vibrator v;
-    private final Handler handler = new Handler();
+    private final Handler main_handler = new Handler();
     static AudioManager am;
 
     // View related definitions
     ExpandableListView expListView;
-
     ToggleButton StartStopButton;
-
-    TextView numAPs, WiFiScanTime, tv_dotcounter, tv_sensor_event_counter, tv_timer_sec, tv_bottomView;
+    TextView numAPs,
+            WiFiScanTime,
+            tv_dotcounter,
+            tv_sensor_event_counter,
+            tv_timer_sec,
+            tv_bottomView;
 
     // Expandable List Adapter related definitions
     ExpandableListAdapter expListAdapter;
     List<String> listDataHeader;
     HashMap<String, List<String>> listDataChild;
-    List<String> WiFiList_text, CellList_text, SensorList_text;
+    List<String> WiFiList_text,
+            CellList_text,
+            SensorList_text;
+
 
     // WiFi Scanning related definitions
     WifiManager wifi;
-    String wifis[];
     WifiScanReceiver wifiReceiver;
-    long time_prev, time_current, time_diff;
-    int dot_current = 0;
+    long time_prev,
+            time_current,
+            time_diff;
 
     // Cell Tower and Telephony related definitions
     TelephonyManager tm;
@@ -108,27 +110,34 @@ public class MainActivity extends Activity {
     LocationManager locationManager;
 
     // Sensor related definitions
+     SensorHandler rbs;
+
     HashMap<Sensor, float[]> sensorHashMap; // 112
     HashMap<Sensor, Long> sensorLastTimestampHashMap; // 112
     HashMap<Sensor, Long> sensorCurrentTimestampHashMap; // 112
 
+    private int SENSOR_DELAY = SensorManager.SENSOR_DELAY_FASTEST;
+
+    volatile int dotCounter = 0;
+
+
     // Verbose info
     HashMap<String, String> verbose;
-    //SensorManager mSensorManager;
-    //List<Sensor> sensorList;
-    //float s_accelerometer[], s_gravity[], s_gyroscope[], s_proximity[], s_light[],
-    //        s_magneticfield[], s_magneticfielduncalibrated[], s_geomagneticrotationvector[], s_rotationvector[], s_linearacceleration[];
 
-    private ExecutorService pool;
-    volatile int dotCounter = 0;
-    volatile long senor_event_counter = 0;
-    private int sensor_sampling_frequency = SensorManager.SENSOR_DELAY_FASTEST;
+    volatile int numberOfAPs=0,
+                WiFiScanDuration=0,
+                numberOfCellTowers=0,
+                numberOfSensors=0;
 
-    volatile int numberOfAPs=0, WiFiScanDuration=0, numberOfCellTowers=0, numberOfSensors=0;
-
-    String  WiFi_output_file =  "_WiFi",
-            Sensors_output_file = "_Sensors",
-            Dots_output_file = "_Dots",
+    /*String  WiFi_output_file     = getString(R.string.wifi_file_name),     // "_WiFi",
+            Sensors_output_file  = getString(R.string.sensors_file_name),   //"_Sensors",
+            Dots_output_file     = getString(R.string.dots_file_name),      //"_Dots",
+            Cellular_output_file = getString(R.string.cellular_file_name),  //"_Cellular",
+            Metadata_output_file = getString(R.string.metadata_file_name);  //"_Metadata";
+*/
+    String  WiFi_output_file     = "_WiFi",
+            Sensors_output_file  = "_Sensors",
+            Dots_output_file     = "_Dots",
             Cellular_output_file = "_Cellular",
             Metadata_output_file = "_Metadata";
 
@@ -139,9 +148,12 @@ public class MainActivity extends Activity {
     String current_file_prefix = "1";
     List<Uri> indexed_URIs;
 
-    BufferedOutputStream WiFi_BOS, Sensor_BOS, Dots_BOS, Cellular_BOS, Metadata_BOS;
+    BufferedOutputStream WiFi_BOS,
+                        Sensor_BOS,
+                        Dots_BOS,
+                        Cellular_BOS,
+                        Metadata_BOS;
 
-    //String a; a.replaceAll("\\s+","");
 
     // Protocol Buffer ArrayLists
     List<DotData.DotReading> list_dot_readings;
@@ -173,10 +185,6 @@ public class MainActivity extends Activity {
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         LocationListener locationListener = getLocationListener();
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-
-        /*Location last_loc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        if (last_loc != null)
-            tv_bottomView.setText("last_loc: " + last_loc.getProvider());*/
 
         am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         am.setMode(AudioManager.MODE_NORMAL);
@@ -213,11 +221,6 @@ public class MainActivity extends Activity {
 
         expListView = (ExpandableListView) findViewById(R.id.expandableListView);
 
-        // Initial view of the Expandable List View
-        prepareListData();
-        expListAdapter = new ExpandableListViewAdapter(getApplicationContext(), listDataHeader, listDataChild);
-        expListView.setAdapter(expListAdapter);
-
         WiFiList_text = new ArrayList<>();
 
         wifi=(WifiManager)getSystemService(Context.WIFI_SERVICE);
@@ -227,8 +230,8 @@ public class MainActivity extends Activity {
         tm  = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         //listenPhoneState(tm);
 
-        final readBuiltinSensors rbs = new readBuiltinSensors(MainActivity.this, 100);
-        final applicationTimer aT = new applicationTimer();
+         rbs = new SensorHandler(main_handler, 100);
+        final MeasurementTimer aT = new MeasurementTimer(main_handler);
         //pool = Executors.newFixedThreadPool(2); // Either use a thread pool, or create a separate thread each time and call Thread.start()
         //final Thread tRBS = new Thread(rbs);
 
@@ -293,6 +296,8 @@ public class MainActivity extends Activity {
             session.setActive(true);
         }
 
+        // Initial view of the Expandable List View
+        updateExpandableListView();
     }
 
     public class HeadsetIntentReceiver extends BroadcastReceiver {
@@ -437,6 +442,13 @@ public class MainActivity extends Activity {
 
     }
 
+    private void updateExpandableListView (){
+        prepareListData(); // Prepare the String Lists of headers and HashMaps of their children
+
+        expListAdapter = new ExpandableListViewAdapter(getApplicationContext(), listDataHeader, listDataChild);
+        expListView.setAdapter(expListAdapter);
+    }
+
     private void prepareListData() {
         listDataHeader = new ArrayList<String>();
         listDataChild = new HashMap<String, List<String>>();
@@ -444,7 +456,8 @@ public class MainActivity extends Activity {
         // Adding headers:
         listDataHeader.add(numberOfAPs + " Access Points, delay: " + WiFiScanDuration + "ms");
         listDataHeader.add(numberOfCellTowers + " Cell Towers");
-        listDataHeader.add(numberOfSensors + " Sensors");
+        //listDataHeader.add(numberOfSensors + " Sensors");
+        listDataHeader.add(SensorList_text.size() + "/" + numberOfSensors + " Sensors");
 
         // Adding child data
         //WiFiList_text = new ArrayList<String>();
@@ -471,8 +484,8 @@ public class MainActivity extends Activity {
         WifiData.WiFiReading.Builder wifi_data = WifiData.WiFiReading.newBuilder();
 
         wifi_data.setSequenceNr(seq_nr_wifi)
-                 .setTimestamp(System.currentTimeMillis())
-                 .setLastDotNr(seq_nr_dot);
+                .setTimestamp(System.currentTimeMillis())
+                .setLastDotNr(seq_nr_dot);
 
         for (ScanResult sr : wifiScanList) {
             WifiData.WiFiReading.WiFiAP.Builder wifi_ap = WifiData.WiFiReading.WiFiAP.newBuilder();
@@ -496,7 +509,7 @@ public class MainActivity extends Activity {
 
         cellular_data.setSequenceNr(seq_nr_cellular)
                      .setTimestamp(System.currentTimeMillis())
-                     .setLastDotNr(seq_nr_dot);
+                .setLastDotNr(seq_nr_dot);
 
         for (CellInfo info : cInfoList){
 
@@ -654,7 +667,7 @@ public class MainActivity extends Activity {
             time_prev = time_current;
             time_current = System.currentTimeMillis();
             time_diff = (time_current - time_prev);
-            //WiFiScanTime.setText("\u0394".toUpperCase() + "t(ms):" + time_diff);
+
 
             seq_nr_wifi = seq_nr_wifi + 1;
             WifiData.WiFiReading wifi_reading = prepareWiFiProtobuf(wifi.getScanResults());
@@ -681,10 +694,6 @@ public class MainActivity extends Activity {
 
             wifi.startScan();
 
-            //numAPs.setText("# APs: " + wifiScanList.size());
-
-            //WiFiList_text = Arrays.asList(wifis);
-            //numberOfAPs = wifiScanList.size();
             WiFiScanDuration = (int) time_diff;
 
             // Get CellInfo and display
@@ -760,7 +769,6 @@ public class MainActivity extends Activity {
                 //numberOfCellTowers = cInfoList.size();
             } else CellList_text = new ArrayList<String>();
 
-            prepareListData();
 
             boolean WiFiGroupExpanded = expListView.isGroupExpanded(0);
             boolean CellGroupExpanded = expListView.isGroupExpanded(1);
@@ -768,8 +776,7 @@ public class MainActivity extends Activity {
 
             //int mListPosition = expListView.getVerticalScrollbarPosition();
 
-            expListAdapter = new ExpandableListViewAdapter(getApplicationContext(), listDataHeader, listDataChild);
-            expListView.setAdapter(expListAdapter);
+            updateExpandableListView();
 
             if (WiFiGroupExpanded) expListView.expandGroup(0);
             if (CellGroupExpanded) expListView.expandGroup(1);
@@ -777,7 +784,7 @@ public class MainActivity extends Activity {
 
             //expListView.setVerticalScrollbarPosition(mListPosition);
 
-            tv_bottomView.setText(verbose.toString());
+            tv_bottomView.setText(verbose.toString().replaceAll(", ","\n"));
         }
     }
     /* For ignoring Orientation change! */
@@ -827,7 +834,7 @@ public class MainActivity extends Activity {
                 input.setInputType(InputType.TYPE_NUMBER_VARIATION_NORMAL | InputType.TYPE_CLASS_NUMBER);
                 freq_dialog_builder.setView(input);
 
-                freq_dialog_builder.setMessage("Change Sensor sampling frequency (microseconds)\\ Current:" + sensor_sampling_frequency).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                freq_dialog_builder.setMessage("Change Sensor sampling frequency (microseconds)\\ Current:" + SENSOR_DELAY).setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
@@ -836,8 +843,8 @@ public class MainActivity extends Activity {
                             Toast.makeText(getApplicationContext(), "Error: empty input" , Toast.LENGTH_LONG).show();
 
                         } else {
-                            sensor_sampling_frequency = Integer.parseInt(t_input);
-                            Toast.makeText(getApplicationContext(), "Set to: " + sensor_sampling_frequency,
+                            SENSOR_DELAY = Integer.parseInt(t_input);
+                            Toast.makeText(getApplicationContext(), "Set to: " + SENSOR_DELAY,
                                     Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -889,8 +896,26 @@ public class MainActivity extends Activity {
                 return true;
             case R.id.save_metadata:
                 //ScenarioDefinition scenario_metadata = new ScenarioDefinition(Integer.parseInt(current_file_prefix),null,Metadata_BOS);
-                ScenarioDefinition scenario_metadata = new ScenarioDefinition();
-                scenario_metadata.ScenarioDefinition();
+                ScenarioDefinition scenario_metadata = new ScenarioDefinition(0, rbs.sensorList, Metadata_BOS);
+                //scenario_metadata.prepareMetadataProtoBuf(0, rbs.sensorList);
+                //scenario_metadata.writeMetadataToFile(Metadata_BOS);
+                scenario_metadata.prepare(0, rbs.sensorList, Metadata_BOS);
+
+                File MetadataFile = new File(Metadata_output_file);
+
+                MediaScannerConnection.scanFile(
+                        getApplicationContext(),
+                        new String[]{MetadataFile.getAbsolutePath()},
+                        null,
+                        new MediaScannerConnection.OnScanCompletedListener() {
+                            @Override
+                            public void onScanCompleted(String path, Uri uri) {
+                                Log.v("Media Scanner", "file " + path + " was scanned successfully: " + uri);
+                                indexed_URIs.add(uri);
+                            }
+                        }
+                );
+
                 /*File dotFile = new File(Dots_output_file);
 
                 MediaScannerConnection.scanFile(
@@ -972,23 +997,152 @@ public class MainActivity extends Activity {
         return true;
     }
 
-    private class readBuiltinSensors implements Runnable {
+    private class SensorHandler implements Runnable {
+
+        Handler mHandler;
+
+        public List<Sensor> sensorList;
 
         private volatile boolean running;
-
         private volatile int measuringFrequency;
-
         SensorManager mSensorManager;
-
-        List<Sensor> sensorList;
-
         volatile int flag = 0;
 
         float[] s_light;
 
+        public SensorHandler(Handler _handler, int _measuringFrequency) {
+
+            mHandler = _handler;
+            measuringFrequency = _measuringFrequency;
+
+
+            mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+
+            sensorList = getDefaultSensorList();
+
+            //SensorList_text = new ArrayList<String>();
+            // sensorHashMap = new HashMap<String, float[]>(); // 112
+            sensorHashMap = new HashMap<Sensor, float[]>();
+            sensorLastTimestampHashMap = new  HashMap<Sensor, Long>(); // 112
+            sensorCurrentTimestampHashMap = new  HashMap<Sensor, Long>(); // 112
+
+            for (Sensor _s : sensorList) {
+                sensorHashMap.put(_s, null);
+            }
+
+            if (sensorList.size() != sensorHashMap.size())
+                Log.e("DEADLY ERROR!!!!", "defaultSensorList.size() != sensorHashMap.size() : " + sensorList.size() + " != " + sensorHashMap.size() );
+
+            //List<String> keyList = new ArrayList<String>(sensorHashMap.keySet()); //112
+            List<Sensor> keyList = new ArrayList<>(sensorHashMap.keySet());
+            SensorList_text = new ArrayList<String>();
+            for (int i = 0; i < keyList.size();i++){
+                SensorList_text.add(keyList.get(i) + ": " + Arrays.toString(sensorHashMap.get(keyList.get(i))) + ", isWakeup?"  + keyList.get(i).isWakeUpSensor());
+            }
+            numberOfSensors = sensorHashMap.size();
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+
+                    WiFiScanTime.setText("Ready! " + Arrays.toString(s_light));
+
+                    updateExpandableListView();
+
+
+                }
+            });
+        }
+
+        public List<Sensor> getDefaultSensorList () {
+            List<Sensor> sensorList = mSensorManager.getSensorList(Sensor.TYPE_ALL);
+
+            List<Sensor> defaultSensorList = new ArrayList<>(); //112
+
+            List<Sensor> nullSensorList = new ArrayList<>(); //112
+
+            for (int i = 0; i < sensorList.size(); i++) {
+
+                Sensor default_sensor = mSensorManager.getDefaultSensor(sensorList.get(i).getType()); // 112
+
+                if (! defaultSensorList.contains(default_sensor)) {
+                    if ( default_sensor != null) {
+                        defaultSensorList.add(default_sensor);
+                    } else {
+                        boolean newSensorType = true;
+                        for (Sensor _s : nullSensorList) {
+                            if (_s.getType() == sensorList.get(i).getType() )
+                                newSensorType = false;
+                        }
+                        nullSensorList.add(sensorList.get(i));
+                        if (newSensorType) {
+                            defaultSensorList.add(sensorList.get(i));
+                        }
+                    }
+                }
+
+            }
+            sensorList = defaultSensorList;
+            return sensorList;
+        }
+
+        @Override
+        public void run() {
+
+            running = true;
+
+            registerSensors(mSensorManager, sensorList);
+
+            while (running) {
+
+                List<Sensor> keyList = new ArrayList<>(sensorHashMap.keySet());
+
+                SensorList_text = new ArrayList<String>();
+
+                for (int i = 0; i < keyList.size();i++){
+                    if (sensorLastTimestampHashMap.get(keyList.get(i)) != null )
+                        SensorList_text.add(keyList.get(i) + ": " + Arrays.toString(sensorHashMap.get(keyList.get(i))) +
+                                " in " + (sensorCurrentTimestampHashMap.get(keyList.get(i)) - sensorLastTimestampHashMap.get(keyList.get(i)))/1000000 + "msec" + ", isWakeup: " );
+                }
+
+                Collections.sort(SensorList_text, String.CASE_INSENSITIVE_ORDER);
+
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (s_light != null)
+                            WiFiScanTime.setText(" Light: " + s_light[0]);
+                        //prepareListData();
+                    }
+                });
+
+                try {
+                    Thread.sleep(measuringFrequency);
+                } catch (InterruptedException e) {
+                    Log.e("THREAD_SLEEP", e.toString());
+                }
+
+
+            } // while running
+        }
+
+        private void registerSensors (SensorManager tSensorManager, List<Sensor> listOfSensors){
+            //SENSOR_DELAY_GAME = 20.000 microsecond
+            //SENSOR_DELAY_NORMAL = 180.000 microsecond
+            //SENSOR_DELAY_UI = 60.000 microsecond mSensorManager.SENSOR_DELAY_UI
+            //SENSOR_DELAY_FASTEST = As fast as possible
+
+            for (int i = 0; i < listOfSensors.size(); i++) {
+                mSensorManager.registerListener(mSensorListener, listOfSensors.get(i), SENSOR_DELAY);
+            }
+        }
+
+        private void unRegisterSensors (SensorManager tSensorManager){
+            mSensorManager.unregisterListener(mSensorListener);
+        }
 
         private SensorEventListener mSensorListener = new SensorEventListener() {
 
+            volatile long senor_event_counter = 0;
             @Override
             public void onAccuracyChanged(Sensor sensor, int accuracy) {
             }
@@ -1012,7 +1166,7 @@ public class MainActivity extends Activity {
 
                 verbose.put("seq_nr_sensorevent", Integer.toString(sensor_event.getSequenceNr()));
 
-                handler.post(new Runnable() {
+                mHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         tv_sensor_event_counter.setText(senor_event_counter + "");
@@ -1038,146 +1192,17 @@ public class MainActivity extends Activity {
             running = false;
         }
 
-        public readBuiltinSensors(Activity _activity, int _measuringFrequency) {
-            //this.activity = _activity;
-            measuringFrequency = _measuringFrequency;
-
-
-            mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-            sensorList = mSensorManager.getSensorList(Sensor.TYPE_ALL);
-
-            SensorList_text = new ArrayList<String>();
-            // sensorHashMap = new HashMap<String, float[]>(); // 112
-            sensorHashMap = new HashMap<Sensor, float[]>();
-            sensorLastTimestampHashMap = new  HashMap<Sensor, Long>(); // 112
-            sensorCurrentTimestampHashMap = new  HashMap<Sensor, Long>(); // 112
-
-            List<Sensor> defaultSensorList = new ArrayList<>(); //112
-
-            List<Sensor> nullSensorList = new ArrayList<>(); //112
-
-            for (int i = 0; i < sensorList.size(); i++) {
-
-                Sensor sensorHashKey = mSensorManager.getDefaultSensor(sensorList.get(i).getType()); // 112
-
-                if (! defaultSensorList.contains(sensorHashKey)) {
-                    if ( sensorHashKey != null) {
-                        defaultSensorList.add(sensorHashKey);
-                        sensorHashMap.put(sensorHashKey, null);
-                    } else {
-                        boolean newSensorType = true;
-                        for (Sensor _s : nullSensorList) {
-                            if (_s.getType() == sensorList.get(i).getType() )
-                                newSensorType = false;
-                        }
-                        nullSensorList.add(sensorList.get(i));
-                        if (newSensorType) {
-                            defaultSensorList.add(sensorList.get(i));
-                            sensorHashMap.put(sensorList.get(i),null);
-                        }
-                    }
-                }
-
-            }
-            sensorList = defaultSensorList;
-
-            if (defaultSensorList.size() != sensorHashMap.size())
-                Log.e("DEADLY ERROR!!!!", "defaultSensorList.size() != sensorHashMap.size() : " + defaultSensorList.size() + " != " + sensorHashMap.size() );
-
-            //List<String> keyList = new ArrayList<String>(sensorHashMap.keySet()); //112
-            List<Sensor> keyList = new ArrayList<>(sensorHashMap.keySet());
-            SensorList_text = new ArrayList<String>();
-            for (int i = 0; i < keyList.size();i++){
-                SensorList_text.add(keyList.get(i) + ": " + Arrays.toString(sensorHashMap.get(keyList.get(i))) + ", isWakeup?"  + keyList.get(i).isWakeUpSensor());
-            }
-            numberOfSensors = sensorHashMap.size();
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    //slv.setAdapter(new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, sensors));
-                    WiFiScanTime.setText("Ready! " + Arrays.toString(s_light));
-
-                    prepareListData();
-                    expListAdapter = new ExpandableListViewAdapter(getApplicationContext(), listDataHeader, listDataChild);
-                    expListView.setAdapter(expListAdapter);
-
-
-                }
-            });
-        }
-
-        @Override
-        public void run() {
-            //scanSwitch.toggle();
-
-            running = true;
-
-            registerSensors(mSensorManager, sensorList);
-
-            while (running) {
-
-                List<Sensor> keyList = new ArrayList<>(sensorHashMap.keySet());
-
-                SensorList_text = new ArrayList<String>();
-
-                for (int i = 0; i < keyList.size();i++){
-                    if (sensorLastTimestampHashMap.get(keyList.get(i)) != null )
-                    SensorList_text.add(keyList.get(i) + ": " + Arrays.toString(sensorHashMap.get(keyList.get(i))) +
-                                         " in " + (sensorCurrentTimestampHashMap.get(keyList.get(i)) - sensorLastTimestampHashMap.get(keyList.get(i)))/1000000 + "msec" + "isWakeup: " );
-                }
-
-                Collections.sort(SensorList_text, String.CASE_INSENSITIVE_ORDER);
-
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        //slv.setAdapter(new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, sensors));
-                        if (s_light != null)
-                            WiFiScanTime.setText(" Light: " + s_light[0]);
-                        prepareListData();
-                    }
-                });
-
-                try {
-                    Thread.sleep(measuringFrequency);
-                } catch (InterruptedException e) {
-                    Log.e("THREAD_SLEEP", e.toString());
-                }
-
-
-            } // while running
-        }
-
-        private void registerSensors (SensorManager tSensorManager, List<Sensor> listOfSensors){
-            //SENSOR_DELAY_GAME = 20.000 microsecond
-            //SENSOR_DELAY_NORMAL = 180.000 microsecond
-            //SENSOR_DELAY_UI = 60.000 microsecond mSensorManager.SENSOR_DELAY_UI
-            //SENSOR_DELAY_FASTEST = As fast as possible
-
-            for (int i = 0; i < listOfSensors.size(); i++) {
-                mSensorManager.registerListener(mSensorListener, listOfSensors.get(i), sensor_sampling_frequency);
-            }
-        }
-
-        private void unRegisterSensors (SensorManager tSensorManager){
-                mSensorManager.unregisterListener(mSensorListener);
-        }
-
-        private class  SensorReading {
-            public String sensorName;
-            public int[] sensorValues;
-        }
-
-
     }
 
-    private class applicationTimer implements Runnable {
+    private class MeasurementTimer implements Runnable {
 
         int timer_sec = 0;
         boolean running;
 
-        public applicationTimer() {
+        Handler mHandler;
 
+        public MeasurementTimer(Handler _handler) {
+            mHandler = _handler;
         }
 
         public void terminate(){
@@ -1194,13 +1219,13 @@ public class MainActivity extends Activity {
                 } catch (InterruptedException e) {
                     Log.e("THREAD_SLEEP", e.toString());
                 }
-                handler.post(new Runnable() {
+                mHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         //slv.setAdapter(new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, sensors));
                         timer_sec++;
-                        tv_timer_sec.setText( (int) Math.floor(timer_sec / 60) + " min : " +
-                                              (timer_sec%60) + " sec");
+                        tv_timer_sec.setText((int) Math.floor(timer_sec / 60) + " min : " +
+                                (timer_sec % 60) + " sec");
                     }
                 });
             }
@@ -1408,13 +1433,6 @@ public class MainActivity extends Activity {
             Log.e("Read_FIS: ", e.toString());
         }
 
-        /*Toast.makeText(getApplicationContext(),
-                    "WiFi_Messages = " + Integer.toString(wifi_messages) +
-                    "\nSensor_Messages = " + Integer.toString(sensor_messages) +
-                    "\nCellular_Messages = " + Integer.toString(cell_messages) +
-                    "\nDot_Messages = " + Integer.toString(dot_messages) ,
-                Toast.LENGTH_LONG).show();
-        */
         AlertDialog.Builder message_count_dialog_builder = new AlertDialog.Builder(this);
 
         message_count_dialog_builder.setMessage(
@@ -1429,23 +1447,6 @@ public class MainActivity extends Activity {
                                         public void onClick(DialogInterface dialog, int which) {
                                         }
                                     });
-
-
-                /*"Change Sensor sampling frequency (microseconds)\\ Current:" + sensor_sampling_frequency).setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-                String t_input =  input.getText().toString();
-                if ( t_input.length() == 0 ) {
-                    Toast.makeText(getApplicationContext(), "Error: empty input" , Toast.LENGTH_LONG).show();
-
-                } else {
-                    sensor_sampling_frequency = Integer.parseInt(t_input);
-                    Toast.makeText(getApplicationContext(), "Set to: " + sensor_sampling_frequency,
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
-        });*/
         message_count_dialog_builder.show();
 
     }
