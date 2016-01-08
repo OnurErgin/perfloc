@@ -80,7 +80,7 @@ public class MainActivity extends Activity {
     // View related definitions
     ExpandableListView expListView;
     ToggleButton StartStopButton;
-    TextView numAPs,
+    static TextView numAPs,
             WiFiScanTime,
             tv_dotcounter,
             tv_sensor_event_counter,
@@ -99,12 +99,10 @@ public class MainActivity extends Activity {
     // WiFi Scanning related definitions
     WifiManager wifi;
     WifiScanReceiver wifiReceiver;
-    long time_prev,
-            time_current,
-            time_diff;
+    long time_prev, time_current;
 
     // Cell Tower and Telephony related definitions
-    TelephonyManager tm;
+    TelephonyManager telephony_manager;
 
     // Location Services: GPS
     LocationManager locationManager;
@@ -122,7 +120,7 @@ public class MainActivity extends Activity {
 
 
     // Verbose info
-    HashMap<String, String> verbose;
+    HashMap<String, String> onScreenVerbose;
 
     volatile int numberOfAPs=0,
                 WiFiScanDuration=0,
@@ -180,24 +178,12 @@ public class MainActivity extends Activity {
         wakeLock.acquire();
         Log.v("WakeLock (isHeld?): ", wakeLock.isHeld() + ".");
 
-        verbose = new HashMap<>();
+        onScreenVerbose = new HashMap<>();
 
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         LocationListener locationListener = getLocationListener();
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 
-        am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        am.setMode(AudioManager.MODE_NORMAL);
-        //am.setWiredHeadsetOn(false);
-        am.setSpeakerphoneOn(true);
-
-        try {
-            Log.e("AudioMAnagaer:", am.toString());
-        } catch (NullPointerException e) {
-            Log.e("Null pointer:", e.toString());
-        }
-        for (int i=0; i<1; i++)
-            am.playSoundEffect(AudioManager.FX_KEYPRESS_INVALID);
 
         list_cellular_readings = new ArrayList<>();
         list_dot_readings = new ArrayList<>();
@@ -227,8 +213,8 @@ public class MainActivity extends Activity {
         wifiReceiver = new WifiScanReceiver();
 
 
-        tm  = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        //listenPhoneState(tm);
+        telephony_manager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        //listenPhoneState(telephony_manager);
 
          rbs = new SensorHandler(main_handler, 100);
         final MeasurementTimer aT = new MeasurementTimer(main_handler);
@@ -240,7 +226,8 @@ public class MainActivity extends Activity {
                 //      Thread tRBS = new Thread(rbs);
                 if (isChecked) {
                     registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-                    wifi.startScan(); time_current = System.currentTimeMillis();
+                    wifi.startScan();
+                    time_current = System.currentTimeMillis();
 
                     Thread tRBS = new Thread(rbs);
                     tRBS.start();
@@ -263,14 +250,43 @@ public class MainActivity extends Activity {
 
         });
 
-        IntentFilter filter = new IntentFilter(Intent.ACTION_MEDIA_BUTTON);
-        filter.setPriority(10000);
+
+        /*if ("lge".equalsIgnoreCase(Build.BRAND)||true) {
+            MediaSession mediaSession = new MediaSession(this, "Perfloc MediaSession TAG");
+                mediaSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS);
+                //mediaSession.setCallback(this);
+                //Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+                Intent mediaButtonIntent = new Intent(getApplicationContext(), MediaButtonIntentReceiver.class);
+                PendingIntent pIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, mediaButtonIntent, 0);
+                mediaSession.setMediaButtonReceiver(pIntent);
+                mediaSession.setActive(true);
+        }
+*/
+
+        /*IntentFilter filter = new IntentFilter(Intent.ACTION_MEDIA_BUTTON);
+        filter.setPriority(Integer.MAX_VALUE);
         registerReceiver(new MediaButtonIntentReceiver(), filter);
+*/
 
+        am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        //am.setMode(AudioManager.MODE_NORMAL);
+        //am.setSpeakerphoneOn(true);
+       // am.registerMediaButtonEventReceiver(MediaButtonIntentReceiver);
+/*
+        try {
+            Log.e("AudioMAnagaer:", am.toString());
+        } catch (NullPointerException e) {
+            Log.e("Null pointer:", e.toString());
+        }
+        for (int i=0; i<1; i++)
+            am.playSoundEffect(AudioManager.FX_KEYPRESS_INVALID);
+*/
+
+/*
         IntentFilter filter1 = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
-        filter1.setPriority(10000);
+        filter1.setPriority(Integer.MAX_VALUE);
         registerReceiver(new HeadsetIntentReceiver(), filter1);
-
+*/
 
         if(false ) {
             final MediaSession session = new MediaSession(getApplicationContext(), "TAG");
@@ -299,8 +315,21 @@ public class MainActivity extends Activity {
         // Initial view of the Expandable List View
         updateExpandableListView();
     }
-
-    public class HeadsetIntentReceiver extends BroadcastReceiver {
+    AudioManager.OnAudioFocusChangeListener afChangeListener =
+            new AudioManager.OnAudioFocusChangeListener() {
+                public void onAudioFocusChange(int focusChange) {
+                    if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
+                        // Pause playback
+                    } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
+                        // Resume playback
+                    } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
+                        //am.unregisterMediaButtonEventReceiver(RemoteControlReceiver);
+                        //am.abandonAudioFocus(afChangeListener);
+                        // Stop playback
+                    }
+                }
+            };
+    /*public class HeadsetIntentReceiver extends BroadcastReceiver {
 
         public HeadsetIntentReceiver() {
             super();
@@ -325,12 +354,39 @@ public class MainActivity extends Activity {
                 }
             }
         }
+    }*/
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+
+        if (event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_HEADSETHOOK) {
+            Log.v("__MEDIA_BUTTON__", "DOWN Pressed.");
+            am.playSoundEffect(AudioManager.FX_KEYPRESS_INVALID);
+            markDot();
+        }
+        return true;
+    }
+
+    public void markDot() {
+        dotCounter++;
+        tv_dotcounter.setText(dotCounter + "");
+        //list_dot_readings.add(prepareDotProtobuf(++seq_nr_dot));
+        DotData.DotReading dot_reading = prepareDotProtobuf(++seq_nr_dot);
+
+        try {
+            dot_reading.writeDelimitedTo(Dots_BOS);
+        } catch (IOException e) {
+            Log.e("Dots_BOS exception:", e.toString());
+        }
+
+        onScreenVerbose.put("seq_nr_dot", Integer.toString(dot_reading.getDotNr()));
     }
 
     public class MediaButtonIntentReceiver extends BroadcastReceiver {
 
         public MediaButtonIntentReceiver() {
             super();
+            Log.v("MediaB.IntentReceiver:", "Intent Receiver for Media Button Registered");
         }
 
         @Override
@@ -346,22 +402,10 @@ public class MainActivity extends Activity {
             }
             int action = event.getAction();
             if (action == KeyEvent.ACTION_DOWN) {
-                // do something
+
                 Log.v("MEDIA BUTTON", "Button pressed2!...");
                 //StartStopButton.toggle();
-                dotCounter++;
-                tv_dotcounter.setText(dotCounter + "");
-                //list_dot_readings.add(prepareDotProtobuf(++seq_nr_dot));
-                DotData.DotReading dot_reading = prepareDotProtobuf(++seq_nr_dot);
-
-                try {
-                    dot_reading.writeDelimitedTo(Dots_BOS);
-                } catch (IOException e) {
-                    Log.e("Dots_BOS exception:", e.toString());
-                }
-
-                verbose.put("seq_nr_dot", Integer.toString(dot_reading.getDotNr()));
-                //am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+                markDot();
 
                 am.playSoundEffect(AudioManager.FX_KEYPRESS_INVALID);
 
@@ -375,7 +419,6 @@ public class MainActivity extends Activity {
                 }
                 */
             }
-            abortBroadcast();
         }
     }
 
@@ -417,11 +460,10 @@ public class MainActivity extends Activity {
         return true;
     }
 
+    /**
+     *  Not needed anymore
+     */
     private void writeProtobufsToFile () {
-        // TODO: Count the number of times readings are delimited written into the files.
-        // At each recall to this function, the writing must continue from that index on.
-        // This holds for all except for SensorReadings.
-
         try {
             for (DotData.DotReading d : list_dot_readings){
                 d.writeDelimitedTo(Dots_BOS);
@@ -443,10 +485,25 @@ public class MainActivity extends Activity {
     }
 
     private void updateExpandableListView (){
-        prepareListData(); // Prepare the String Lists of headers and HashMaps of their children
+        boolean WiFiGroupExpanded = false;
+        boolean CellGroupExpanded = false;
+        boolean SensorGroupExpanded = false;
 
+        if (expListAdapter != null) {
+            WiFiGroupExpanded = expListView.isGroupExpanded(0);
+            CellGroupExpanded = expListView.isGroupExpanded(1);
+            SensorGroupExpanded = expListView.isGroupExpanded(2);
+            //int mListPosition = expListView.getVerticalScrollbarPosition();
+        }
+
+        prepareListData(); // Prepare the String Lists of headers and HashMaps of their children
         expListAdapter = new ExpandableListViewAdapter(getApplicationContext(), listDataHeader, listDataChild);
         expListView.setAdapter(expListAdapter);
+
+        //expListView.setVerticalScrollbarPosition(mListPosition);
+        if (WiFiGroupExpanded) expListView.expandGroup(0);
+        if (CellGroupExpanded) expListView.expandGroup(1);
+        if (SensorGroupExpanded) expListView.expandGroup(2);
     }
 
     private void prepareListData() {
@@ -456,13 +513,7 @@ public class MainActivity extends Activity {
         // Adding headers:
         listDataHeader.add(numberOfAPs + " Access Points, delay: " + WiFiScanDuration + "ms");
         listDataHeader.add(numberOfCellTowers + " Cell Towers");
-        //listDataHeader.add(numberOfSensors + " Sensors");
         listDataHeader.add(SensorList_text.size() + "/" + numberOfSensors + " Sensors");
-
-        // Adding child data
-        //WiFiList_text = new ArrayList<String>();
-        //CellList_text = new ArrayList<String>();
-        //SensorList_text = new ArrayList<String>();
 
         listDataChild.put(listDataHeader.get(0), WiFiList_text);
         listDataChild.put(listDataHeader.get(1), CellList_text);
@@ -478,6 +529,17 @@ public class MainActivity extends Activity {
 
         return dot_info.build();
     }
+
+    /**
+     *
+     * @param wifiScanList
+     * @return
+
+    private GpsData.GpsReading prepareGpsProtobuf ()
+    {
+
+    }
+     */
 
     private WifiData.WiFiReading prepareWiFiProtobuf (List<ScanResult> wifiScanList) {
 
@@ -661,17 +723,49 @@ public class MainActivity extends Activity {
         return sensor_data.build();
     }
 
+    private void captureCellularScan() {
+        // Get CellInfo and display
+
+        /* Increment cellular scan counter */
+        seq_nr_cellular = seq_nr_cellular + 1;
+
+        /* Prepare protocol buffer and write into file */
+        CellularData.CellularReading cellular_reading = prepareCellularProtobuf(telephony_manager.getAllCellInfo());
+
+        try {
+            cellular_reading.writeDelimitedTo(Cellular_BOS);
+        } catch (IOException e) {
+            Log.e("Cellular_BOS exception:", e.toString());
+        }
+        //list_cellular_readings.add(cellular_reading);
+
+        onScreenVerbose.put("seq_nr_cellular", Integer.toString(cellular_reading.getSequenceNr()));
+
+        List<CellularData.CellularReading.CellInfo> cell_info_list = cellular_reading.getCellularInfoList();
+
+        CellList_text = new ArrayList<String>();
+
+        for (CellularData.CellularReading.CellInfo cInfo : cell_info_list) {
+            CellList_text.add(cInfo.toString());
+        }
+
+        numberOfCellTowers = cell_info_list.size();
+    }
+
     private class WifiScanReceiver extends BroadcastReceiver {
         public void onReceive(Context c, Intent intent) {
-            /* Time frequency */
+
+            /* Calculate elapsed time between consecutive WiFi scans */
             time_prev = time_current;
             time_current = System.currentTimeMillis();
-            time_diff = (time_current - time_prev);
+            WiFiScanDuration = (int) (time_current - time_prev);
 
-
+            /* Increment WiFi Scan Counter */
             seq_nr_wifi = seq_nr_wifi + 1;
-            WifiData.WiFiReading wifi_reading = prepareWiFiProtobuf(wifi.getScanResults());
 
+            WifiData.WiFiReading wifi_reading = prepareWiFiProtobuf( wifi.getScanResults() );
+
+            /* Write scan results into file */
             try {
                 wifi_reading.writeDelimitedTo(WiFi_BOS);
             } catch (IOException e) {
@@ -679,114 +773,30 @@ public class MainActivity extends Activity {
             }
             //list_wifi_readings.add(wifi_reading);
 
-            verbose.put("seq_nr_wifi", Integer.toString(wifi_reading.getSequenceNr()));
-
-            List<WifiData.WiFiReading.WiFiAP> wifi_ap_list = wifi_reading.getWifiApList();
-
-            WiFiList_text.clear();
-            for (WifiData.WiFiReading.WiFiAP ap : wifi_ap_list) {
-                WiFiList_text.add(ap.toString());
-            }
-            numberOfAPs = wifi_ap_list.size();
-            numAPs.setText("# APs: " + numberOfAPs);
-
-            if (numberOfAPs == 0) WiFiList_text = new ArrayList<>();
-
+            /* Re-scan WiFi */
             wifi.startScan();
+            captureCellularScan();
 
-            WiFiScanDuration = (int) time_diff;
+            onScreenVerbose.put("seq_nr_wifi", Integer.toString(wifi_reading.getSequenceNr()));
 
-            // Get CellInfo and display
-            boolean cellularSensingOn = true;
-            if (cellularSensingOn) {
-
-                seq_nr_cellular = seq_nr_cellular + 1;
-                CellularData.CellularReading cellular_reading = prepareCellularProtobuf(tm.getAllCellInfo());
-
-                try {
-                    cellular_reading.writeDelimitedTo(Cellular_BOS);
-                } catch (IOException e) {
-                    Log.e("Cellular_BOS exception:", e.toString());
-                }
-                //list_cellular_readings.add(cellular_reading);
-
-                verbose.put("seq_nr_cellular", Integer.toString(cellular_reading.getSequenceNr()));
-
-                List<CellularData.CellularReading.CellInfo> cell_info_list = cellular_reading.getCellularInfoList();
-
-                CellList_text = new ArrayList<String>();
-
-                for (CellularData.CellularReading.CellInfo cInfo : cell_info_list) {
-                    CellList_text.add(cInfo.toString());
-                }
-                numberOfCellTowers = cell_info_list.size();
-                //numberOfAPs = wifi_ap_list.size();
-                //numAPs.setText("# APs: " + numberOfAPs);
-
-                List<CellInfo> cInfoList = tm.getAllCellInfo();
-
-                String[] AllCellStrings = new String[cInfoList.size()];
-                Integer CellDBM = new Integer(-999);
-                Integer CellASU = new Integer(-999);
-                Integer CellLEVEL = new Integer(-999);
-                String CellString = "not_yet_assigned";
-
-                for (final CellInfo info : cInfoList) {
-                    if (info instanceof CellInfoGsm) {
-                        final CellSignalStrengthGsm gsm = ((CellInfoGsm) info).getCellSignalStrength();
-                        // do what you need
-                        CellString = "GSM: " + gsm.toString() + "\n" + ((CellInfoGsm) info).getCellIdentity();
-                        //iRSS = gsm * 2 - 113;
-                        CellDBM = gsm.getDbm();
-                    } else if (info instanceof CellInfoCdma) {
-                        final CellSignalStrengthCdma cdma = ((CellInfoCdma) info).getCellSignalStrength();
-                        // do what you need
-                        CellString = "CDMA: " + cdma.toString() + "\n" + ((CellInfoCdma) info).getCellIdentity();
-                        //iRSS = cdma * 2 - 113;
-                        CellDBM = cdma.getDbm();
-                    } else if (info instanceof CellInfoLte) {
-                        final CellSignalStrengthLte lte = ((CellInfoLte) info).getCellSignalStrength();
-                        // do what you need
-                        CellString = "LTE: " + lte.toString() + "\n" + ((CellInfoLte) info).getCellIdentity().toString();
-                        //iRSS = lte * 2 - 113;
-                        CellDBM = lte.getDbm();
-                        CellASU = lte.getAsuLevel();
-                        CellLEVEL = lte.getLevel();
-                    } else if (info instanceof CellInfoWcdma) {
-                        final CellSignalStrengthWcdma wcdma = ((CellInfoWcdma) info).getCellSignalStrength();
-                        // do what you need
-                        CellString = "WCDMA: " + wcdma.toString() + "\n" + ((CellInfoWcdma) info).getCellIdentity().toString();
-                        //iRSS = wcdma * 2 - 113;
-                        CellDBM = wcdma.getDbm();
-                    } else {
-                        CellString = "Unknown type of cell signal!";
-                    }
-                    AllCellStrings[cInfoList.indexOf(info)] = CellString + "\n DBM=" + CellDBM +
-                                                                            "\n ASU=" + CellASU +
-                                                                            "\n LEVEL=" + CellLEVEL ;
-                }
-                //CellList_text = Arrays.asList(AllCellStrings);
-                //numberOfCellTowers = cInfoList.size();
-            } else CellList_text = new ArrayList<String>();
+            displayWiFiScan(wifi_reading.getWifiApList());
 
 
-            boolean WiFiGroupExpanded = expListView.isGroupExpanded(0);
-            boolean CellGroupExpanded = expListView.isGroupExpanded(1);
-            boolean SensorGroupExpanded = expListView.isGroupExpanded(2);
-
-            //int mListPosition = expListView.getVerticalScrollbarPosition();
-
-            updateExpandableListView();
-
-            if (WiFiGroupExpanded) expListView.expandGroup(0);
-            if (CellGroupExpanded) expListView.expandGroup(1);
-            if (SensorGroupExpanded) expListView.expandGroup(2);
-
-            //expListView.setVerticalScrollbarPosition(mListPosition);
-
-            tv_bottomView.setText(verbose.toString().replaceAll(", ","\n"));
         }
     }
+
+    /* Display WiFi Scan */
+    private void displayWiFiScan (List<WifiData.WiFiReading.WiFiAP> wifi_ap_list) {
+        WiFiList_text.clear();
+        for (WifiData.WiFiReading.WiFiAP ap : wifi_ap_list) {
+            WiFiList_text.add(ap.toString());
+        }
+        numberOfAPs = wifi_ap_list.size();
+        numAPs.setText("# APs: " + numberOfAPs);
+
+        if (numberOfAPs == 0) WiFiList_text = new ArrayList<>();
+    }
+
     /* For ignoring Orientation change! */
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -1164,7 +1174,7 @@ public class MainActivity extends Activity {
 
                 // For displaying on the screen
 
-                verbose.put("seq_nr_sensorevent", Integer.toString(sensor_event.getSequenceNr()));
+                onScreenVerbose.put("seq_nr_sensorevent", Integer.toString(sensor_event.getSequenceNr()));
 
                 mHandler.post(new Runnable() {
                     @Override
@@ -1191,7 +1201,6 @@ public class MainActivity extends Activity {
             unRegisterSensors(mSensorManager);
             running = false;
         }
-
     }
 
     private class MeasurementTimer implements Runnable {
@@ -1224,8 +1233,10 @@ public class MainActivity extends Activity {
                     public void run() {
                         //slv.setAdapter(new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, sensors));
                         timer_sec++;
-                        tv_timer_sec.setText((int) Math.floor(timer_sec / 60) + " min : " +
-                                (timer_sec % 60) + " sec");
+                        tv_timer_sec.setText((int) Math.floor(timer_sec / 60) + " min : " + (timer_sec % 60) + " sec" + "\n");
+
+                        updateExpandableListView();
+                        tv_bottomView.setText(onScreenVerbose.toString().replaceAll(", ", "\n"));
                     }
                 });
             }
@@ -1249,12 +1260,13 @@ public class MainActivity extends Activity {
 
     @Override
     public void onBackPressed() {
+        // Ignore Back Button, not necessary
     }
 
     private LocationListener getLocationListener() {
         // Define a listener that responds to location updates
         Log.v("LocationListener: ", "Location Listener started.");
-        Log.v("LocationListener: ", "Provider: " + locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) +  " all providers: " + locationManager.getAllProviders().toString());
+        Log.v("LocationListener: ", " Started with providers: " + locationManager.getAllProviders().toString());
 
         LocationListener locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
@@ -1262,9 +1274,9 @@ public class MainActivity extends Activity {
 
                 seq_nr_gpsfix++;
 
-                verbose.put("seq_nr_gpsfix", Integer.toString(seq_nr_gpsfix));
-                verbose.put("GPS FIX: ", location.toString());
-                tv_bottomView.setText(verbose.toString());
+                onScreenVerbose.put("seq_nr_gpsfix", Integer.toString(seq_nr_gpsfix));
+                onScreenVerbose.put("GPS FIX: ", location.toString());
+                tv_bottomView.setText(onScreenVerbose.toString());
             }
 
             public void onStatusChanged(String provider, int status, Bundle extras) {}
