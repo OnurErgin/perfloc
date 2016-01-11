@@ -1,0 +1,48 @@
+////////////////////////////////////////////////////////////////////////////////////
+// sensor_reading.proto: Message format describing a raw data reading.
+//
+// __author__ = "Onur Ergin, Filip Lemic"
+// __copyright__ = "Copyright 2015, Project name"
+//
+// __version__ = "1.0.0"
+// __maintainer__ = "Filip Lemic"
+// __email__ = "lemic@tkn.tu-berlin.de"
+// __status__ = "Development"
+////////////////////////////////////////////////////////////////////////////////////
+
+package perfloc;
+
+option java_package = "gov.nist.perfloc"; 
+
+message SensorReading
+{
+  optional int32 sequence_nr = 1;       // Sequence number of a reading
+  optional int64 timestamp = 2;         // Time of this scan in milliseconds
+  optional int32 last_dot_nr = 3;       // Location where the measurment was taken
+  optional SensorEvent sensor_event = 4; // Format defining a sensor reading
+  
+  message SensorEvent {
+    optional int32 sensor_type = 1;     // Type of the sensor
+    optional int64 timestamp = 2;       // timestamp in nanosecond at which the event happened
+    optional int32 accuracy = 3;
+    optional SensorValues values = 4;   // Content of array values of a sensor event
+
+    message SensorValues {
+      repeated float value = 1 [packed = true]; // Values a sensor produces. For event based sensors it is always 1, such as 
+    }
+
+    message Sensor {  // This message should be moved to metadata.proto (whops.. it's already there)
+      optional int32 type = 1;            // generic type of this sensor
+      optional string string_type = 2;    // The type of this sensor as a string
+      optional string name = 3;           // name string of the sensor
+      optional bool is_wakeup_sensor = 4; // Returns true if the sensor is a wake-up sensor. See http://developer.android.com/reference/android/hardware/Sensor.html#isWakeUpSensor()
+      optional string vendor = 5;         // vendor string of this sensor
+      optional int32 version = 6;         // version of the sensor's module
+      optional float resolution = 7;      // resolution of the sensor in the sensor's unit
+      optional int32 reporting_mode = 8;  // Each sensor has exactly one reporting mode associated with it. This method returns the reporting mode constant for this sensor type. {REPORTING_MODE_CONTINUOUS, REPORTING_MODE_ON_CHANGE, REPORTING_MODE_ONE_SHOT, REPORTING_MODE_SPECIAL_TRIGGER}
+      optional float power = 9;           // the power in mA used by this sensor while in use
+    }
+  }
+}
+
+// For more detailed information on Sensor Events and Sensor Values see http://developer.android.com/reference/android/hardware/SensorEvent.html

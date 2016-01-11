@@ -2,6 +2,7 @@ package gov.nist.perfloc;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -251,19 +252,19 @@ public class MainActivity extends Activity {
         });
 
 
-        /*if ("lge".equalsIgnoreCase(Build.BRAND)||true) {
+        if ("lge".equalsIgnoreCase(Build.BRAND)||true) {
             MediaSession mediaSession = new MediaSession(this, "Perfloc MediaSession TAG");
                 mediaSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS);
                 //mediaSession.setCallback(this);
-                //Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
-                Intent mediaButtonIntent = new Intent(getApplicationContext(), MediaButtonIntentReceiver.class);
+                Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+                //Intent mediaButtonIntent = new Intent(getApplicationContext(), MediaButtonIntentReceiver.class);
                 PendingIntent pIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, mediaButtonIntent, 0);
                 mediaSession.setMediaButtonReceiver(pIntent);
                 mediaSession.setActive(true);
         }
-*/
 
-        /*IntentFilter filter = new IntentFilter(Intent.ACTION_MEDIA_BUTTON);
+
+       /* IntentFilter filter = new IntentFilter(Intent.ACTION_MEDIA_BUTTON);
         filter.setPriority(Integer.MAX_VALUE);
         registerReceiver(new MediaButtonIntentReceiver(), filter);
 */

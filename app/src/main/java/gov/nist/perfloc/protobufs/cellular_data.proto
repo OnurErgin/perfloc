@@ -1,0 +1,122 @@
+////////////////////////////////////////////////////////////////////////////////////
+// cellular_reading.proto: Message format describing a raw data reading.
+//
+// __author__ = "Onur Ergin, Filip Lemic"
+// __copyright__ = "Copyright 2015, Project name"
+//
+// __version__ = "1.0.0"
+// __maintainer__ = "Filip Lemic"
+// __email__ = "lemic@tkn.tu-berlin.de"
+// __status__ = "Development"
+////////////////////////////////////////////////////////////////////////////////////
+
+package perfloc;
+
+option java_package = "gov.nist.perfloc"; 
+
+message CellularReading
+{
+  optional int32 sequence_nr = 1;       // Sequence number of a reading
+  optional int64 timestamp = 2;         // Time of this scan in milliseconds
+  optional int32 last_dot_nr = 3;       // Location where the measurment was taken
+  repeated CellInfo cellular_info = 4;  // Format defining a cellular signal
+  
+  enum NetworkType {
+    CDMA = 0;
+    GSM = 1;
+    LTE = 2;
+    WCDMA = 3;
+  }
+
+  message CellInfo {
+    optional uint64 timestamp = 1;            // Approximate time of this cell information in nanos since boot
+    optional int32 hash_code = 2;             // An integer hash code for this object
+    optional bool registered = 3;             // True if this cell is registered to the mobile network
+
+    optional NetworkType network_type = 4;    // CDMA / GSM / LTE / WCDMA
+
+    optional CellIdentityCmda cdma_identity = 5;  // CDMA parameters
+    optional CellSignalStrengthCdma cdma_signal_strength = 6;
+    
+    optional CellIdentityGsm  gsm_identity = 7;   // GSM parameters
+    optional CellSignalStrengthGsm gsm_signal_strength = 8;
+
+    optional CellIdentityLte lte_identity = 9;    // LTE parameters
+    optional CellSignalStrengthLte lte_signal_strength = 10;
+
+    optional CellIdentityWcdma wcdma_identity = 11; // WCDMA parameters 
+    optional CellSignalStrengthWcdma wcdma_signal_strength = 12;
+  }
+
+  message CellIdentityCmda {
+    optional int32 basestation_id = 1;        // Base Station Id 0..65535, Integer.MAX_VALUE if unknown
+    optional int32 latitude = 2;              // Base station latitude, which is a decimal number as specified in 3GPP2 C.S0005-A v6.0. It is represented in units of 0.25 seconds and ranges from -1296000 to 1296000, both values inclusive (corresponding to a range of -90 to +90 degrees). Integer.MAX_VALUE if unknown.
+    optional int32 longitude = 3;             // Base station longitude, which is a decimal number as specified in 3GPP2 C.S0005-A v6.0. It is represented in units of 0.25 seconds and ranges from -2592000 to 2592000, both values inclusive (corresponding to a range of -180 to +180 degrees). Integer.MAX_VALUE if unknown.
+    optional int32 network_id = 4;            // Network Id 0..65535, Integer.MAX_VALUE if unknown
+    optional int32 system_id = 5;             // System Id 0..32767, Integer.MAX_VALUE if unknown
+    optional int32 hash_code = 6;             // An integer hash code for this object
+  }
+
+  message CellIdentityGsm {
+    optional int32 cid = 1;                   // CID Either 16-bit GSM Cell Identity described in TS 27.007, 0..65535, Integer.MAX_VALUE if unknown
+    optional int32 lac = 2;                   // 16-bit Location Area Code, 0..65535, Integer.MAX_VALUE if unknown
+    optional int32 mcc = 3;                   // 3-digit Mobile Country Code, 0..999, Integer.MAX_VALUE if unknown
+    optional int32 mnc = 4;                   // 2 or 3-digit Mobile Network Code, 0..999, Integer.MAX_VALUE if unknown
+    optional int32 psc = 5;                   // Integer.MAX_VALUE, undefined for GSM
+    optional int32 hash_code = 6;             // An integer hash code for this object
+  }
+
+  message CellIdentityLte {
+    optional int32 ci  = 1;                    // 28-bit Cell Identity, Integer.MAX_VALUE if unknown
+    optional int32 mcc = 2;                   // 3-digit Mobile Country Code, 0..999, Integer.MAX_VALUE if unknown
+    optional int32 mnc = 3;                   // 2 or 3-digit Mobile Network Code, 0..999, Integer.MAX_VALUE if unknown
+    optional int32 pci = 4;                   // Physical Cell Id 0..503, Integer.MAX_VALUE if unknown
+    optional int32 tac = 5;                   // 16-bit Tracking Area Code, Integer.MAX_VALUE if unknown
+    optional int32 hash_code = 6;             // An integer hash code for this object
+  }
+
+   message CellIdentityWcdma {
+    optional int32 cid = 1;                   // CID 28-bit UMTS Cell Identity described in TS 25.331, 0..268435455, Integer.MAX_VALUE if unknown
+    optional int32 lac = 2;                   // 16-bit Location Area Code, 0..65535, Integer.MAX_VALUE if unknown
+    optional int32 mcc = 3;                   // 3-digit Mobile Country Code, 0..999, Integer.MAX_VALUE if unknown
+    optional int32 mnc = 4;                   // 2 or 3-digit Mobile Network Code, 0..999, Integer.MAX_VALUE if unknown
+    optional int32 psc = 5;                   // 9-bit UMTS Primary Scrambling Code described in TS 25.331, 0..511, Integer.MAX_VALUE if unknown
+    optional int32 hash_code = 6;             // An integer hash code for this object
+  }
+
+  message CellSignalStrengthCdma {
+    optional int32 asu_level  = 1;            // the signal level as an asu value between 0..97, 99 is unknown 
+    optional int32 cdma_dbm   = 2;            // the CDMA RSSI value in dBm
+    optional int32 cdma_ecio  = 3;            // the CDMA Ec/Io value in dB*10
+    optional int32 cdma_level = 4;            // cdma as level 0..4
+    optional int32 dbm        = 5;            // the signal strength as dBm
+    optional int32 evdo_dbm   = 6;            // the EVDO RSSI value in dBm
+    optional int32 evdo_ecio  = 7;            // the EVDO Ec/Io value in dB*10
+    optional int32 evdo_level = 8;            // Evdo as level 0..4
+    optional int32 evdo_snr   = 9;            // the signal to noise ratio
+    optional int32 level      = 10;           // signal level as an int from 0..4
+    optional int32 hash_code  = 11;           // An integer hash code for this object
+  }
+
+   message CellSignalStrengthGsm {
+    optional int32 asu_level = 1;             // the signal level as an asu value between 0..31, 99 is unknown Asu is calculated based on 3GPP RSRP
+    optional int32 dbm       = 2;             // the signal strength as dBm
+    optional int32 level     = 3;             // signal level as an int from 0..4
+    optional int32 hash_code = 4;             // An integer hash code for this object
+  }
+
+  message CellSignalStrengthLte {
+    optional int32 asu_level = 1;             // the LTE signal level as an asu value between 0..97, 99 is unknown Asu is calculated based on 3GPP RSRP
+    optional int32 dbm       = 2;             // the signal strength as dBm
+    optional int32 level     = 3;             // signal level as an int from 0..4
+    optional int32 timing_advance = 4;        // the timing advance value for LTE
+    optional int32 hash_code = 5;             // An integer hash code for this object
+  }
+
+  message CellSignalStrengthWcdma {
+    optional int32 asu_level = 1;             // the signal level as an asu value between 0..31, 99 is unknown Asu is calculated based on 3GPP RSRP
+    optional int32 dbm       = 2;             // the signal strength as dBm
+    optional int32 level     = 3;             // signal level as an int from 0..4
+    optional int32 hash_code = 4;             // An integer hash code for this object
+  }
+}

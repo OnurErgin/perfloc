@@ -1,0 +1,21 @@
+////////////////////////////////////////////////////////////////////////////////////
+// dot_reading.proto: Message format describing a raw data reading.
+//
+// __author__ = "Onur Ergin, Filip Lemic"
+// __copyright__ = "Copyright 2015, Project name"
+//
+// __version__ = "1.0.0"
+// __maintainer__ = "Filip Lemic"
+// __email__ = "lemic@tkn.tu-berlin.de"
+// __status__ = "Development"
+////////////////////////////////////////////////////////////////////////////////////
+
+package perfloc;
+
+option java_package = "gov.nist.perfloc"; 
+
+message DotReading
+{
+  optional int32 dot_nr = 1;            // Sequence number of a Dot marking
+  optional int64 timestamp = 2;         // Time of this scan in milliseconds
+}

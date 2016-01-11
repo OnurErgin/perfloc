@@ -1,0 +1,32 @@
+//////////////////////////////////////////////////////////////////////////////////// 
+// wifi_reading.proto: Message format describing a raw data reading.
+//
+// __author__ = "Onur Ergin, Filip Lemic"
+// __copyright__ = "Copyright 2015, Project name"
+//
+// __version__ = "1.0.0"
+// __maintainer__ = "Filip Lemic"
+// __email__ = "lemic@tkn.tu-berlin.de"
+// __status__ = "Development"
+////////////////////////////////////////////////////////////////////////////////////
+
+package perfloc;
+
+option java_package = "gov.nist.perfloc"; 
+
+message WiFiReading
+{
+  optional int32 sequence_nr = 1;       // Sequence number of a reading
+  optional int64 timestamp = 2;         // Time of this scan in milliseconds
+  optional int32 last_dot_nr = 3;       // Location where the measurment was taken
+  repeated WiFiAP wifi_ap = 4;          // Format defining a WiFi access point
+  
+  message WiFiAP {
+    optional string bssid = 1;          // The address of the access point
+    optional string ssid = 2;           // The network name
+    optional string capabilities = 3;   // The authentication, key management, and encryption schemes supported by the access point
+    optional int32 frequency = 4;       // The primary 20 MHz frequency (in Mhz) of the channel over which the client is communicating with the access point
+    optional int32 rssi = 5;           // The detected signal level in dBm, also known as the RSSI
+    optional int64 timestamp = 6;       // timestamp in microseconds (since boot) when this result was last seen
+  }
+}

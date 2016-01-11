@@ -1,0 +1,60 @@
+////////////////////////////////////////////////////////////////////////////////////
+// metadata.proto: Metadata format.
+//
+// __author__ = "Filip Lemic"
+// __copyright__ = "Copyright 2015, Project name"
+//
+// __version__ = "1.0.1"
+// __maintainer__ = "Onur Ergin, Filip Lemic"
+// __email__ = "lemic@tkn.tu-berlin.de"
+// __status__ = "Development"
+////////////////////////////////////////////////////////////////////////////////////
+
+package perfloc;
+
+option java_package = "gov.nist.perfloc"; 
+
+message Metadata {
+	optional int32 measurement_id = 1;            // Identifier of the metadata
+	optional int64 time_created = 2;              // Creation date - milliseconds from 1.1.1970
+  	optional string license = 3;                  // License type
+  	optional double experiment_duration = 4;      // Experiment duration
+	optional string experiment_description = 5;   // Description of a data collection procedure
+	optional string environment_description = 6;  // Environment description
+	optional string interference_description = 7; // Interference description ??? DO WE NEED THIS?  
+	optional string additional_info = 8;          // Additional information      
+
+	optional DeviceDescription device = 9;        // Description of a experimentation scenario
+  	repeated Sensor sensor = 10;         		  // Description of each sensor used for generating sensor readings 
+	
+	message DeviceDescription {
+		optional string board = 1; 		// The name of the underlying board, like "goldfish".
+		optional string brand = 2; 		// The consumer-visible brand with which the product/hardware will be associated, if any.
+		optional string device = 3;		// The name of the industrial design.
+		optional string display = 4; 	// A build ID string meant for displaying to the user
+		optional string fingerprint = 5; // A string that uniquely identifies this build. Do not attempt to parse this value.
+		optional string hardware = 6; 	// The name of the hardware (from the kernel command line or /proc).
+		optional string id = 7; 		// Either a changelist number, or a label like "M4-rc20".
+		optional string manufacturer = 8; // The manufacturer of the product/hardware
+		optional string model = 9; 		// The end-user-visible name for the end product.
+		optional string product = 10; 	// The name of the overall product.
+		optional string serial = 11; 	// A hardware serial number, if available. Alphanumeric only, case-insensitive.
+		optional string radio_version = 12; // the version string for the radio firmware. May be null (if, for instance, the radio is not currently on).
+	}
+
+	message Sensor {  
+        optional int32 type = 1;            		// generic type of this sensor
+        optional string string_type = 2;    		// The type of this sensor as a string
+        optional string name = 3;           		// name string of the sensor
+        optional bool is_wakeup_sensor = 4; 		// Returns true if the sensor is a wake-up sensor. See http://developer.android.com/reference/android/hardware/Sensor.html#isWakeUpSensor()
+        optional string vendor = 5;         		// vendor string of this sensor
+        optional int32 version = 6;         		// version of the sensor's module
+        optional float resolution = 7;      		// resolution of the sensor in the sensor's unit
+        optional int32 reporting_mode = 8;  		// Each sensor has exactly one reporting mode associated with it. This method returns the reporting mode constant for this sensor type. {REPORTING_MODE_CONTINUOUS, REPORTING_MODE_ON_CHANGE, REPORTING_MODE_ONE_SHOT, REPORTING_MODE_SPECIAL_TRIGGER}
+        optional float power = 9;           		// the power in mA used by this sensor while in use
+        optional int32 fifo_max_event_count = 10;	//Maximum number of events of this sensor that could be batched
+		optional int32 fifo_reserved_event_count = 11; //Number of events reserved for this sensor in the batch mode FIFO
+		optional float maximum_range = 12;			// Maximum range of the sensor in the sensor's unit
+		optional float min_delay = 13;				// The minimum delay allowed between two events in microsecond or zero if this sensor only returns a value when the data it's measuring changes.
+    }
+}
