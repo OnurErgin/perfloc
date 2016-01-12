@@ -51,6 +51,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -74,6 +75,12 @@ import java.util.List;
 
 public class MainActivity extends Activity {
 
+    public enum State {
+        PAUSED, RUNNING
+    }
+
+    volatile State state = State.PAUSED;
+
     Vibrator v;
     private final Handler main_handler = new Handler();
     static AudioManager am;
@@ -93,8 +100,8 @@ public class MainActivity extends Activity {
     List<String> listDataHeader;
     HashMap<String, List<String>> listDataChild;
     List<String> WiFiList_text,
-            CellList_text,
-            SensorList_text;
+                CellList_text,
+                SensorList_text;
 
 
     // WiFi Scanning related definitions
@@ -107,6 +114,7 @@ public class MainActivity extends Activity {
 
     // Location Services: GPS
     LocationManager locationManager;
+    LocationListener locationListener;
 
     // Sensor related definitions
      SensorHandler rbs;
@@ -115,43 +123,32 @@ public class MainActivity extends Activity {
     HashMap<Sensor, Long> sensorLastTimestampHashMap; // 112
     HashMap<Sensor, Long> sensorCurrentTimestampHashMap; // 112
 
-    private int SENSOR_DELAY = SensorManager.SENSOR_DELAY_FASTEST;
-
-    volatile int dotCounter = 0;
-
-
     // Verbose info
     HashMap<String, String> onScreenVerbose;
+
+    private int SENSOR_DELAY = SensorManager.SENSOR_DELAY_FASTEST;
+
+    volatile int dotCounter;
 
     volatile int numberOfAPs=0,
                 WiFiScanDuration=0,
                 numberOfCellTowers=0,
                 numberOfSensors=0;
 
-    /*String  WiFi_output_file     = getString(R.string.wifi_file_name),     // "_WiFi",
-            Sensors_output_file  = getString(R.string.sensors_file_name),   //"_Sensors",
-            Dots_output_file     = getString(R.string.dots_file_name),      //"_Dots",
-            Cellular_output_file = getString(R.string.cellular_file_name),  //"_Cellular",
-            Metadata_output_file = getString(R.string.metadata_file_name);  //"_Metadata";
-*/
-    String  WiFi_output_file     = "_WiFi",
-            Sensors_output_file  = "_Sensors",
-            Dots_output_file     = "_Dots",
-            Cellular_output_file = "_Cellular",
-            Metadata_output_file = "_Metadata";
+    String  WiFi_output_file,//     = "_WiFi",
+            Sensors_output_file,//  = "_Sensors",
+            Dots_output_file,//     = "_Dots",
+            Cellular_output_file,// = "_Cellular",
+            Metadata_output_file,// = "_Metadata";
+            Gps_output_file;
 
-    String device_identifier = Build.MANUFACTURER + "_" + Build.MODEL + "_" + Build.BRAND;
+    String device_identifier, protocol_buffer_file_extension, current_file_prefix;
 
-    File dirname = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-    String protocol_buffer_file_extension = "pbs"; // (p)rotocol(b)uffer(s)erialized
-    String current_file_prefix = "1";
+    File dirname;
+
     List<Uri> indexed_URIs;
 
-    BufferedOutputStream WiFi_BOS,
-                        Sensor_BOS,
-                        Dots_BOS,
-                        Cellular_BOS,
-                        Metadata_BOS;
+    BufferedOutputStream WiFi_BOS, Sensor_BOS, Dots_BOS, Cellular_BOS, Metadata_BOS, Gps_BOS;
 
 
     // Protocol Buffer ArrayLists
@@ -160,64 +157,53 @@ public class MainActivity extends Activity {
     List<CellularData.CellularReading> list_cellular_readings;
     List<SensorData.SensorReading> list_sensor_readings;
 
-    int seq_nr_dot = 0;
-    int seq_nr_wifi = 0;
-    int seq_nr_cellular = 0;
-    int seq_nr_sensorevent = 0;
-    int seq_nr_gpsfix = 0;
-
+    int seq_nr_dot, seq_nr_wifi, seq_nr_cellular, seq_nr_sensorevent, seq_nr_gpsfix;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Hide Navigation buttons
+        hideSystemUI();
+        UiChangeListener();
+
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-        PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakelockTag");
-        wakeLock.acquire();
-        Log.v("WakeLock (isHeld?): ", wakeLock.isHeld() + ".");
+        setWakeLock(true);
 
-        onScreenVerbose = new HashMap<>();
+        prepareStrings();
 
-        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        LocationListener locationListener = getLocationListener();
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+        resetCounters();
 
+        initializeLists();
 
-        list_cellular_readings = new ArrayList<>();
-        list_dot_readings = new ArrayList<>();
-        list_wifi_readings = new ArrayList<>();
-        list_sensor_readings = new ArrayList<>();
+        setGpsListener(true);
 
         createOutputFiles(current_file_prefix);
 
         v = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
 
+        // Find Views
         StartStopButton = (ToggleButton) findViewById(R.id.toggleButton);
-
-        numAPs = (TextView) findViewById(R.id.numAPs);
-        WiFiScanTime = (TextView) findViewById(R.id.WiFiScanTime);
-        tv_dotcounter = (TextView) findViewById(R.id.dotCounter);
+        numAPs          = (TextView) findViewById(R.id.numAPs);
+        WiFiScanTime    = (TextView) findViewById(R.id.WiFiScanTime);
+        tv_dotcounter   = (TextView) findViewById(R.id.dotCounter);
+        tv_timer_sec    = (TextView) findViewById(R.id.timer_sec);
+        tv_bottomView   = (TextView) findViewById(R.id.bottomView);
         tv_sensor_event_counter = (TextView) findViewById(R.id.sensor_event_counter);
-            //tv_sensor_event_counter.setText(tv_sensor_event_counter + "");
-        findViewById(R.id.title_sensor_event_counter);
-        tv_timer_sec = (TextView) findViewById(R.id.timer_sec);
-        tv_bottomView = (TextView) findViewById(R.id.bottomView);
+        //findViewById(R.id.title_sensor_event_counter);
 
         expListView = (ExpandableListView) findViewById(R.id.expandableListView);
 
-        WiFiList_text = new ArrayList<>();
-
+        // Start WiFi Service
         wifi=(WifiManager)getSystemService(Context.WIFI_SERVICE);
         wifiReceiver = new WifiScanReceiver();
-
 
         telephony_manager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         //listenPhoneState(telephony_manager);
 
-         rbs = new SensorHandler(main_handler, 100);
+        rbs = new SensorHandler(main_handler, 100);
         final MeasurementTimer aT = new MeasurementTimer(main_handler);
         //pool = Executors.newFixedThreadPool(2); // Either use a thread pool, or create a separate thread each time and call Thread.start()
         //final Thread tRBS = new Thread(rbs);
@@ -226,6 +212,7 @@ public class MainActivity extends Activity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 //      Thread tRBS = new Thread(rbs);
                 if (isChecked) {
+                    state = State.RUNNING;
                     registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
                     wifi.startScan();
                     time_current = System.currentTimeMillis();
@@ -237,20 +224,22 @@ public class MainActivity extends Activity {
                     taT.start();
 
                     //          pool.execute(rbs);
-                    Log.v("POOL: ", "Runnable executed.");
+                    Log.v("StartStopButton", "Runnable executed.");
                 } else {
+
+                    state = State.PAUSED;
+
                     unregisterReceiver(wifiReceiver);
 
                     rbs.terminate();
                     aT.terminate();
                     flushFiles();
-                    Log.v("POOL: ", "Runnable stopped.");
+                    Log.v("StartStopButton", "Runnable stopped.");
                 }
                 v.vibrate(500);
             }
 
         });
-
 
         if ("lge".equalsIgnoreCase(Build.BRAND)||true) {
             MediaSession mediaSession = new MediaSession(this, "Perfloc MediaSession TAG");
@@ -368,19 +357,120 @@ public class MainActivity extends Activity {
         return true;
     }
 
+    private void setWakeLock( boolean _set ) {
+        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+        PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakelockTag");
+        if (_set) {
+            wakeLock.acquire();
+            Log.v("WakeLock (isHeld?): ", wakeLock.isHeld() + ".");
+        }
+        else
+            wakeLock.release();
+    }
+
+    private void resetCounters () {
+        seq_nr_dot = 0;
+        seq_nr_wifi = 0;
+        seq_nr_cellular = 0;
+        seq_nr_sensorevent = 0;
+        seq_nr_gpsfix = 0;
+
+        numberOfAPs = 0;
+        WiFiScanDuration = 0;
+        numberOfCellTowers = 0;
+        numberOfSensors = 0;
+
+        dotCounter = 0;
+    }
+
+    private void initializeLists () {
+        list_cellular_readings = new ArrayList<>();
+        list_dot_readings = new ArrayList<>();
+        list_wifi_readings = new ArrayList<>();
+        list_sensor_readings = new ArrayList<>();
+
+        onScreenVerbose = new HashMap<>();
+
+        WiFiList_text = new ArrayList<>();
+
+        indexed_URIs = new ArrayList<>();
+    }
+
+    private void prepareStrings () {
+        WiFi_output_file     = getString(R.string.wifi_file_name);     // "_WiFi",
+        Sensors_output_file  = getString(R.string.sensors_file_name);   //"_Sensors",
+        Dots_output_file     = getString(R.string.dots_file_name);      //"_Dots",
+        Cellular_output_file = getString(R.string.cellular_file_name);  //"_Cellular",
+        Metadata_output_file = getString(R.string.metadata_file_name);  //"_Metadata";
+        Gps_output_file      = getString(R.string.gps_file_name);
+
+        device_identifier = Build.MANUFACTURER + "_" + Build.MODEL + "_" + Build.BRAND;
+
+        dirname = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        protocol_buffer_file_extension = getString(R.string.file_extension);
+        current_file_prefix = "1";
+    }
+
+    private boolean createOutputFiles(String prefix){
+
+        WiFi_output_file     = dirname + "/" + prefix + "_" + device_identifier + WiFi_output_file      + "." + protocol_buffer_file_extension;
+        Sensors_output_file  = dirname + "/" + prefix + "_" + device_identifier + Sensors_output_file   + "." + protocol_buffer_file_extension;
+        Dots_output_file     = dirname + "/" + prefix + "_" + device_identifier + Dots_output_file      + "." + protocol_buffer_file_extension;
+        Cellular_output_file = dirname + "/" + prefix + "_" + device_identifier + Cellular_output_file  + "." + protocol_buffer_file_extension;
+        Metadata_output_file = dirname + "/" + prefix + "_" + device_identifier + Metadata_output_file  + "." + protocol_buffer_file_extension;
+        Gps_output_file      = dirname + "/" + prefix + "_" + device_identifier + Gps_output_file       + "." + protocol_buffer_file_extension;
+
+        WiFi_output_file     = WiFi_output_file.replaceAll("\\s+", "");
+        Sensors_output_file  = Sensors_output_file.replaceAll("\\s+", "");
+        Dots_output_file     = Dots_output_file.replaceAll("\\s+", "");
+        Cellular_output_file = Cellular_output_file.replaceAll("\\s+", "");
+        Metadata_output_file = Metadata_output_file.replaceAll("\\s+", "");
+        Gps_output_file      = Gps_output_file.replaceAll("\\s+", "");
+
+        try {
+            WiFi_BOS     = new BufferedOutputStream(new FileOutputStream(WiFi_output_file));
+            Sensor_BOS   = new BufferedOutputStream(new FileOutputStream(Sensors_output_file));
+            Dots_BOS     = new BufferedOutputStream(new FileOutputStream(Dots_output_file));
+            Cellular_BOS = new BufferedOutputStream(new FileOutputStream(Cellular_output_file));
+            Metadata_BOS = new BufferedOutputStream(new FileOutputStream(Metadata_output_file));
+            Gps_BOS      = new BufferedOutputStream(new FileOutputStream(Gps_output_file));
+        } catch (IOException e) {
+            Log.e("BOS_File", e.toString());
+        }
+
+        return true;
+    }
+
+    private void setGpsListener (boolean _set) {
+        if (_set) {
+            locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+            locationListener = getLocationListener();
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+        }
+        else {
+            locationManager.removeUpdates(locationListener);
+        }
+    }
+
     public void markDot() {
         dotCounter++;
         tv_dotcounter.setText(dotCounter + "");
         //list_dot_readings.add(prepareDotProtobuf(++seq_nr_dot));
-        DotData.DotReading dot_reading = prepareDotProtobuf(++seq_nr_dot);
 
-        try {
-            dot_reading.writeDelimitedTo(Dots_BOS);
-        } catch (IOException e) {
-            Log.e("Dots_BOS exception:", e.toString());
+
+        if (state == State.RUNNING) {
+            seq_nr_dot = seq_nr_dot + 1;
+
+            DotData.DotReading dot_reading = prepareDotProtobuf(seq_nr_dot);
+
+            try {
+                dot_reading.writeDelimitedTo(Dots_BOS);
+            } catch (IOException e) {
+                Log.e("Dots_BOS exception:", e.toString());
+            }
+            onScreenVerbose.put("seq_nr_dot", Integer.toString(dot_reading.getDotNr()));
         }
 
-        onScreenVerbose.put("seq_nr_dot", Integer.toString(dot_reading.getDotNr()));
     }
 
     public class MediaButtonIntentReceiver extends BroadcastReceiver {
@@ -423,34 +513,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    private boolean createOutputFiles(String prefix){
 
-        WiFi_output_file     = dirname + "/" + prefix + "_" + device_identifier + WiFi_output_file      + "." + protocol_buffer_file_extension;
-        Sensors_output_file  = dirname + "/" + prefix + "_" + device_identifier + Sensors_output_file   + "." + protocol_buffer_file_extension;
-        Dots_output_file     = dirname + "/" + prefix + "_" + device_identifier + Dots_output_file      + "." + protocol_buffer_file_extension;
-        Cellular_output_file = dirname + "/" + prefix + "_" + device_identifier + Cellular_output_file  + "." + protocol_buffer_file_extension;
-        Metadata_output_file = dirname + "/" + prefix + "_" + device_identifier + Metadata_output_file  + "." + protocol_buffer_file_extension;
-
-        WiFi_output_file     = WiFi_output_file.replaceAll("\\s+","");
-        Sensors_output_file  = Sensors_output_file.replaceAll("\\s+","");
-        Dots_output_file     = Dots_output_file.replaceAll("\\s+","");
-        Cellular_output_file = Cellular_output_file.replaceAll("\\s+","");
-        Metadata_output_file = Metadata_output_file.replaceAll("\\s+","");
-
-        try {
-            WiFi_BOS = new BufferedOutputStream(new FileOutputStream(WiFi_output_file));
-            Sensor_BOS = new BufferedOutputStream(new FileOutputStream(Sensors_output_file));
-            Dots_BOS = new BufferedOutputStream(new FileOutputStream(Dots_output_file));
-            Cellular_BOS = new BufferedOutputStream(new FileOutputStream(Cellular_output_file));
-            Metadata_BOS = new BufferedOutputStream(new FileOutputStream(Metadata_output_file));
-        } catch (IOException e) {
-            Log.e("BOS_File", e.toString());
-        }
-
-        indexed_URIs = new ArrayList<>();
-
-        return true;
-    }
 
     private boolean unIndexFiles () {
         for (Uri uri : indexed_URIs) {
@@ -722,6 +785,37 @@ public class MainActivity extends Activity {
         sensor_data.setSensorEvent(sensor_event);   // sensor_data is ready
 
         return sensor_data.build();
+    }
+
+    private  GpsData.GpsReading prepareGpsProtobuf (Location location) {
+
+        // Create GPS Reading Data
+        GpsData.GpsReading.Builder gps_data = GpsData.GpsReading.newBuilder();
+
+        gps_data.setSequenceNr(seq_nr_gpsfix)
+                .setTimestamp(System.currentTimeMillis())
+                .setLastDotNr(seq_nr_dot);
+
+        // Fill in Location
+        GpsData.GpsReading.Location.Builder _location = GpsData.GpsReading.Location.newBuilder();
+
+        _location.setAccuracy(location.getAccuracy())
+                .setAltitude(location.getAltitude())
+                .setBearing(location.getBearing())
+                .setElapsedRealtimeNanos(location.getElapsedRealtimeNanos())
+                .setLatitude(location.getLatitude())
+                .setLongitude(location.getLongitude())
+                .setProvider(location.getProvider())
+                .setSpeed(location.getSpeed())
+                .setTime(location.getTime())
+                .setHasAccuracy(location.hasAccuracy())
+                .setHasAltitude(location.hasAltitude())
+                .setHasBearing(location.hasBearing())
+                .setHasSpeed(location.hasSpeed());
+
+        gps_data.setLocation(_location);
+
+        return gps_data.build();
     }
 
     private void captureCellularScan() {
@@ -1023,9 +1117,10 @@ public class MainActivity extends Activity {
 
         public SensorHandler(Handler _handler, int _measuringFrequency) {
 
+            Log.v("Sensor Handler", "started");
+
             mHandler = _handler;
             measuringFrequency = _measuringFrequency;
-
 
             mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
@@ -1042,7 +1137,7 @@ public class MainActivity extends Activity {
             }
 
             if (sensorList.size() != sensorHashMap.size())
-                Log.e("DEADLY ERROR!!!!", "defaultSensorList.size() != sensorHashMap.size() : " + sensorList.size() + " != " + sensorHashMap.size() );
+                Log.e("DEADLY ERROR!!!!", "defaultSensorList.size() != sensorHashMap.size() " + sensorList.size() + " != " + sensorHashMap.size() );
 
             //List<String> keyList = new ArrayList<String>(sensorHashMap.keySet()); //112
             List<Sensor> keyList = new ArrayList<>(sensorHashMap.keySet());
@@ -1170,7 +1265,7 @@ public class MainActivity extends Activity {
                 try {
                     sensor_event.writeDelimitedTo(Sensor_BOS);
                 } catch (IOException e) {
-                    Log.e("Sensor_BOS exception:", e.toString());
+                    Log.e("Sensor_BOS exception", e.toString());
                 }
 
                 // For displaying on the screen
@@ -1249,13 +1344,21 @@ public class MainActivity extends Activity {
     public void onPause() {
         super.onPause();  // Always call the superclass method first
 
+
+        /*
+        ActivityManager activityManager = (ActivityManager) getApplicationContext()
+                .getSystemService(Context.ACTIVITY_SERVICE);
+
+        activityManager.moveTaskToFront(getTaskId(), 0);
+        */
+
         //StartStopButton.setChecked(false);
     }
 
     @Override
     public void onStop() {
         super.onStop();  // Always call the superclass method first
-
+        v.vibrate(50); v.vibrate(50); v.vibrate(50); v.vibrate(50);
         //StartStopButton.setChecked(false);
     }
 
@@ -1264,16 +1367,51 @@ public class MainActivity extends Activity {
         // Ignore Back Button, not necessary
     }
 
+    private void hideSystemUI() {
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+  //              | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+    }
+    public void UiChangeListener()
+    {
+        final View decorView = getWindow().getDecorView();
+        decorView.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
+            @Override
+            public void onSystemUiVisibilityChange(int visibility) {
+                if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
+                    decorView.setSystemUiVisibility(
+                                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                                    //| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                    //| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                    //| View.SYSTEM_UI_FLAG_FULLSCREEN
+                                    //| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    );
+                }
+            }
+        });
+    }
+
     private LocationListener getLocationListener() {
         // Define a listener that responds to location updates
-        Log.v("LocationListener: ", "Location Listener started.");
-        Log.v("LocationListener: ", " Started with providers: " + locationManager.getAllProviders().toString());
+
+        Log.v("LocationListener", " Started with providers: " + locationManager.getAllProviders().toString());
 
         LocationListener locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
                 // Called when a new location is found by the network location provider.
 
                 seq_nr_gpsfix++;
+
+                if (state == State.RUNNING) {
+                    GpsData.GpsReading gps_location = prepareGpsProtobuf(location);
+                    try {
+                        gps_location.writeDelimitedTo(Gps_BOS);
+                    } catch (IOException e) {
+                        Log.e("Gps_BOS exception", e.toString());
+                    }
+                }
 
                 onScreenVerbose.put("seq_nr_gpsfix", Integer.toString(seq_nr_gpsfix));
                 onScreenVerbose.put("GPS FIX: ", location.toString());
@@ -1443,7 +1581,7 @@ public class MainActivity extends Activity {
             Dot_FIS.close();
 
         } catch (IOException e) {
-            Log.e("Read_FIS: ", e.toString());
+            Log.e("Read_FIS", e.toString());
         }
 
         AlertDialog.Builder message_count_dialog_builder = new AlertDialog.Builder(this);

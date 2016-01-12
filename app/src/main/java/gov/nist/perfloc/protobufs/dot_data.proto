@@ -19,3 +19,5 @@ message DotReading
   optional int32 dot_nr = 1;            // Sequence number of a Dot marking
   optional int64 timestamp = 2;         // Time of this scan in milliseconds
 }
+
+// protoc --proto_path=. --java_out=../../../../ dot_data.proto

@@ -6,6 +6,8 @@
     <string name="sensors_file_name">_Sensors</string>
     <string name="cellular_file_name">_Cellular</string>
     <string name="metadata_file_name">_Metadata</string>
+    <string name="gps_file_name">_Gps</string>
+    <string name="file_extension">pbs</string> <!--(p)rotocol(b)uffer(s)erialized-->
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
