@@ -108,6 +108,7 @@ public class MainActivity extends Activity {
     WifiManager wifi;
     WifiScanReceiver wifiReceiver;
     long time_prev, time_current;
+    long last_button_press_time, current_button_press_time;
 
     // Cell Tower and Telephony related definitions
     TelephonyManager telephony_manager;
@@ -117,18 +118,19 @@ public class MainActivity extends Activity {
     LocationListener locationListener;
 
     // Sensor related definitions
-     SensorHandler rbs;
+    SensorHandler rbs;
+    SensorHandler sensorHandler;
 
-    HashMap<Sensor, float[]> sensorHashMap; // 112
-    HashMap<Sensor, Long> sensorLastTimestampHashMap; // 112
-    HashMap<Sensor, Long> sensorCurrentTimestampHashMap; // 112
+    HashMap<Sensor, float[]> sensorHashMap;
+    HashMap<Sensor, Long> sensorLastTimestampHashMap;
+    HashMap<Sensor, Long> sensorCurrentTimestampHashMap;
 
     // Verbose info
     HashMap<String, String> onScreenVerbose;
 
     private int SENSOR_DELAY = SensorManager.SENSOR_DELAY_FASTEST;
 
-    volatile int dotCounter;
+    volatile int dotCounter, gpsFixCounter;
 
     volatile int numberOfAPs=0,
                 WiFiScanDuration=0,
@@ -169,20 +171,14 @@ public class MainActivity extends Activity {
         UiChangeListener();
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        v = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
 
         setWakeLock(true);
-
         prepareStrings();
-
         resetCounters();
-
         initializeLists();
-
         setGpsListener(true);
-
         createOutputFiles(current_file_prefix);
-
-        v = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
 
         // Find Views
         StartStopButton = (ToggleButton) findViewById(R.id.toggleButton);
@@ -193,7 +189,6 @@ public class MainActivity extends Activity {
         tv_bottomView   = (TextView) findViewById(R.id.bottomView);
         tv_sensor_event_counter = (TextView) findViewById(R.id.sensor_event_counter);
         //findViewById(R.id.title_sensor_event_counter);
-
         expListView = (ExpandableListView) findViewById(R.id.expandableListView);
 
         // Start WiFi Service
@@ -203,20 +198,21 @@ public class MainActivity extends Activity {
         telephony_manager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         //listenPhoneState(telephony_manager);
 
-        rbs = new SensorHandler(main_handler, 100);
+        rbs = new SensorHandler(main_handler, 500);
+        //sensorHandler = new SensorHandler(main_handler, 100);
         final MeasurementTimer aT = new MeasurementTimer(main_handler);
         //pool = Executors.newFixedThreadPool(2); // Either use a thread pool, or create a separate thread each time and call Thread.start()
         //final Thread tRBS = new Thread(rbs);
 
         StartStopButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                //      Thread tRBS = new Thread(rbs);
                 if (isChecked) {
                     state = State.RUNNING;
                     registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
                     wifi.startScan();
                     time_current = System.currentTimeMillis();
 
+                    //sensorHandler.startSensors();
                     Thread tRBS = new Thread(rbs);
                     tRBS.start();
 
@@ -232,6 +228,8 @@ public class MainActivity extends Activity {
                     unregisterReceiver(wifiReceiver);
 
                     rbs.terminate();
+                    //sensorHandler.stopSensors();
+
                     aT.terminate();
                     flushFiles();
                     Log.v("StartStopButton", "Runnable stopped.");
@@ -241,10 +239,12 @@ public class MainActivity extends Activity {
 
         });
 
+        /* Prevent other activities, such as MusicPlaybackService, from catching MEDIA_BUTTON events */
         if ("lge".equalsIgnoreCase(Build.BRAND)||true) {
             MediaSession mediaSession = new MediaSession(this, "Perfloc MediaSession TAG");
                 mediaSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS);
                 //mediaSession.setCallback(this);
+
                 Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
                 //Intent mediaButtonIntent = new Intent(getApplicationContext(), MediaButtonIntentReceiver.class);
                 PendingIntent pIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, mediaButtonIntent, 0);
@@ -253,8 +253,8 @@ public class MainActivity extends Activity {
         }
 
 
-       /* IntentFilter filter = new IntentFilter(Intent.ACTION_MEDIA_BUTTON);
-        filter.setPriority(Integer.MAX_VALUE);
+     /*   IntentFilter filter = new IntentFilter(Intent.ACTION_MEDIA_BUTTON);
+        filter.setPriority(10000);
         registerReceiver(new MediaButtonIntentReceiver(), filter);
 */
 
@@ -350,9 +350,19 @@ public class MainActivity extends Activity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
 
         if (event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_HEADSETHOOK) {
+
+            current_button_press_time = System.currentTimeMillis();
+            if (current_button_press_time - last_button_press_time < 500) { // No presses faster than 0.5 sec
+                last_button_press_time = current_button_press_time;
+                return false;
+            }
+
+            last_button_press_time = current_button_press_time;
+
             Log.v("__MEDIA_BUTTON__", "DOWN Pressed.");
             am.playSoundEffect(AudioManager.FX_KEYPRESS_INVALID);
             markDot();
+
         }
         return true;
     }
@@ -381,6 +391,10 @@ public class MainActivity extends Activity {
         numberOfSensors = 0;
 
         dotCounter = 0;
+        gpsFixCounter = 0;
+
+        last_button_press_time = System.currentTimeMillis() - 5000;
+        current_button_press_time = System.currentTimeMillis();
     }
 
     private void initializeLists () {
@@ -872,8 +886,8 @@ public class MainActivity extends Activity {
             wifi.startScan();
             captureCellularScan();
 
+            // Display
             onScreenVerbose.put("seq_nr_wifi", Integer.toString(wifi_reading.getSequenceNr()));
-
             displayWiFiScan(wifi_reading.getWifiApList());
 
 
@@ -1077,6 +1091,7 @@ public class MainActivity extends Activity {
             Sensor_BOS.flush();
             Dots_BOS.flush();
             Cellular_BOS.flush();
+            Gps_BOS.flush();
         } catch (IOException e) {
             Log.v("Flush BOS:",e.toString());
             return false;
@@ -1126,11 +1141,9 @@ public class MainActivity extends Activity {
 
             sensorList = getDefaultSensorList();
 
-            //SensorList_text = new ArrayList<String>();
-            // sensorHashMap = new HashMap<String, float[]>(); // 112
             sensorHashMap = new HashMap<Sensor, float[]>();
-            sensorLastTimestampHashMap = new  HashMap<Sensor, Long>(); // 112
-            sensorCurrentTimestampHashMap = new  HashMap<Sensor, Long>(); // 112
+            sensorLastTimestampHashMap = new  HashMap<Sensor, Long>();
+            sensorCurrentTimestampHashMap = new  HashMap<Sensor, Long>();
 
             for (Sensor _s : sensorList) {
                 sensorHashMap.put(_s, null);
@@ -1139,8 +1152,8 @@ public class MainActivity extends Activity {
             if (sensorList.size() != sensorHashMap.size())
                 Log.e("DEADLY ERROR!!!!", "defaultSensorList.size() != sensorHashMap.size() " + sensorList.size() + " != " + sensorHashMap.size() );
 
-            //List<String> keyList = new ArrayList<String>(sensorHashMap.keySet()); //112
             List<Sensor> keyList = new ArrayList<>(sensorHashMap.keySet());
+
             SensorList_text = new ArrayList<String>();
             for (int i = 0; i < keyList.size();i++){
                 SensorList_text.add(keyList.get(i) + ": " + Arrays.toString(sensorHashMap.get(keyList.get(i))) + ", isWakeup?"  + keyList.get(i).isWakeUpSensor());
@@ -1153,22 +1166,19 @@ public class MainActivity extends Activity {
                     WiFiScanTime.setText("Ready! " + Arrays.toString(s_light));
 
                     updateExpandableListView();
-
-
                 }
             });
         }
 
         public List<Sensor> getDefaultSensorList () {
+
             List<Sensor> sensorList = mSensorManager.getSensorList(Sensor.TYPE_ALL);
-
-            List<Sensor> defaultSensorList = new ArrayList<>(); //112
-
-            List<Sensor> nullSensorList = new ArrayList<>(); //112
+            List<Sensor> defaultSensorList = new ArrayList<>();
+            List<Sensor> nullSensorList = new ArrayList<>();
 
             for (int i = 0; i < sensorList.size(); i++) {
 
-                Sensor default_sensor = mSensorManager.getDefaultSensor(sensorList.get(i).getType()); // 112
+                Sensor default_sensor = mSensorManager.getDefaultSensor(sensorList.get(i).getType());
 
                 if (! defaultSensorList.contains(default_sensor)) {
                     if ( default_sensor != null) {
@@ -1191,26 +1201,40 @@ public class MainActivity extends Activity {
             return sensorList;
         }
 
+        public void sortSensorListText () {
+            List<Sensor> keyList = new ArrayList<>(sensorHashMap.keySet());
+
+            SensorList_text = new ArrayList<String>();
+
+            for (int i = 0; i < keyList.size();i++){
+                if (sensorLastTimestampHashMap.get(keyList.get(i)) != null )
+                    SensorList_text.add(keyList.get(i) + ": " + Arrays.toString(sensorHashMap.get(keyList.get(i))) +
+                            " in " + (sensorCurrentTimestampHashMap.get(keyList.get(i)) - sensorLastTimestampHashMap.get(keyList.get(i)))/1000000 + "msec" + ", isWakeup: " );
+            }
+
+            Collections.sort(SensorList_text, String.CASE_INSENSITIVE_ORDER);
+        }
+
+        public void startSensors() {
+            registerSensors(mSensorManager, sensorList);
+        }
+
+        public void stopSensors() {
+            unRegisterSensors(mSensorManager);
+        }
+
         @Override
         public void run() {
 
+            Log.v ("Sensor","thread started to run.");
+
             running = true;
 
-            registerSensors(mSensorManager, sensorList);
+            startSensors();
 
             while (running) {
 
-                List<Sensor> keyList = new ArrayList<>(sensorHashMap.keySet());
-
-                SensorList_text = new ArrayList<String>();
-
-                for (int i = 0; i < keyList.size();i++){
-                    if (sensorLastTimestampHashMap.get(keyList.get(i)) != null )
-                        SensorList_text.add(keyList.get(i) + ": " + Arrays.toString(sensorHashMap.get(keyList.get(i))) +
-                                " in " + (sensorCurrentTimestampHashMap.get(keyList.get(i)) - sensorLastTimestampHashMap.get(keyList.get(i)))/1000000 + "msec" + ", isWakeup: " );
-                }
-
-                Collections.sort(SensorList_text, String.CASE_INSENSITIVE_ORDER);
+                sortSensorListText();
 
                 mHandler.post(new Runnable() {
                     @Override
@@ -1227,7 +1251,6 @@ public class MainActivity extends Activity {
                     Log.e("THREAD_SLEEP", e.toString());
                 }
 
-
             } // while running
         }
 
@@ -1240,6 +1263,8 @@ public class MainActivity extends Activity {
             for (int i = 0; i < listOfSensors.size(); i++) {
                 mSensorManager.registerListener(mSensorListener, listOfSensors.get(i), SENSOR_DELAY);
             }
+
+            Log.v(this.getClass().getName(), "sensors registered.");
         }
 
         private void unRegisterSensors (SensorManager tSensorManager){
@@ -1293,8 +1318,10 @@ public class MainActivity extends Activity {
             }
         };
 
+        // Terminate the running thread
         public void terminate() {
-            unRegisterSensors(mSensorManager);
+            //unRegisterSensors(mSensorManager);
+            stopSensors();
             running = false;
         }
     }
@@ -1402,9 +1429,9 @@ public class MainActivity extends Activity {
             public void onLocationChanged(Location location) {
                 // Called when a new location is found by the network location provider.
 
-                seq_nr_gpsfix++;
 
                 if (state == State.RUNNING) {
+                    seq_nr_gpsfix++;
                     GpsData.GpsReading gps_location = prepareGpsProtobuf(location);
                     try {
                         gps_location.writeDelimitedTo(Gps_BOS);
@@ -1414,7 +1441,7 @@ public class MainActivity extends Activity {
                 }
 
                 onScreenVerbose.put("seq_nr_gpsfix", Integer.toString(seq_nr_gpsfix));
-                onScreenVerbose.put("GPS FIX: ", location.toString());
+                onScreenVerbose.put("GPS FIX: ", ++gpsFixCounter + ": " + location.toString());
                 tv_bottomView.setText(onScreenVerbose.toString());
             }
 
