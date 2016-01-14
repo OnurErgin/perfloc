@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -57,6 +58,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -88,6 +90,8 @@ public class MainActivity extends Activity {
     // View related definitions
     ExpandableListView expListView;
     ToggleButton StartStopButton;
+    Switch gpsSwitch;
+
     static TextView numAPs,
             WiFiScanTime,
             tv_dotcounter,
@@ -112,10 +116,12 @@ public class MainActivity extends Activity {
 
     // Cell Tower and Telephony related definitions
     TelephonyManager telephony_manager;
+    HashMap<String,String> phoneStateHashMap;
 
     // Location Services: GPS
     LocationManager locationManager;
     LocationListener locationListener;
+    boolean gotGpsFix;
 
     // Sensor related definitions
     SensorHandler rbs;
@@ -144,7 +150,7 @@ public class MainActivity extends Activity {
             Metadata_output_file,// = "_Metadata";
             Gps_output_file;
 
-    String device_identifier, protocol_buffer_file_extension, current_file_prefix;
+    String device_identifier, protocol_buffer_file_extension, current_file_prefix = "1";
 
     File dirname;
 
@@ -174,14 +180,14 @@ public class MainActivity extends Activity {
         v = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
 
         setWakeLock(true);
-        prepareStrings();
         resetCounters();
         initializeLists();
-        setGpsListener(true);
+        //setGpsListener(true);
         createOutputFiles(current_file_prefix);
 
         // Find Views
         StartStopButton = (ToggleButton) findViewById(R.id.toggleButton);
+        gpsSwitch       = (Switch) findViewById(R.id.gps_switch);
         numAPs          = (TextView) findViewById(R.id.numAPs);
         WiFiScanTime    = (TextView) findViewById(R.id.WiFiScanTime);
         tv_dotcounter   = (TextView) findViewById(R.id.dotCounter);
@@ -196,7 +202,7 @@ public class MainActivity extends Activity {
         wifiReceiver = new WifiScanReceiver();
 
         telephony_manager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        //listenPhoneState(telephony_manager);
+        listenPhoneState(telephony_manager);
 
         rbs = new SensorHandler(main_handler, 500);
         //sensorHandler = new SensorHandler(main_handler, 100);
@@ -237,6 +243,13 @@ public class MainActivity extends Activity {
                 v.vibrate(500);
             }
 
+        });
+
+        gpsSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isON) {
+                setGpsListener(isON);
+            }
         });
 
         /* Prevent other activities, such as MusicPlaybackService, from catching MEDIA_BUTTON events */
@@ -392,6 +405,7 @@ public class MainActivity extends Activity {
 
         dotCounter = 0;
         gpsFixCounter = 0;
+        gotGpsFix = false;
 
         last_button_press_time = System.currentTimeMillis() - 5000;
         current_button_press_time = System.currentTimeMillis();
@@ -410,7 +424,7 @@ public class MainActivity extends Activity {
         indexed_URIs = new ArrayList<>();
     }
 
-    private void prepareStrings () {
+    private void retrieveStrings() {
         WiFi_output_file     = getString(R.string.wifi_file_name);     // "_WiFi",
         Sensors_output_file  = getString(R.string.sensors_file_name);   //"_Sensors",
         Dots_output_file     = getString(R.string.dots_file_name);      //"_Dots",
@@ -422,10 +436,11 @@ public class MainActivity extends Activity {
 
         dirname = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         protocol_buffer_file_extension = getString(R.string.file_extension);
-        current_file_prefix = "1";
     }
 
     private boolean createOutputFiles(String prefix){
+
+        retrieveStrings();
 
         WiFi_output_file     = dirname + "/" + prefix + "_" + device_identifier + WiFi_output_file      + "." + protocol_buffer_file_extension;
         Sensors_output_file  = dirname + "/" + prefix + "_" + device_identifier + Sensors_output_file   + "." + protocol_buffer_file_extension;
@@ -463,6 +478,8 @@ public class MainActivity extends Activity {
         }
         else {
             locationManager.removeUpdates(locationListener);
+            gotGpsFix = false;
+            StartStopButton.setBackgroundColor(Color.LTGRAY);
         }
     }
 
@@ -939,7 +956,7 @@ public class MainActivity extends Activity {
                 return flushFiles();
             case R.id.renew_files:
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setMessage("Are you sure?").setPositiveButton("Yes", renewDialogClickListener)
+                builder.setMessage("DELETING ALL FILES!\nAre you sure?").setPositiveButton("Yes", renewDialogClickListener)
                         .setNegativeButton("No", renewDialogClickListener).show();
 
                 return true;
@@ -1014,41 +1031,11 @@ public class MainActivity extends Activity {
                 countMessagesInOutputFiles();
                 return true;
             case R.id.save_metadata:
-                //ScenarioDefinition scenario_metadata = new ScenarioDefinition(Integer.parseInt(current_file_prefix),null,Metadata_BOS);
                 ScenarioDefinition scenario_metadata = new ScenarioDefinition(0, rbs.sensorList, Metadata_BOS);
-                //scenario_metadata.prepareMetadataProtoBuf(0, rbs.sensorList);
-                //scenario_metadata.writeMetadataToFile(Metadata_BOS);
                 scenario_metadata.prepare(0, rbs.sensorList, Metadata_BOS);
 
-                File MetadataFile = new File(Metadata_output_file);
+                flushFiles();
 
-                MediaScannerConnection.scanFile(
-                        getApplicationContext(),
-                        new String[]{MetadataFile.getAbsolutePath()},
-                        null,
-                        new MediaScannerConnection.OnScanCompletedListener() {
-                            @Override
-                            public void onScanCompleted(String path, Uri uri) {
-                                Log.v("Media Scanner", "file " + path + " was scanned successfully: " + uri);
-                                indexed_URIs.add(uri);
-                            }
-                        }
-                );
-
-                /*File dotFile = new File(Dots_output_file);
-
-                MediaScannerConnection.scanFile(
-                        getApplicationContext(),
-                        new String[]{wifiFile.getAbsolutePath(), sensorFile.getAbsolutePath(), dotFile.getAbsolutePath()},
-                        null,
-                        new MediaScannerConnection.OnScanCompletedListener() {
-                            @Override
-                            public void onScanCompleted(String path, Uri uri) {
-                                Log.v("Media Scanner", "file " + path + " was scanned successfully: " + uri);
-                                indexed_URIs.add(uri);
-                            }
-                        }
-                );*/
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -1092,6 +1079,7 @@ public class MainActivity extends Activity {
             Dots_BOS.flush();
             Cellular_BOS.flush();
             Gps_BOS.flush();
+            Metadata_BOS.flush();
         } catch (IOException e) {
             Log.v("Flush BOS:",e.toString());
             return false;
@@ -1101,10 +1089,14 @@ public class MainActivity extends Activity {
         File wifiFile = new File(WiFi_output_file);
         File sensorFile = new File(Sensors_output_file);
         File dotFile = new File(Dots_output_file);
+        File gpsFile = new File(Gps_output_file);
+        File metadataFile = new File(Metadata_output_file);
+        File cellularFile = new File(Cellular_output_file);
 
         MediaScannerConnection.scanFile(
                 getApplicationContext(),
-                new String[]{wifiFile.getAbsolutePath(), sensorFile.getAbsolutePath(), dotFile.getAbsolutePath()},
+                new String[]{wifiFile.getAbsolutePath(), sensorFile.getAbsolutePath(), dotFile.getAbsolutePath(),
+                             gpsFile.getAbsolutePath(), metadataFile.getAbsolutePath(), cellularFile.getAbsolutePath()},
                 null,
                 new MediaScannerConnection.OnScanCompletedListener() {
                     @Override
@@ -1429,6 +1421,10 @@ public class MainActivity extends Activity {
             public void onLocationChanged(Location location) {
                 // Called when a new location is found by the network location provider.
 
+                if (!gotGpsFix) {
+                    gotGpsFix = true;
+                    StartStopButton.setBackgroundColor(Color.GREEN);
+                }
 
                 if (state == State.RUNNING) {
                     seq_nr_gpsfix++;
@@ -1442,7 +1438,7 @@ public class MainActivity extends Activity {
 
                 onScreenVerbose.put("seq_nr_gpsfix", Integer.toString(seq_nr_gpsfix));
                 onScreenVerbose.put("GPS FIX: ", ++gpsFixCounter + ": " + location.toString());
-                tv_bottomView.setText(onScreenVerbose.toString());
+                tv_bottomView.setText(onScreenVerbose.toString().replaceAll(", ", "\n"));
             }
 
             public void onStatusChanged(String provider, int status, Bundle extras) {}
@@ -1455,38 +1451,46 @@ public class MainActivity extends Activity {
     }
 
     private PhoneStateListener getPhoneStateListener() {
+        final String sCellInfo = "Cell Info #";
+        final String sDataActivity = "Data Activity";
+        final String sServiceState = "Service State";
+        final String sCallState = "Call State";
+        final String sCellLocation = "Cell Location";
+        final String sCallForwarding = "Call Forwarding";
+        final String sMessageWaiting = "Message Waiting";
+
+        phoneStateHashMap = new HashMap<>();
+
         final PhoneStateListener phone = new PhoneStateListener() {
             @Override
             public void onCellInfoChanged(List<CellInfo> cellInfo) {
                 int i;
                 super.onCellInfoChanged(cellInfo);
-                TextView call_info = (TextView)findViewById(R.id.cellInfo);
                 if (cellInfo != null) {
                     for (i = 0; i < cellInfo.size(); i++);
-                    call_info.setText(i + "Cell Info Available");
+                    phoneStateHashMap.put(sCellInfo,"" + i);
                 } else {
-                    call_info.setText("No Cell Info Available");
+                    phoneStateHashMap.put(sCellInfo,"none");
                 }
             }
             @Override
             public void onDataActivity(int direction) {
                 super.onDataActivity(direction);
-                TextView data_activity = (TextView)findViewById(R.id.dataActivity);
                 switch (direction) {
                     case TelephonyManager.DATA_ACTIVITY_NONE:
-                        data_activity.setText("No Data Activity");
+                        phoneStateHashMap.put(sDataActivity,"none");
                         break;
                     case TelephonyManager.DATA_ACTIVITY_IN:
-                        data_activity.setText("Incoming Data Activity");
+                        phoneStateHashMap.put(sDataActivity, "incoming");
                         break;
                     case TelephonyManager.DATA_ACTIVITY_OUT:
-                        data_activity.setText("Outgoing Data Activity");
+                        phoneStateHashMap.put(sDataActivity, "outgoing");
                         break;
                     case TelephonyManager.DATA_ACTIVITY_INOUT:
-                        data_activity.setText("Bi-directional Data Activity");
+                        phoneStateHashMap.put(sDataActivity, "in/out");
                         break;
                     case TelephonyManager.DATA_ACTIVITY_DORMANT:
-                        data_activity.setText("Dormant Data Activity");
+                        phoneStateHashMap.put(sDataActivity, "dormant");
                         break;
                     default:
                         break;
@@ -1495,35 +1499,33 @@ public class MainActivity extends Activity {
             @Override
             public void onServiceStateChanged(ServiceState serviceState) {
                 super.onServiceStateChanged(serviceState);
-                TextView service_state = (TextView)findViewById(R.id.serviceState);
                 switch (serviceState.getState()) {
                     case ServiceState.STATE_IN_SERVICE:
-                        service_state.setText("Phone in service");
+                        phoneStateHashMap.put(sServiceState, "in Service");
                         break;
                     case ServiceState.STATE_OUT_OF_SERVICE:
-                        service_state.setText("Phone out of service");
+                        phoneStateHashMap.put(sServiceState, "out of Service");
                         break;
                     case ServiceState.STATE_EMERGENCY_ONLY:
-                        service_state.setText("Emergency service only");
+                        phoneStateHashMap.put(sServiceState, "emergency only");
                         break;
                     case ServiceState.STATE_POWER_OFF:
-                        service_state.setText("Powered Off");
+                        phoneStateHashMap.put(sServiceState, "powered off");
                         break;
                 }
             }
             @Override
             public void onCallStateChanged(int state, String incomingNumber) {
                 super.onCallStateChanged(state, incomingNumber);
-                TextView callState = (TextView)findViewById(R.id.callState);
                 switch (state) {
                     case TelephonyManager.CALL_STATE_IDLE:
-                        callState.setText("Call State is IDLE");
+                        phoneStateHashMap.put(sCallState,"idle");
                         break;
                     case TelephonyManager.CALL_STATE_RINGING:
-                        callState.setText("Call State is RINGING");
+                        phoneStateHashMap.put(sCallState, "ringing");
                         break;
                     case TelephonyManager.CALL_STATE_OFFHOOK:
-                        callState.setText("Call State is OFFHOOK");
+                        phoneStateHashMap.put(sCallState, "idle");
                         break;
                     default:
                         break;
@@ -1532,28 +1534,27 @@ public class MainActivity extends Activity {
             @Override
             public void onCellLocationChanged(CellLocation location) {
                 super.onCellLocationChanged(location);
-                TextView cell_location = (TextView)findViewById(R.id.cellLocation);
-                cell_location.setText(location.toString());
+                phoneStateHashMap.put(sCellLocation,location.toString());
             }
             @Override
             public void onCallForwardingIndicatorChanged(boolean cfi) {
                 super.onCallForwardingIndicatorChanged(cfi);
-                TextView call_forwarding = (TextView)findViewById(R.id.callForwarding);
                 if (cfi)
-                    call_forwarding.setText("Call forward ON");
+                    phoneStateHashMap.put(sCallForwarding, "ON");
                 else
-                    call_forwarding.setText("Call forward OFF");
+                    phoneStateHashMap.put(sCallForwarding, "OFF");
             }
             @Override
             public void onMessageWaitingIndicatorChanged(boolean mwi) {
                 super.onMessageWaitingIndicatorChanged(mwi);
-                TextView message_waiting = (TextView)findViewById(R.id.messageWaiting);
                 if (mwi)
-                    message_waiting.setText("Call forward ON");
+                    phoneStateHashMap.put(sMessageWaiting, "TRUE");
                 else
-                    message_waiting.setText("Call forward OFF");
+                    phoneStateHashMap.put(sMessageWaiting, "FALSE");
             }
         };
+        TextView tv_phoneState = (TextView) findViewById(R.id.phone_state);
+        tv_phoneState.setText(phoneStateHashMap.toString());
         return phone;
     }
 
@@ -1574,14 +1575,21 @@ public class MainActivity extends Activity {
         int sensor_messages = 0;
         int wifi_messages = 0;
         int cell_messages = 0;
+        int gps_messages = 0;
+        int metadata_messages = 0;
+        MetaData.Metadata meta_data = null;
 
-        FileInputStream WiFi_FIS = null, Sensor_FIS = null, Cell_FIS = null, Dot_FIS = null;
+        FileInputStream WiFi_FIS = null, Sensor_FIS = null, Cell_FIS = null,
+                        Dot_FIS = null, Gps_FIS = null, Metadata_FIS = null;
 
         try {
             WiFi_FIS = new FileInputStream(WiFi_output_file);
             Sensor_FIS = new FileInputStream (Sensors_output_file);
             Cell_FIS = new FileInputStream(Cellular_output_file);
             Dot_FIS = new FileInputStream(Dots_output_file);
+            Gps_FIS = new FileInputStream(Gps_output_file);
+            Metadata_FIS = new FileInputStream(Metadata_output_file);
+
         } catch (IOException e) {
             Log.e("FIS: ", e.toString());
         }
@@ -1607,17 +1615,33 @@ public class MainActivity extends Activity {
             }
             Dot_FIS.close();
 
+            while (GpsData.GpsReading.parseDelimitedFrom(Gps_FIS) != null) {
+                gps_messages++;
+            }
+            Gps_FIS.close();
+
+            meta_data = MetaData.Metadata.parseFrom(Metadata_FIS);
+            if (meta_data != null) {
+                metadata_messages++;
+            }
+            Metadata_FIS.close();
+
         } catch (IOException e) {
             Log.e("Read_FIS", e.toString());
         }
 
         AlertDialog.Builder message_count_dialog_builder = new AlertDialog.Builder(this);
 
+        message_count_dialog_builder.setTitle("Summary:");
         message_count_dialog_builder.setMessage(
-                "WiFi_Messages = " + Integer.toString(wifi_messages) +
-                        "\nSensor_Messages = " + Integer.toString(sensor_messages) +
-                        "\nCellular_Messages = " + Integer.toString(cell_messages) +
-                        "\nDot_Messages = " + Integer.toString(dot_messages)
+                           "WiFi_Messages = " + Integer.toString(wifi_messages) +
+                        "\n Sensor_Messages = " + Integer.toString(sensor_messages) +
+                        "\n Cellular_Messages = " + Integer.toString(cell_messages) +
+                        "\n Dot_Messages = " + Integer.toString(dot_messages) +
+                        "\n Gps_Messages = " + Integer.toString(gps_messages) +
+                        "\n Metadata_Message = " + Integer.toString(metadata_messages)+
+                        "\n Metadata: " + meta_data.toString()
+
                 )
                 .setCancelable(false)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {

@@ -39,7 +39,7 @@
         android:layout_alignParentStart="true"
         android:layout_gravity="bottom"
         android:background="#dadbdb"
-        android:layout_below="@+id/messageWaiting" />
+        android:layout_above="@+id/bottomView" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -70,15 +70,14 @@
 
     <TextView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="120dp"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="Location and\n various Information"
         android:id="@+id/bottomView"
-        android:layout_alignTop="@+id/cellInfo"
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:layout_alignEnd="@+id/cellInfo"
-        android:background="@android:color/darker_gray" />
+        android:background="@android:color/darker_gray"
+        android:layout_alignEnd="@+id/expandableListView" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -87,69 +86,24 @@
         android:text="Timer (seconds)"
         android:id="@+id/timer_sec"
         android:layout_alignParentBottom="true"
-        android:layout_alignEnd="@+id/dataActivity" />
+        android:layout_alignEnd="@+id/phone_state" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="serviceState"
-        android:id="@+id/serviceState"
+        android:text="Phone State"
+        android:id="@+id/phone_state"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/bottomView" />
+
+    <Switch
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="GPS"
+        android:id="@+id/gps_switch"
         android:layout_below="@+id/numAPs"
-        android:layout_alignParentEnd="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="callState"
-        android:id="@+id/callState"
-        android:layout_below="@+id/serviceState"
-        android:layout_alignEnd="@+id/serviceState" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="cellLocation"
-        android:id="@+id/cellLocation"
-        android:layout_below="@+id/callState"
-        android:layout_alignEnd="@+id/callState" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="callForwarding"
-        android:id="@+id/callForwarding"
-        android:layout_below="@+id/cellLocation"
-        android:layout_alignParentEnd="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="messageWaiting"
-        android:id="@+id/messageWaiting"
-        android:layout_below="@+id/callForwarding"
-        android:layout_alignEnd="@+id/expandableListView" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="cellInfo"
-        android:id="@+id/cellInfo"
-        android:layout_below="@+id/expandableListView"
-        android:layout_alignEnd="@+id/expandableListView" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="dataActivity"
-        android:id="@+id/dataActivity"
-        android:layout_below="@+id/cellInfo"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignEnd="@+id/WiFiScanTime"
+        android:checked="false" />
 
 </RelativeLayout>
