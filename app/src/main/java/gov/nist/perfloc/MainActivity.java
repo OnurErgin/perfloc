@@ -54,6 +54,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ExpandableListAdapter;
@@ -90,7 +91,7 @@ public class MainActivity extends Activity {
     // View related definitions
     ExpandableListView expListView;
     ToggleButton StartStopButton;
-    Switch gpsSwitch;
+    Switch gpsSwitch, sensorSwitch;
 
     static TextView numAPs,
             WiFiScanTime,
@@ -98,6 +99,7 @@ public class MainActivity extends Activity {
             tv_sensor_event_counter,
             tv_timer_sec,
             tv_bottomView;
+    static CheckBox accelerometer_checkbox, geomagnetic_checkbox;
 
     // Expandable List Adapter related definitions
     ExpandableListAdapter expListAdapter;
@@ -195,7 +197,10 @@ public class MainActivity extends Activity {
         tv_bottomView   = (TextView) findViewById(R.id.bottomView);
         tv_sensor_event_counter = (TextView) findViewById(R.id.sensor_event_counter);
         //findViewById(R.id.title_sensor_event_counter);
-        expListView = (ExpandableListView) findViewById(R.id.expandableListView);
+        expListView     = (ExpandableListView) findViewById(R.id.expandableListView);
+        accelerometer_checkbox = (CheckBox) findViewById(R.id.accelerometer_accuracy);
+        geomagnetic_checkbox   = (CheckBox) findViewById(R.id.geomagnetic_checkbox);
+        sensorSwitch    = (Switch) findViewById(R.id.sensor_switch);
 
         // Start WiFi Service
         wifi=(WifiManager)getSystemService(Context.WIFI_SERVICE);
@@ -204,7 +209,6 @@ public class MainActivity extends Activity {
         telephony_manager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         listenPhoneState(telephony_manager);
 
-        rbs = new SensorHandler(main_handler, 500);
         //sensorHandler = new SensorHandler(main_handler, 100);
         final MeasurementTimer aT = new MeasurementTimer(main_handler);
         //pool = Executors.newFixedThreadPool(2); // Either use a thread pool, or create a separate thread each time and call Thread.start()
@@ -218,9 +222,6 @@ public class MainActivity extends Activity {
                     wifi.startScan();
                     time_current = System.currentTimeMillis();
 
-                    //sensorHandler.startSensors();
-                    Thread tRBS = new Thread(rbs);
-                    tRBS.start();
 
                     Thread taT = new Thread(aT);
                     taT.start();
@@ -233,16 +234,34 @@ public class MainActivity extends Activity {
 
                     unregisterReceiver(wifiReceiver);
 
-                    rbs.terminate();
-                    //sensorHandler.stopSensors();
-
                     aT.terminate();
                     flushFiles();
                     Log.v("StartStopButton", "Runnable stopped.");
+                    sensorSwitch.setChecked(false);
+                    gpsSwitch.setChecked(false);
                 }
                 v.vibrate(500);
             }
 
+        });
+
+        rbs = new SensorHandler(main_handler, 500);
+        sensorSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isON) {
+                if (isON) {
+                    StartStopButton.setEnabled(true);
+
+                    Thread tRBS = new Thread(rbs);
+                    tRBS.start();
+                }
+                else {
+                    rbs.terminate();
+
+                    StartStopButton.setChecked(false);
+                    StartStopButton.setEnabled(false);
+                }
+            }
         });
 
         gpsSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -608,7 +627,7 @@ public class MainActivity extends Activity {
         // Adding headers:
         listDataHeader.add(numberOfAPs + " Access Points, delay: " + WiFiScanDuration + "ms");
         listDataHeader.add(numberOfCellTowers + " Cell Towers");
-        listDataHeader.add(SensorList_text.size() + "/" + numberOfSensors + " Sensors");
+        listDataHeader.add(SensorList_text.size() + "/" + numberOfSensors + " Sensors, " + seq_nr_sensorevent);
 
         listDataChild.put(listDataHeader.get(0), WiFiList_text);
         listDataChild.put(listDataHeader.get(1), CellList_text);
@@ -1215,14 +1234,31 @@ public class MainActivity extends Activity {
             unRegisterSensors(mSensorManager);
         }
 
+        public void showAccuracies () {
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    for (Sensor _s : sensorList) {
+                        if (_s.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
+                            accelerometer_checkbox.setText("LinearAcc: " + _s.getResolution());
+                            break;
+                        }
+                    }
+                    //prepareListData();
+                }
+            });
+        }
+
         @Override
         public void run() {
 
-            Log.v ("Sensor","thread started to run.");
+            Log.v("Sensor", "thread started to run.");
 
             running = true;
 
             startSensors();
+
+            showAccuracies();
 
             while (running) {
 
@@ -1268,6 +1304,19 @@ public class MainActivity extends Activity {
             volatile long senor_event_counter = 0;
             @Override
             public void onAccuracyChanged(Sensor sensor, int accuracy) {
+                final Sensor _s = sensor;
+                final int _acc = accuracy;
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (_s.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+                                geomagnetic_checkbox.setText("GeoMagnetic: " + _acc);
+                        }
+                        if (_s.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
+                            accelerometer_checkbox.setText("LinAccelerometer: " + _acc);
+                        }
+                    }
+                });
             }
 
             @Override
@@ -1276,18 +1325,20 @@ public class MainActivity extends Activity {
 
                 //list_sensor_readings.add(prepareSensorProtobuf(event));
 
-                seq_nr_sensorevent = seq_nr_sensorevent + 1;
+                if (state == State.RUNNING) {
+                    seq_nr_sensorevent = seq_nr_sensorevent + 1;
 
-                SensorData.SensorReading sensor_event = prepareSensorProtobuf(event);
-                try {
-                    sensor_event.writeDelimitedTo(Sensor_BOS);
-                } catch (IOException e) {
-                    Log.e("Sensor_BOS exception", e.toString());
+                    SensorData.SensorReading sensor_event = prepareSensorProtobuf(event);
+                    try {
+                        sensor_event.writeDelimitedTo(Sensor_BOS);
+                    } catch (IOException e) {
+                        Log.e("Sensor_BOS exception", e.toString());
+                    }
+
+                    // For displaying on the screen
+
+                    onScreenVerbose.put("seq_nr_sensorevent", Integer.toString(sensor_event.getSequenceNr()));
                 }
-
-                // For displaying on the screen
-
-                onScreenVerbose.put("seq_nr_sensorevent", Integer.toString(sensor_event.getSequenceNr()));
 
                 mHandler.post(new Runnable() {
                     @Override
@@ -1639,7 +1690,8 @@ public class MainActivity extends Activity {
                         "\n Cellular_Messages = " + Integer.toString(cell_messages) +
                         "\n Dot_Messages = " + Integer.toString(dot_messages) +
                         "\n Gps_Messages = " + Integer.toString(gps_messages) +
-                        "\n Metadata_Message = " + Integer.toString(metadata_messages)+
+                        "\n Metadata_Message = " + Integer.toString(metadata_messages) +
+                        "\n \n" +
                         "\n Metadata: " + meta_data.toString()
 
                 )

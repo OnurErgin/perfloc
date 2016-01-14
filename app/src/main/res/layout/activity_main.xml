@@ -30,7 +30,8 @@
         android:id="@+id/toggleButton"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
-        android:checked="false" />
+        android:checked="false"
+        android:enabled="false" />
 
     <ExpandableListView
         android:layout_width="wrap_content"
@@ -104,6 +105,35 @@
         android:id="@+id/gps_switch"
         android:layout_below="@+id/numAPs"
         android:layout_alignEnd="@+id/WiFiScanTime"
+        android:checked="false" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Accelerometer"
+        android:id="@+id/accelerometer_accuracy"
+        android:checked="false"
+        android:clickable="false"
+        android:enabled="false"
+        android:layout_below="@+id/toggleButton"
+        android:layout_alignParentStart="true" />
+
+    <Switch
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sensors"
+        android:id="@+id/sensor_switch"
+        android:layout_below="@+id/gps_switch"
+        android:layout_alignEnd="@+id/WiFiScanTime"
+        android:checked="false" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="GeoMagnetic: "
+        android:id="@+id/geomagnetic_checkbox"
+        android:layout_below="@+id/accelerometer_accuracy"
+        android:layout_alignParentStart="true"
         android:checked="false" />
 
 </RelativeLayout>
