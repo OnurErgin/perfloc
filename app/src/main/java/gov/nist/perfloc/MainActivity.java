@@ -46,6 +46,7 @@ import android.telephony.CellSignalStrengthLte;
 import android.telephony.CellSignalStrengthWcdma;
 import android.telephony.PhoneStateListener;
 import android.telephony.ServiceState;
+import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 import android.text.InputType;
 import android.util.Log;
@@ -69,6 +70,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -99,7 +101,7 @@ public class MainActivity extends Activity {
             tv_sensor_event_counter,
             tv_timer_sec,
             tv_bottomView;
-    static CheckBox accelerometer_checkbox, geomagnetic_checkbox;
+    static CheckBox geomagnetic_checkbox;
 
     // Expandable List Adapter related definitions
     ExpandableListAdapter expListAdapter;
@@ -119,6 +121,13 @@ public class MainActivity extends Activity {
     // Cell Tower and Telephony related definitions
     TelephonyManager telephony_manager;
     HashMap<String,String> phoneStateHashMap;
+    SignalStrength signalStrength;
+    int lteDbm = Integer.MAX_VALUE, lteAsu = Integer.MAX_VALUE, lteLevel = Integer.MAX_VALUE;
+    int cdmaAsu = Integer.MAX_VALUE, cdmaDbm = Integer.MAX_VALUE, cdmaEcio = Integer.MAX_VALUE, cdmaLevel = Integer.MAX_VALUE,
+        evdoAsu = Integer.MAX_VALUE, evdoDbm = Integer.MAX_VALUE, evdoEcio = Integer.MAX_VALUE, evdoLevel = Integer.MAX_VALUE, evdoSnr = Integer.MAX_VALUE,
+        s_Level = Integer.MAX_VALUE, s_Dbm = Integer.MAX_VALUE; // for samsung
+
+    long prevLte_time = 0, currentLte_time=0;
 
     // Location Services: GPS
     LocationManager locationManager;
@@ -198,7 +207,6 @@ public class MainActivity extends Activity {
         tv_sensor_event_counter = (TextView) findViewById(R.id.sensor_event_counter);
         //findViewById(R.id.title_sensor_event_counter);
         expListView     = (ExpandableListView) findViewById(R.id.expandableListView);
-        accelerometer_checkbox = (CheckBox) findViewById(R.id.accelerometer_accuracy);
         geomagnetic_checkbox   = (CheckBox) findViewById(R.id.geomagnetic_checkbox);
         sensorSwitch    = (Switch) findViewById(R.id.sensor_switch);
 
@@ -680,7 +688,7 @@ public class MainActivity extends Activity {
     }
 
     private CellularData.CellularReading prepareCellularProtobuf (List<CellInfo> cInfoList) {
-
+        Log.i("PROTOBUF", "This is NOT!!! Samsung");
         CellularData.CellularReading.Builder cellular_data = CellularData.CellularReading.newBuilder();
 
         cellular_data.setSequenceNr(seq_nr_cellular)
@@ -809,6 +817,162 @@ public class MainActivity extends Activity {
         return cellular_data.build();
     }
 
+    private CellularData.CellularReading prepareCellularProtobufForSamsung (List<CellInfo> cInfoList) {
+        Log.i("PROTOBUF", "This is Samsung");
+        CellularData.CellularReading.Builder cellular_data = CellularData.CellularReading.newBuilder();
+
+        cellular_data.setSequenceNr(seq_nr_cellular)
+                .setTimestamp(System.currentTimeMillis())
+                .setLastDotNr(seq_nr_dot);
+
+        for (CellInfo info : cInfoList){
+
+            CellularData.CellularReading.CellInfo.Builder cell_info = CellularData.CellularReading.CellInfo.newBuilder();
+
+            cell_info.setTimestamp(info.getTimeStamp())
+                    .setRegistered(info.isRegistered());
+
+            if (info instanceof CellInfoGsm) {
+
+                cell_info.setNetworkType(CellularData.CellularReading.NetworkType.GSM);
+
+                CellIdentityGsm cid_gsm = ((CellInfoGsm) info).getCellIdentity();
+
+                CellularData.CellularReading.CellIdentityGsm.Builder gsm_identity = CellularData.CellularReading.CellIdentityGsm.newBuilder();
+                gsm_identity.setCid(cid_gsm.getCid())
+                        .setLac(cid_gsm.getLac())
+                        .setMcc(cid_gsm.getMcc())
+                        .setMnc(cid_gsm.getMnc())
+                        .setPsc(cid_gsm.getPsc())
+                        .setHashCode(cid_gsm.hashCode());
+
+                CellSignalStrengthGsm signalstrength_gsm = ((CellInfoGsm) info).getCellSignalStrength();
+
+                CellularData.CellularReading.CellSignalStrengthGsm.Builder gsm_ss = CellularData.CellularReading.CellSignalStrengthGsm.newBuilder();
+                gsm_ss.setAsuLevel(signalstrength_gsm.getAsuLevel())
+                        .setDbm(signalstrength_gsm.getDbm())
+                        .setLevel(signalstrength_gsm.getLevel())
+                        .setHashCode(signalstrength_gsm.hashCode());
+
+                cell_info.setGsmIdentity(gsm_identity);
+                cell_info.setGsmSignalStrength(gsm_ss);
+
+            } else if (info instanceof CellInfoCdma) {
+
+                cell_info.setNetworkType(CellularData.CellularReading.NetworkType.CDMA);
+
+                CellIdentityCdma cid_cdma = ((CellInfoCdma) info).getCellIdentity();
+
+                CellularData.CellularReading.CellIdentityCmda.Builder cdma_identity = CellularData.CellularReading.CellIdentityCmda.newBuilder();
+                cdma_identity.setBasestationId(cid_cdma.getBasestationId())
+                        .setLatitude(cid_cdma.getLatitude())
+                        .setLongitude(cid_cdma.getLongitude())
+                        .setNetworkId(cid_cdma.getNetworkId())
+                        .setSystemId(cid_cdma.getSystemId())
+                        .setHashCode(cid_cdma.hashCode());
+
+                CellSignalStrengthCdma signalstrength_cdma = ((CellInfoCdma) info).getCellSignalStrength();
+
+                CellularData.CellularReading.CellSignalStrengthCdma.Builder cdma_ss = CellularData.CellularReading.CellSignalStrengthCdma.newBuilder();
+
+                // Bug in Samsung API returns invalid values for signal strength
+                // We can get the data only for the registered network
+                if (info.isRegistered()) {
+                    cdma_ss.setAsuLevel(cdmaAsu)
+                            .setCdmaDbm(cdmaDbm)
+                            .setCdmaEcio(cdmaEcio)
+                            .setCdmaLevel(cdmaLevel)
+                            .setDbm(s_Dbm)
+                            .setEvdoDbm(evdoDbm)
+                            .setEvdoEcio(evdoEcio)
+                            .setEvdoLevel(evdoLevel)
+                            .setEvdoSnr(evdoSnr)
+                            .setLevel(s_Level);
+                } else {
+                    cdma_ss.setAsuLevel(signalstrength_cdma.getAsuLevel())
+                            .setCdmaDbm(signalstrength_cdma.getCdmaDbm())
+                            .setCdmaEcio(signalstrength_cdma.getCdmaEcio())
+                            .setCdmaLevel(signalstrength_cdma.getCdmaLevel())
+                            .setDbm(signalstrength_cdma.getDbm())
+                            .setEvdoDbm(signalstrength_cdma.getEvdoDbm())
+                            .setEvdoEcio(signalstrength_cdma.getEvdoEcio())
+                            .setEvdoLevel(signalstrength_cdma.getEvdoLevel())
+                            .setEvdoSnr(signalstrength_cdma.getEvdoSnr())
+                            .setLevel(signalstrength_cdma.getLevel());
+                }
+                cdma_ss.setHashCode(signalstrength_cdma.hashCode());
+
+                cell_info.setCdmaIdentity(cdma_identity);
+                cell_info.setCdmaSignalStrength(cdma_ss);
+
+            } else if (info instanceof CellInfoLte) {
+
+                cell_info.setNetworkType(CellularData.CellularReading.NetworkType.LTE);
+
+                CellIdentityLte cid_lte = ((CellInfoLte) info).getCellIdentity();
+
+                CellularData.CellularReading.CellIdentityLte.Builder lte_identity = CellularData.CellularReading.CellIdentityLte.newBuilder();
+                lte_identity.setCi(cid_lte.getCi())
+                        .setMcc(cid_lte.getMcc())
+                        .setMnc(cid_lte.getMnc())
+                        .setPci(cid_lte.getPci())
+                        .setTac(cid_lte.getTac())
+                        .setHashCode(cid_lte.hashCode());
+
+                CellSignalStrengthLte signalstrength_lte = ((CellInfoLte) info).getCellSignalStrength();
+
+                CellularData.CellularReading.CellSignalStrengthLte.Builder lte_ss = CellularData.CellularReading.CellSignalStrengthLte.newBuilder();
+
+                // Bug in Samsung API returns invalid values for signal strength
+                // We can get the data only for the registered network
+                if (info.isRegistered()) {
+                    lte_ss.setAsuLevel(lteAsu)
+                            .setDbm(lteDbm)
+                            .setLevel(lteLevel);
+                }
+                else {
+                    lte_ss.setAsuLevel(signalstrength_lte.getAsuLevel())
+                            .setDbm(signalstrength_lte.getDbm())
+                            .setLevel(signalstrength_lte.getLevel());
+                }
+                lte_ss.setTimingAdvance(signalstrength_lte.getTimingAdvance())
+                            .setHashCode(signalstrength_lte.hashCode());
+
+                cell_info.setLteIdentity(lte_identity);
+                cell_info.setLteSignalStrength(lte_ss);
+
+            } else if (info instanceof CellInfoWcdma) {
+
+                cell_info.setNetworkType(CellularData.CellularReading.NetworkType.WCDMA);
+
+                CellIdentityWcdma cid_wcdma = ((CellInfoWcdma) info).getCellIdentity();
+
+                CellularData.CellularReading.CellIdentityWcdma.Builder wcdma_identity = CellularData.CellularReading.CellIdentityWcdma.newBuilder();
+                wcdma_identity.setCid(cid_wcdma.getCid())
+                        .setLac(cid_wcdma.getLac())
+                        .setMcc(cid_wcdma.getMcc())
+                        .setMnc(cid_wcdma.getMnc())
+                        .setPsc(cid_wcdma.getPsc())
+                        .setHashCode(cid_wcdma.hashCode());
+
+                CellSignalStrengthWcdma signalstrength_wcdma = ((CellInfoWcdma) info).getCellSignalStrength();
+
+                CellularData.CellularReading.CellSignalStrengthWcdma.Builder wcdma_ss = CellularData.CellularReading.CellSignalStrengthWcdma.newBuilder();
+                wcdma_ss.setAsuLevel(signalstrength_wcdma.getAsuLevel())
+                        .setDbm(signalstrength_wcdma.getDbm())
+                        .setLevel(signalstrength_wcdma.getLevel())
+                        .setHashCode(signalstrength_wcdma.hashCode());
+
+                cell_info.setWcdmaIdentity(wcdma_identity);
+                cell_info.setWcdmaSignalStrength(wcdma_ss);
+            }
+
+            cellular_data.addCellularInfo(cell_info);
+        }
+
+        return cellular_data.build();
+    }
+
     private SensorData.SensorReading prepareSensorProtobuf (SensorEvent event) {
         // 1 event, 1 SensorReading !
 
@@ -875,7 +1039,11 @@ public class MainActivity extends Activity {
         seq_nr_cellular = seq_nr_cellular + 1;
 
         /* Prepare protocol buffer and write into file */
-        CellularData.CellularReading cellular_reading = prepareCellularProtobuf(telephony_manager.getAllCellInfo());
+        CellularData.CellularReading cellular_reading;
+        if (Build.MANUFACTURER.equalsIgnoreCase("samsung"))
+            cellular_reading = prepareCellularProtobufForSamsung(telephony_manager.getAllCellInfo());
+        else
+            cellular_reading = prepareCellularProtobuf(telephony_manager.getAllCellInfo());
 
         try {
             cellular_reading.writeDelimitedTo(Cellular_BOS);
@@ -920,7 +1088,6 @@ public class MainActivity extends Activity {
 
             /* Re-scan WiFi */
             wifi.startScan();
-            captureCellularScan();
 
             // Display
             onScreenVerbose.put("seq_nr_wifi", Integer.toString(wifi_reading.getSequenceNr()));
@@ -1239,8 +1406,8 @@ public class MainActivity extends Activity {
                 @Override
                 public void run() {
                     for (Sensor _s : sensorList) {
-                        if (_s.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
-                            accelerometer_checkbox.setText("LinearAcc: " + _s.getResolution());
+                        if (_s.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+                            geomagnetic_checkbox.setText("Geomagn_resltn: " + _s.getResolution());
                             break;
                         }
                     }
@@ -1303,7 +1470,7 @@ public class MainActivity extends Activity {
 
             volatile long senor_event_counter = 0;
             @Override
-            public void onAccuracyChanged(Sensor sensor, int accuracy) {
+            public void onAccuracyChanged(Sensor sensor, final int accuracy) {
                 final Sensor _s = sensor;
                 final int _acc = accuracy;
                 mHandler.post(new Runnable() {
@@ -1311,9 +1478,7 @@ public class MainActivity extends Activity {
                     public void run() {
                         if (_s.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
                                 geomagnetic_checkbox.setText("GeoMagnetic: " + _acc);
-                        }
-                        if (_s.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
-                            accelerometer_checkbox.setText("LinAccelerometer: " + _acc);
+                            Log.i("GEOMAGNETIC", "Accuracy changed to: " + accuracy);
                         }
                     }
                 });
@@ -1390,6 +1555,7 @@ public class MainActivity extends Activity {
 
             while (running) {
                 try {
+                    captureCellularScan();
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     Log.e("THREAD_SLEEP", e.toString());
@@ -1451,12 +1617,12 @@ public class MainActivity extends Activity {
             public void onSystemUiVisibilityChange(int visibility) {
                 if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
                     decorView.setSystemUiVisibility(
-                                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                                     | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                                    //| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                                    //| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                                    //| View.SYSTEM_UI_FLAG_FULLSCREEN
-                                    //| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            //| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            //| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            //| View.SYSTEM_UI_FLAG_FULLSCREEN
+                            //| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                     );
                 }
             }
@@ -1585,7 +1751,7 @@ public class MainActivity extends Activity {
             @Override
             public void onCellLocationChanged(CellLocation location) {
                 super.onCellLocationChanged(location);
-                phoneStateHashMap.put(sCellLocation,location.toString());
+                phoneStateHashMap.put(sCellLocation, location.toString());
             }
             @Override
             public void onCallForwardingIndicatorChanged(boolean cfi) {
@@ -1603,10 +1769,140 @@ public class MainActivity extends Activity {
                 else
                     phoneStateHashMap.put(sMessageWaiting, "FALSE");
             }
+            @Override
+            public void onSignalStrengthsChanged(SignalStrength _signalStrength )
+            {
+                signalStrength = _signalStrength;
+                super.onSignalStrengthsChanged(signalStrength);
+                String sSignal = signalStrength.toString();
+
+                String[] parts = sSignal.split(" ");
+
+                /*
+                TextView tv_phoneState = (TextView) findViewById(R.id.phone_state);
+                tv_phoneState.setText("\n\n" + "parts[8]="+ parts[8] + ", parts[9]="+ parts[9] + ", rssi=" + (Integer.parseInt(parts[8])*2-113)
+                                        + "\n" + sSignal.toString());
+                */
+                getSignalStrength();
+            }
         };
         TextView tv_phoneState = (TextView) findViewById(R.id.phone_state);
         tv_phoneState.setText(phoneStateHashMap.toString());
         return phone;
+    }
+
+    private void getSignalStrength()
+    {
+        try
+        {
+            Method[] methods = android.telephony.SignalStrength.class.getMethods();
+
+            for (Method mthd : methods)
+            {   //Log.i("LTE_TAG", "Method Name: " + mthd.getName() );
+                /*if (mthd.getName().equals("getLteSignalStrength"))
+                {
+                    int LTEsignalStrength = (Integer) mthd.invoke(signalStrength, new Object[] {});
+                    Log.i("LTE_TAG", "signalStrength = " + (LTEsignalStrength*2-113));
+                    //return;
+                }*/
+                if (mthd.getName().equals("getLteRsrp"))
+                {
+                    int LTErsrp = (Integer) mthd.invoke(signalStrength, new Object[] {});
+                    lteDbm = LTErsrp;
+                    currentLte_time = System.currentTimeMillis();
+                    //Log.i("LTE_TAG", "LteRsrp = " + lteDbm + ", time = " + (currentLte_time - prevLte_time));
+
+                    prevLte_time = currentLte_time;
+                    //return;
+                }
+                 else if (mthd.getName().equals("getLteAsuLevel"))
+                {
+                    int LteAsuLevel = (Integer) mthd.invoke(signalStrength, new Object[] {});
+                    lteAsu = LteAsuLevel;
+                    //Log.i("LTE_TAG", "LteAsuLevel = " + lteAsu);
+                }
+
+                else if (mthd.getName().equals("getLteLevel"))
+                {
+                    int LteLevel = (Integer) mthd.invoke(signalStrength, new Object[] {});
+                    lteLevel = LteLevel;
+                    //Log.i("LTE_TAG", "LteLevel = " + lteLevel);
+                }
+                 // CDMA
+                else if (mthd.getName().equals("getCdmaDbm"))
+                {
+                    int CdmaDbm = (Integer) mthd.invoke(signalStrength, new Object[] {});
+                    cdmaDbm = CdmaDbm;
+                    //Log.i("LTE_TAG", "CdmaDbm = " + cdmaDbm);
+                }
+                else if (mthd.getName().equals("getCdmaAsuLevel"))
+                {
+                    int CdmaAsuLevel = (Integer) mthd.invoke(signalStrength, new Object[] {});
+                    cdmaAsu = CdmaAsuLevel;
+                    //Log.i("LTE_TAG", "CdmaAsuLevel = " + cdmaAsu);
+                }
+                else if (mthd.getName().equals("getCdmaEcio"))
+                {
+                    int CdmaEcio = (Integer) mthd.invoke(signalStrength, new Object[] {});
+                    cdmaEcio = CdmaEcio;
+                    //Log.i("LTE_TAG", "CdmaEcio = " + cdmaEcio);
+                }
+                else if (mthd.getName().equals("getCdmaLevel"))
+                {
+                    int CdmaLevel = (Integer) mthd.invoke(signalStrength, new Object[] {});
+                    cdmaLevel = CdmaLevel;
+                    //Log.i("LTE_TAG", "CdmaLevel = " + cdmaLevel);
+                }
+                 // EVDO
+                else if (mthd.getName().equals("getEvdoDbm"))
+                {
+                    int EvdoDbm = (Integer) mthd.invoke(signalStrength, new Object[] {});
+                    evdoDbm = EvdoDbm;
+                    //Log.i("LTE_TAG", "EvdoDbm = " + evdoDbm);
+                }
+                else if (mthd.getName().equals("getEvdoAsuLevel"))
+                {
+                    int EvdoAsuLevel = (Integer) mthd.invoke(signalStrength, new Object[] {});
+                    evdoAsu = EvdoAsuLevel;
+                    //Log.i("LTE_TAG", "EdmaAsuLevel = " + evdoAsu);
+                }
+                else if (mthd.getName().equals("getEvdoEcio"))
+                {
+                    int EvdoEcio = (Integer) mthd.invoke(signalStrength, new Object[] {});
+                    evdoEcio = EvdoEcio;
+                    //Log.i("LTE_TAG", "EvdoEcio = " + evdoEcio);
+                }
+                else if (mthd.getName().equals("getEvdoLevel"))
+                {
+                    int EvdoLevel = (Integer) mthd.invoke(signalStrength, new Object[] {});
+                    evdoLevel = EvdoLevel;
+                    //Log.i("LTE_TAG", "EvdoLevel = " + evdoLevel);
+                }
+                else if (mthd.getName().equals("getEvdoSnr"))
+                {
+                    int EvdoSnr = (Integer) mthd.invoke(signalStrength, new Object[] {});
+                    evdoSnr = EvdoSnr;
+                    //Log.i("LTE_TAG", "EvdoSnr = " + evdoSnr);
+                }
+                else if (mthd.getName().equals("getLevel"))
+                {
+                    int Level = (Integer) mthd.invoke(signalStrength, new Object[] {});
+                    s_Level = Level;
+                    //Log.i("LTE_TAG", "Level = " + s_Level);
+                }
+                else if (mthd.getName().equals("getDbm"))
+                {
+                    int Dbm = (Integer) mthd.invoke(signalStrength, new Object[] {});
+                    s_Dbm = Dbm;
+                    //Log.i("LTE_TAG", "Dbm = " + s_Dbm);
+                }
+
+            }
+        }
+        catch (Exception e)
+        {
+            Log.e("LTE_TAG", "Exception: " + e.toString());
+        }
     }
 
     private void listenPhoneState(TelephonyManager _tm) {
