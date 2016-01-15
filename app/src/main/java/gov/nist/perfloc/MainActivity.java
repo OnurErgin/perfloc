@@ -80,6 +80,8 @@ import java.util.List;
 
 public class MainActivity extends Activity {
 
+    String TITLE = "Perfloc";
+
     public enum State {
         PAUSED, RUNNING
     }
@@ -162,7 +164,7 @@ public class MainActivity extends Activity {
             Gps_output_file;
 
     String device_identifier, protocol_buffer_file_extension, current_file_prefix = "1";
-
+    //String TITLE = "(" + current_file_prefix + ")";
     File dirname;
 
     List<Uri> indexed_URIs;
@@ -191,9 +193,12 @@ public class MainActivity extends Activity {
         v = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
 
         setWakeLock(true);
+
         resetCounters();
         initializeLists();
         //setGpsListener(true);
+
+        askNewFilePrefix();
         createOutputFiles(current_file_prefix);
 
         // Find Views
@@ -276,6 +281,10 @@ public class MainActivity extends Activity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isON) {
                 setGpsListener(isON);
+                if (isON)
+                    setTitle(TITLE + "    GPS searching...");
+                else
+                    setTitle(TITLE + "    GPS off");
             }
         });
 
@@ -344,7 +353,8 @@ public class MainActivity extends Activity {
 
         // Initial view of the Expandable List View
         updateExpandableListView();
-    }
+
+    } // onCreate()
     AudioManager.OnAudioFocusChangeListener afChangeListener =
             new AudioManager.OnAudioFocusChangeListener() {
                 public void onAudioFocusChange(int focusChange) {
@@ -1182,36 +1192,7 @@ public class MainActivity extends Activity {
                 freq_dialog_builder.show();
                 return true;
             case R.id.set_prefix:
-                AlertDialog.Builder prefix_dialog_builder = new AlertDialog.Builder(this);
-                final EditText prefix_input = new EditText(this);
-                prefix_input.setInputType(InputType.TYPE_NUMBER_VARIATION_NORMAL | InputType.TYPE_CLASS_NUMBER);
-                prefix_dialog_builder .setView(prefix_input);
-
-                prefix_dialog_builder .setMessage("Set file prefix// Current:" + current_file_prefix).setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String t_input = prefix_input.getText().toString();
-                        if ( t_input.length() == 0 ) {
-                            Toast.makeText(getApplicationContext(), "Error: empty input" , Toast.LENGTH_LONG).show();
-
-                        } else {
-                            current_file_prefix = t_input;
-                            Toast.makeText(getApplicationContext(), "Set to: " + current_file_prefix,
-                                    Toast.LENGTH_SHORT).show();
-
-                            createOutputFiles(current_file_prefix);
-                        }
-                    }
-                });
-                prefix_dialog_builder .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                        Toast.makeText(getApplicationContext(), "not changed.", Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-                prefix_dialog_builder.show();
+                    askNewFilePrefix();
                 return true;
             case R.id.count_messages:
                 countMessagesInOutputFiles();
@@ -1254,6 +1235,38 @@ public class MainActivity extends Activity {
         }
     };
 
+    private void askNewFilePrefix() {
+        AlertDialog.Builder prefix_dialog_builder = new AlertDialog.Builder(this);
+        final EditText prefix_input = new EditText(this);
+        prefix_input.setInputType(InputType.TYPE_NUMBER_VARIATION_NORMAL | InputType.TYPE_CLASS_NUMBER);
+        prefix_dialog_builder .setView(prefix_input);
+
+        prefix_dialog_builder .setMessage("Set file prefix// Current:" + current_file_prefix).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String t_input = prefix_input.getText().toString();
+                if ( t_input.length() == 0 ) {
+                    Toast.makeText(getApplicationContext(), "Error: empty input" , Toast.LENGTH_LONG).show();
+
+                } else {
+                    current_file_prefix = t_input;
+                    Toast.makeText(getApplicationContext(), "Set to: " + current_file_prefix,
+                            Toast.LENGTH_SHORT).show();
+
+                    createOutputFiles(current_file_prefix);
+                }
+            }
+        });
+        prefix_dialog_builder .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+                Toast.makeText(getApplicationContext(), "not changed", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        prefix_dialog_builder.show();
+    }
     private boolean flushFiles () {
         unIndexFiles();
 
@@ -1479,7 +1492,12 @@ public class MainActivity extends Activity {
                         if (_s.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
                                 geomagnetic_checkbox.setText("GeoMagnetic: " + _acc);
                             Log.i("GEOMAGNETIC", "Accuracy changed to: " + accuracy);
+
+                            // Set checked if accuracy is high
+                            geomagnetic_checkbox.setChecked(accuracy == SensorManager.SENSOR_STATUS_ACCURACY_HIGH);
                         }
+
+
                     }
                 });
             }
@@ -1641,6 +1659,7 @@ public class MainActivity extends Activity {
                 if (!gotGpsFix) {
                     gotGpsFix = true;
                     StartStopButton.setBackgroundColor(Color.GREEN);
+                    setTitle(TITLE + "GPS signal found.");
                 }
 
                 if (state == State.RUNNING) {

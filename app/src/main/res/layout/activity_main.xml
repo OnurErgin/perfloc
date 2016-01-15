@@ -123,6 +123,7 @@
         android:id="@+id/geomagnetic_checkbox"
         android:layout_alignParentStart="true"
         android:checked="false"
-        android:layout_below="@+id/toggleButton" />
+        android:layout_below="@+id/toggleButton"
+        android:enabled="false" />
 
 </RelativeLayout>
