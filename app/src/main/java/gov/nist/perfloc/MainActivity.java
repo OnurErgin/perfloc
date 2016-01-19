@@ -19,6 +19,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.MediaScannerConnection;
+import android.media.ToneGenerator;
 import android.media.session.MediaSession;
 import android.media.session.PlaybackState;
 import android.net.Uri;
@@ -54,7 +55,9 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewParent;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -91,6 +94,7 @@ public class MainActivity extends Activity {
     Vibrator v;
     private final Handler main_handler = new Handler();
     static AudioManager am;
+    ToneGenerator toneG;
 
     // View related definitions
     ExpandableListView expListView;
@@ -135,6 +139,7 @@ public class MainActivity extends Activity {
     LocationManager locationManager;
     LocationListener locationListener;
     boolean gotGpsFix;
+    long last_gps_fix_time;
 
     // Sensor related definitions
     SensorHandler rbs;
@@ -191,6 +196,7 @@ public class MainActivity extends Activity {
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         v = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+        toneG = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
 
         setWakeLock(true);
 
@@ -210,7 +216,6 @@ public class MainActivity extends Activity {
         tv_timer_sec    = (TextView) findViewById(R.id.timer_sec);
         tv_bottomView   = (TextView) findViewById(R.id.bottomView);
         tv_sensor_event_counter = (TextView) findViewById(R.id.sensor_event_counter);
-        //findViewById(R.id.title_sensor_event_counter);
         expListView     = (ExpandableListView) findViewById(R.id.expandableListView);
         geomagnetic_checkbox   = (CheckBox) findViewById(R.id.geomagnetic_checkbox);
         sensorSwitch    = (Switch) findViewById(R.id.sensor_switch);
@@ -219,13 +224,15 @@ public class MainActivity extends Activity {
         wifi=(WifiManager)getSystemService(Context.WIFI_SERVICE);
         wifiReceiver = new WifiScanReceiver();
 
+        // Get Telephony service
         telephony_manager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         listenPhoneState(telephony_manager);
 
-        //sensorHandler = new SensorHandler(main_handler, 100);
+        // Get Location Manager
+        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+
+
         final MeasurementTimer aT = new MeasurementTimer(main_handler);
-        //pool = Executors.newFixedThreadPool(2); // Either use a thread pool, or create a separate thread each time and call Thread.start()
-        //final Thread tRBS = new Thread(rbs);
 
         StartStopButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -239,7 +246,6 @@ public class MainActivity extends Activity {
                     Thread taT = new Thread(aT);
                     taT.start();
 
-                    //          pool.execute(rbs);
                     Log.v("StartStopButton", "Runnable executed.");
                 } else {
 
@@ -250,8 +256,9 @@ public class MainActivity extends Activity {
                     aT.terminate();
                     flushFiles();
                     Log.v("StartStopButton", "Runnable stopped.");
-                    sensorSwitch.setChecked(false);
-                    gpsSwitch.setChecked(false);
+                    //sensorSwitch.setChecked(false);
+                    //sensorSwitch.setChecked(false);
+                    //gpsSwitch.setChecked(false);
                 }
                 v.vibrate(500);
             }
@@ -279,12 +286,20 @@ public class MainActivity extends Activity {
 
         gpsSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isON) {
-                setGpsListener(isON);
-                if (isON)
+            public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
+                boolean success  = setGpsListener(checked);
+
+                if (!success) {
+                    // Either checked or unchecked, set the button unchecked if the location services are Off
+                    compoundButton.setChecked(false);
+                }
+
+                if (checked && success) {
                     setTitle(TITLE + "    GPS searching...");
-                else
+                }
+                else {
                     setTitle(TITLE + "    GPS off");
+                }
             }
         });
 
@@ -307,68 +322,17 @@ public class MainActivity extends Activity {
         registerReceiver(new MediaButtonIntentReceiver(), filter);
 */
 
-        am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        //am.setMode(AudioManager.MODE_NORMAL);
-        //am.setSpeakerphoneOn(true);
-       // am.registerMediaButtonEventReceiver(MediaButtonIntentReceiver);
-/*
-        try {
-            Log.e("AudioMAnagaer:", am.toString());
-        } catch (NullPointerException e) {
-            Log.e("Null pointer:", e.toString());
-        }
-        for (int i=0; i<1; i++)
-            am.playSoundEffect(AudioManager.FX_KEYPRESS_INVALID);
-*/
-
 /*
         IntentFilter filter1 = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
         filter1.setPriority(Integer.MAX_VALUE);
         registerReceiver(new HeadsetIntentReceiver(), filter1);
 */
 
-        if(false ) {
-            final MediaSession session = new MediaSession(getApplicationContext(), "TAG");
-            PlaybackState state = new PlaybackState.Builder()
-                    .setActions(
-                            PlaybackState.ACTION_PLAY | PlaybackState.ACTION_PLAY_PAUSE |
-                                    PlaybackState.ACTION_PLAY_FROM_MEDIA_ID | PlaybackState.ACTION_PAUSE |
-                                    PlaybackState.ACTION_SKIP_TO_NEXT | PlaybackState.ACTION_SKIP_TO_PREVIOUS)
-                    .build();
-            session.setPlaybackState(state);
-
-            session.setCallback(new MediaSession.Callback() {
-                @Override
-                public boolean onMediaButtonEvent(final Intent mediaButtonIntent) {
-                    Log.i("TAG", "GOT EVENT");
-                    return super.onMediaButtonEvent(mediaButtonIntent);
-                }
-            });
-
-            session.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS |
-                    MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
-
-            session.setActive(true);
-        }
-
         // Initial view of the Expandable List View
         updateExpandableListView();
 
     } // onCreate()
-    AudioManager.OnAudioFocusChangeListener afChangeListener =
-            new AudioManager.OnAudioFocusChangeListener() {
-                public void onAudioFocusChange(int focusChange) {
-                    if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
-                        // Pause playback
-                    } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
-                        // Resume playback
-                    } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
-                        //am.unregisterMediaButtonEventReceiver(RemoteControlReceiver);
-                        //am.abandonAudioFocus(afChangeListener);
-                        // Stop playback
-                    }
-                }
-            };
+
     /*public class HeadsetIntentReceiver extends BroadcastReceiver {
 
         public HeadsetIntentReceiver() {
@@ -410,8 +374,13 @@ public class MainActivity extends Activity {
             last_button_press_time = current_button_press_time;
 
             Log.v("__MEDIA_BUTTON__", "DOWN Pressed.");
-            am.playSoundEffect(AudioManager.FX_KEYPRESS_INVALID);
+            //am.playSoundEffect(AudioManager.FX_KEYPRESS_INVALID);
             markDot();
+
+            //ToneGenerator toneG = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
+            //toneG.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 200);
+            toneG.startTone(ToneGenerator.TONE_PROP_BEEP, 200);
+            //toneG.startTone(ToneGenerator.TONE_PROP_BEEP2, 200);
 
         }
         return true;
@@ -507,17 +476,32 @@ public class MainActivity extends Activity {
         return true;
     }
 
-    private void setGpsListener (boolean _set) {
+    private boolean setGpsListener (boolean _set) {
+
+        // Check if GPS enabled:
+
+
+        if ( ! locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            //show toast
+            AlertDialog.Builder gps_warning_dialog = new AlertDialog.Builder(this);
+
+            gps_warning_dialog.setTitle("Location is not Enabled!");
+            gps_warning_dialog.setMessage("Swipe down and enable \"location services\"").setPositiveButton("OK", null);
+                    //.setCancelable(false)
+            gps_warning_dialog.show();
+            return false;
+        }
+
         if (_set) {
-            locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+            //locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
             locationListener = getLocationListener();
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
         }
         else {
             locationManager.removeUpdates(locationListener);
-            gotGpsFix = false;
-            StartStopButton.setBackgroundColor(Color.LTGRAY);
+            showGpsFound(false);
         }
+        return true;
     }
 
     public void markDot() {
@@ -565,8 +549,6 @@ public class MainActivity extends Activity {
                 Log.v("MEDIA BUTTON", "Button pressed2!...");
                 //StartStopButton.toggle();
                 markDot();
-
-                am.playSoundEffect(AudioManager.FX_KEYPRESS_INVALID);
 
                 /*
                 try {
@@ -645,7 +627,7 @@ public class MainActivity extends Activity {
         // Adding headers:
         listDataHeader.add(numberOfAPs + " Access Points, delay: " + WiFiScanDuration + "ms");
         listDataHeader.add(numberOfCellTowers + " Cell Towers");
-        listDataHeader.add(SensorList_text.size() + "/" + numberOfSensors + " Sensors, " + seq_nr_sensorevent);
+        listDataHeader.add(SensorList_text.size() + "/" + numberOfSensors + " Sensors, " + seq_nr_sensorevent + " written");
 
         listDataChild.put(listDataHeader.get(0), WiFiList_text);
         listDataChild.put(listDataHeader.get(1), CellList_text);
@@ -1241,12 +1223,12 @@ public class MainActivity extends Activity {
         prefix_input.setInputType(InputType.TYPE_NUMBER_VARIATION_NORMAL | InputType.TYPE_CLASS_NUMBER);
         prefix_dialog_builder .setView(prefix_input);
 
-        prefix_dialog_builder .setMessage("Set file prefix// Current:" + current_file_prefix).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        prefix_dialog_builder .setMessage("Set file prefix\n Current:" + current_file_prefix).setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String t_input = prefix_input.getText().toString();
-                if ( t_input.length() == 0 ) {
-                    Toast.makeText(getApplicationContext(), "Error: empty input" , Toast.LENGTH_LONG).show();
+                if (t_input.length() == 0) {
+                    Toast.makeText(getApplicationContext(), "Error: empty input", Toast.LENGTH_LONG).show();
 
                 } else {
                     current_file_prefix = t_input;
@@ -1266,6 +1248,11 @@ public class MainActivity extends Activity {
         });
 
         prefix_dialog_builder.show();
+
+        prefix_input.requestFocus();
+
+        //This is for openning the keyboard automatically. doesn't work properly.
+        //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
     }
     private boolean flushFiles () {
         unIndexFiles();
@@ -1554,6 +1541,9 @@ public class MainActivity extends Activity {
 
     private class MeasurementTimer implements Runnable {
 
+        final int ONE_SECOND = 1000; // in milliseconds
+
+
         int timer_sec = 0;
         boolean running;
 
@@ -1575,6 +1565,7 @@ public class MainActivity extends Activity {
                 try {
                     captureCellularScan();
                     Thread.sleep(1000);
+
                 } catch (InterruptedException e) {
                     Log.e("THREAD_SLEEP", e.toString());
                 }
@@ -1587,6 +1578,11 @@ public class MainActivity extends Activity {
 
                         updateExpandableListView();
                         tv_bottomView.setText(onScreenVerbose.toString().replaceAll(", ", "\n"));
+
+                        if ( System.currentTimeMillis() - last_gps_fix_time > 10*ONE_SECOND) {
+                            // Turn GPS coloring/indications off
+                            showGpsFound(false);
+                        }
                     }
                 });
             }
@@ -1647,6 +1643,21 @@ public class MainActivity extends Activity {
         });
     }
 
+    private void showGpsFound(boolean show) {
+        if (show) {
+            gotGpsFix = true;
+            StartStopButton.setBackgroundColor(Color.GREEN);
+            setTitle(TITLE + "   GPS signal found.");
+        }
+        else {
+            gotGpsFix = false;
+            StartStopButton.setBackgroundColor(Color.LTGRAY);
+            if (gpsSwitch.isChecked()) {
+                setTitle(TITLE + "   GPS searching.");
+            }
+        }
+    }
+
     private LocationListener getLocationListener() {
         // Define a listener that responds to location updates
 
@@ -1656,10 +1667,10 @@ public class MainActivity extends Activity {
             public void onLocationChanged(Location location) {
                 // Called when a new location is found by the network location provider.
 
+                last_gps_fix_time = System.currentTimeMillis();
+
                 if (!gotGpsFix) {
-                    gotGpsFix = true;
-                    StartStopButton.setBackgroundColor(Color.GREEN);
-                    setTitle(TITLE + "GPS signal found.");
+                    showGpsFound(true);
                 }
 
                 if (state == State.RUNNING) {
