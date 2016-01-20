@@ -21,7 +21,6 @@ import android.media.AudioManager;
 import android.media.MediaScannerConnection;
 import android.media.ToneGenerator;
 import android.media.session.MediaSession;
-import android.media.session.PlaybackState;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
@@ -55,14 +54,13 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewParent;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
+import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -93,8 +91,8 @@ public class MainActivity extends Activity {
 
     Vibrator v;
     private final Handler main_handler = new Handler();
-    static AudioManager am;
     ToneGenerator toneG;
+    static int VOLUME = 100;
 
     // View related definitions
     ExpandableListView expListView;
@@ -143,7 +141,6 @@ public class MainActivity extends Activity {
 
     // Sensor related definitions
     SensorHandler rbs;
-    SensorHandler sensorHandler;
 
     HashMap<Sensor, float[]> sensorHashMap;
     HashMap<Sensor, Long> sensorLastTimestampHashMap;
@@ -196,7 +193,7 @@ public class MainActivity extends Activity {
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         v = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
-        toneG = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
+        toneG = new ToneGenerator(AudioManager.STREAM_ALARM, VOLUME);
 
         setWakeLock(true);
 
@@ -257,7 +254,7 @@ public class MainActivity extends Activity {
                     flushFiles();
                     Log.v("StartStopButton", "Runnable stopped.");
                     //sensorSwitch.setChecked(false);
-                    //sensorSwitch.setChecked(false);
+                    sensorSwitch.setChecked(false);
                     //gpsSwitch.setChecked(false);
                 }
                 v.vibrate(500);
@@ -440,7 +437,14 @@ public class MainActivity extends Activity {
 
         device_identifier = Build.MANUFACTURER + "_" + Build.MODEL + "_" + Build.BRAND;
 
-        dirname = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        //dirname = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+
+        /*
+         * DIRECTORY_PICTURES is chosen because the LG phone is programmable in Camera(PTP) mode only
+         * Otherwise one has to inconveniently switch between PTP and Media Sync (MTP) modes
+         * each time the produced files need to be downloaded before or after an app re-install
+         */
+        dirname = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         protocol_buffer_file_extension = getString(R.string.file_extension);
     }
 
@@ -1128,6 +1132,8 @@ public class MainActivity extends Activity {
 
         switch(item.getItemId()) {
             case R.id.action_settings:
+                changeBeepVolume();
+
                 return true;
             case R.id.flush_files:
 
@@ -1221,9 +1227,9 @@ public class MainActivity extends Activity {
         AlertDialog.Builder prefix_dialog_builder = new AlertDialog.Builder(this);
         final EditText prefix_input = new EditText(this);
         prefix_input.setInputType(InputType.TYPE_NUMBER_VARIATION_NORMAL | InputType.TYPE_CLASS_NUMBER);
-        prefix_dialog_builder .setView(prefix_input);
+        prefix_dialog_builder.setView(prefix_input);
 
-        prefix_dialog_builder .setMessage("Set file prefix\n Current:" + current_file_prefix).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        prefix_dialog_builder.setMessage("Set file prefix\n Current:" + current_file_prefix).setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String t_input = prefix_input.getText().toString();
@@ -1235,11 +1241,13 @@ public class MainActivity extends Activity {
                     Toast.makeText(getApplicationContext(), "Set to: " + current_file_prefix,
                             Toast.LENGTH_SHORT).show();
 
+                    setTitle(current_file_prefix + " " + getTitle());
+
                     createOutputFiles(current_file_prefix);
                 }
             }
         });
-        prefix_dialog_builder .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        prefix_dialog_builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
@@ -1247,13 +1255,51 @@ public class MainActivity extends Activity {
             }
         });
 
-        prefix_dialog_builder.show();
-
         prefix_input.requestFocus();
+
+        prefix_dialog_builder.show();
 
         //This is for openning the keyboard automatically. doesn't work properly.
         //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
     }
+
+    private void changeBeepVolume() {
+        final AlertDialog.Builder volume_dialog_builder = new AlertDialog.Builder(this);
+
+        final SeekBar volumeSeek = new SeekBar(this);
+
+        volume_dialog_builder.setView(volumeSeek);
+
+        volume_dialog_builder.setMessage("Set volume:\n Current:" + VOLUME).setNeutralButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        volumeSeek.setProgress(VOLUME);
+
+        volumeSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                //Do something here with new value
+
+                VOLUME = progress;
+
+                //Log.v("SeekBar Volume", "" + progress);
+            }
+
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                toneG = new ToneGenerator(AudioManager.STREAM_ALARM, VOLUME);
+                toneG.startTone(ToneGenerator.TONE_PROP_BEEP, 200);
+            }
+        });
+
+        volume_dialog_builder.show();
+    }
+
     private boolean flushFiles () {
         unIndexFiles();
 
@@ -1424,8 +1470,6 @@ public class MainActivity extends Activity {
             running = true;
 
             startSensors();
-
-            showAccuracies();
 
             while (running) {
 
