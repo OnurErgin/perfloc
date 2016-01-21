@@ -82,12 +82,16 @@ import java.util.List;
 public class MainActivity extends Activity {
 
     String TITLE = "Perfloc";
+    String GPS_STATUS = "GPS Off";
 
     public enum State {
-        PAUSED, RUNNING
+        PAUSED,     // Just in case..
+        RUNNING,    // Everything is being recorded
+        WAITING,    // Waiting for the first button press to start measurements.
+        STOPPED     // Initial or Final state
     }
 
-    volatile State state = State.PAUSED;
+    volatile State state = State.STOPPED;
 
     Vibrator v;
     private final Handler main_handler = new Handler();
@@ -113,7 +117,8 @@ public class MainActivity extends Activity {
     HashMap<String, List<String>> listDataChild;
     List<String> WiFiList_text,
                 CellList_text,
-                SensorList_text;
+                SensorList_text,
+                DotList_text;
 
 
     // WiFi Scanning related definitions
@@ -142,7 +147,8 @@ public class MainActivity extends Activity {
     // Sensor related definitions
     SensorHandler rbs;
 
-    HashMap<Sensor, float[]> sensorHashMap;
+    //HashMap<Sensor, float[]> sensorHashMap; // 21Ocak
+    HashMap<Sensor, String> sensorHashMap;
     HashMap<Sensor, Long> sensorLastTimestampHashMap;
     HashMap<Sensor, Long> sensorCurrentTimestampHashMap;
 
@@ -181,6 +187,8 @@ public class MainActivity extends Activity {
     List<SensorData.SensorReading> list_sensor_readings;
 
     int seq_nr_dot, seq_nr_wifi, seq_nr_cellular, seq_nr_sensorevent, seq_nr_gpsfix;
+
+    MeasurementTimer aT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -229,33 +237,57 @@ public class MainActivity extends Activity {
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
 
-        final MeasurementTimer aT = new MeasurementTimer(main_handler);
+        //final MeasurementTimer aT = new MeasurementTimer(main_handler); // 21ocak
 
         StartStopButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    state = State.RUNNING;
-                    registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+                    //state = State.WAITING; //21Ocak
+                    //registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)); //21Ocak
+
+                    /* 21Ocak
                     wifi.startScan();
                     time_current = System.currentTimeMillis();
 
 
                     Thread taT = new Thread(aT);
                     taT.start();
+                    */
 
-                    Log.v("StartStopButton", "Runnable executed.");
+                    //aT = new MeasurementTimer(main_handler); // 21Ocak
+
+                    // Stopped => Waiting
+                    if (state == State.STOPPED) { // 21Ocak
+                        changeState(State.WAITING);
+                        saveMetadata();
+                    }
+                    else
+                    if (state == State.PAUSED) // Dummy state
+                        changeState(State.RUNNING);
+
+                    Log.v("StartStopButton", "State = " + state.name());
+
                 } else {
 
-                    state = State.PAUSED;
+                    //state = State.PAUSED;
 
+                    if (state == State.RUNNING) {
+                        //goStoppedFromRunning();
+                        changeState(State.STOPPED);
+                    }
+                    else
+                    if (state == State.WAITING)
+                        changeState(State.STOPPED);
+
+                    /* 21Ocak
                     unregisterReceiver(wifiReceiver);
 
                     aT.terminate();
                     flushFiles();
-                    Log.v("StartStopButton", "Runnable stopped.");
-                    //sensorSwitch.setChecked(false);
                     sensorSwitch.setChecked(false);
                     //gpsSwitch.setChecked(false);
+                    */
+                    Log.v("StartStopButton", "Runnable stopped.");
                 }
                 v.vibrate(500);
             }
@@ -292,11 +324,13 @@ public class MainActivity extends Activity {
                 }
 
                 if (checked && success) {
-                    setTitle(TITLE + "    GPS searching...");
+                    // setTitle(TITLE + "    GPS searching...");
+                    GPS_STATUS = "GPS Searching!";
                 }
                 else {
-                    setTitle(TITLE + "    GPS off");
+                    GPS_STATUS = "GPS off";
                 }
+                makeTitle();
             }
         });
 
@@ -327,9 +361,13 @@ public class MainActivity extends Activity {
 
         // Initial view of the Expandable List View
         updateExpandableListView();
+        makeTitle();
 
     } // onCreate()
 
+    private void makeTitle () {
+        setTitle(current_file_prefix + "\t| " + GPS_STATUS + "\t| " + state.name());
+    }
     /*public class HeadsetIntentReceiver extends BroadcastReceiver {
 
         public HeadsetIntentReceiver() {
@@ -373,6 +411,10 @@ public class MainActivity extends Activity {
             Log.v("__MEDIA_BUTTON__", "DOWN Pressed.");
             //am.playSoundEffect(AudioManager.FX_KEYPRESS_INVALID);
             markDot();
+
+            // This is safe (seq_nr_dot is 0) because there is no Running -> Waiting
+            if (state == State.WAITING)
+                changeState(State.RUNNING);
 
             //ToneGenerator toneG = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
             //toneG.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 200);
@@ -423,6 +465,7 @@ public class MainActivity extends Activity {
         onScreenVerbose = new HashMap<>();
 
         WiFiList_text = new ArrayList<>();
+        DotList_text = new ArrayList<>();
 
         indexed_URIs = new ArrayList<>();
     }
@@ -446,6 +489,7 @@ public class MainActivity extends Activity {
          */
         dirname = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         protocol_buffer_file_extension = getString(R.string.file_extension);
+
     }
 
     private boolean createOutputFiles(String prefix){
@@ -513,9 +557,11 @@ public class MainActivity extends Activity {
         tv_dotcounter.setText(dotCounter + "");
         //list_dot_readings.add(prepareDotProtobuf(++seq_nr_dot));
 
+        if (state != State.STOPPED) { // RUNNING or WAITING
 
-        if (state == State.RUNNING) {
-            seq_nr_dot = seq_nr_dot + 1;
+            if (state == State.RUNNING) {
+                seq_nr_dot = seq_nr_dot + 1;
+            }
 
             DotData.DotReading dot_reading = prepareDotProtobuf(seq_nr_dot);
 
@@ -524,7 +570,11 @@ public class MainActivity extends Activity {
             } catch (IOException e) {
                 Log.e("Dots_BOS exception:", e.toString());
             }
+
+            DotList_text.add(dot_reading.toString());
+
             onScreenVerbose.put("seq_nr_dot", Integer.toString(dot_reading.getDotNr()));
+
         }
 
     }
@@ -577,6 +627,127 @@ public class MainActivity extends Activity {
 
         return true;
     }
+
+    private void changeState (State nextState) {  // 21Ocak
+        String _LOG = "State change";
+        Log.v(_LOG, state.name() + " => " + nextState.name());
+
+        switch (state) {
+            case RUNNING:
+                switch (nextState) {
+                    case RUNNING:
+                        Log.wtf(_LOG, state.name() + " ===>> " + nextState.name() + " is weird!!!");
+                        break;
+                    case STOPPED:
+                        state = State.STOPPED;
+
+                        unregisterReceiver(wifiReceiver);
+
+                        aT.terminate();
+                        flushFiles();
+
+                        sensorSwitch.setChecked(false);
+                        //gpsSwitch.setChecked(false);
+                        break;
+                    case WAITING:
+                        state = State.WAITING;
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case WAITING:
+                switch (nextState) {
+                    case RUNNING:
+                        wifi.startScan();
+                        time_current = System.currentTimeMillis();
+
+                        Thread taT = new Thread(aT);
+                        taT.start();
+
+                        state = State.RUNNING;
+                        break;
+                    case WAITING:
+                        Log.wtf(_LOG, state.name() + " ===>> " + nextState.name() + " is weird!!!");
+                        break;
+                    case PAUSED:
+                        break;
+                    case STOPPED:
+                        break;
+                    default:
+                        Log.wtf(_LOG,"Unhandled or Weird state change");
+                        break;
+                }
+                break;
+            case STOPPED:
+                switch (nextState) {
+                    case RUNNING:
+                        break;
+                    case WAITING:
+                        // Register WiFi
+                        registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+
+                        // Prepare timer
+                        aT = new MeasurementTimer(main_handler);
+
+                        // Waiting for button press
+                        state = State.WAITING;
+                        break;
+                    case PAUSED:
+                        break;
+                    case STOPPED:
+                        break;
+                    default:
+                        Log.wtf(_LOG,"Unhandled or Weird state change");
+                        break;
+                }
+                break;
+            case PAUSED:
+                break;
+
+            default:
+                Log.wtf(_LOG,"Unhandled or Weird state change");
+                switch (nextState) {
+                    case RUNNING:
+                        break;
+                    case WAITING:
+                        break;
+                    case PAUSED:
+                        break;
+                    case STOPPED:
+                        break;
+                    default:
+                        Log.wtf(_LOG,"Unhandled or Weird state change");
+                        break;
+                }
+                break;
+
+        }
+        makeTitle();
+    }
+
+    private void goRunningFromWaiting () { // 21Ocak
+        wifi.startScan();
+        time_current = System.currentTimeMillis();
+
+        Thread taT = new Thread(aT);
+        taT.start();
+
+        state = State.RUNNING;
+    }
+
+    private void goStoppedFromRunning () { // 21Ocak
+        state = State.STOPPED;
+
+        unregisterReceiver(wifiReceiver);
+
+        aT.terminate();
+        flushFiles();
+        sensorSwitch.setChecked(false);
+        //gpsSwitch.setChecked(false);
+    }
+
+    private void goStoppedFromWaitin () {}
 
     /**
      *  Not needed anymore
@@ -632,6 +803,7 @@ public class MainActivity extends Activity {
         listDataHeader.add(numberOfAPs + " Access Points, delay: " + WiFiScanDuration + "ms");
         listDataHeader.add(numberOfCellTowers + " Cell Towers");
         listDataHeader.add(SensorList_text.size() + "/" + numberOfSensors + " Sensors, " + seq_nr_sensorevent + " written");
+        listDataHeader.add("Dot: " + seq_nr_dot);
 
         listDataChild.put(listDataHeader.get(0), WiFiList_text);
         listDataChild.put(listDataHeader.get(1), CellList_text);
@@ -1186,10 +1358,8 @@ public class MainActivity extends Activity {
                 countMessagesInOutputFiles();
                 return true;
             case R.id.save_metadata:
-                ScenarioDefinition scenario_metadata = new ScenarioDefinition(0, rbs.sensorList, Metadata_BOS);
-                scenario_metadata.prepare(0, rbs.sensorList, Metadata_BOS);
 
-                flushFiles();
+                saveMetadata();
 
                 return true;
             default:
@@ -1223,6 +1393,13 @@ public class MainActivity extends Activity {
         }
     };
 
+    private void saveMetadata () {
+        ScenarioDefinition scenario_metadata = new ScenarioDefinition(0, rbs.sensorList, Metadata_BOS);
+        scenario_metadata.prepare(0, rbs.sensorList, Metadata_BOS);
+
+        flushFiles();
+    }
+
     private void askNewFilePrefix() {
         AlertDialog.Builder prefix_dialog_builder = new AlertDialog.Builder(this);
         final EditText prefix_input = new EditText(this);
@@ -1241,7 +1418,7 @@ public class MainActivity extends Activity {
                     Toast.makeText(getApplicationContext(), "Set to: " + current_file_prefix,
                             Toast.LENGTH_SHORT).show();
 
-                    setTitle(current_file_prefix + " " + getTitle());
+                    makeTitle();
 
                     createOutputFiles(current_file_prefix);
                 }
@@ -1365,7 +1542,7 @@ public class MainActivity extends Activity {
 
             sensorList = getDefaultSensorList();
 
-            sensorHashMap = new HashMap<Sensor, float[]>();
+            sensorHashMap = new HashMap<>();
             sensorLastTimestampHashMap = new  HashMap<Sensor, Long>();
             sensorCurrentTimestampHashMap = new  HashMap<Sensor, Long>();
 
@@ -1374,13 +1551,13 @@ public class MainActivity extends Activity {
             }
 
             if (sensorList.size() != sensorHashMap.size())
-                Log.e("DEADLY ERROR!!!!", "defaultSensorList.size() != sensorHashMap.size() " + sensorList.size() + " != " + sensorHashMap.size() );
+                Log.wtf("DEADLY ERROR!!!!", "defaultSensorList.size() != sensorHashMap.size() " + sensorList.size() + " != " + sensorHashMap.size() );
 
             List<Sensor> keyList = new ArrayList<>(sensorHashMap.keySet());
 
             SensorList_text = new ArrayList<String>();
             for (int i = 0; i < keyList.size();i++){
-                SensorList_text.add(keyList.get(i) + ": " + Arrays.toString(sensorHashMap.get(keyList.get(i))) + ", isWakeup?"  + keyList.get(i).isWakeUpSensor());
+                SensorList_text.add(keyList.get(i) + ": " + sensorHashMap.get(keyList.get(i)) + ", isWakeup?"  + keyList.get(i).isWakeUpSensor());
             }
             numberOfSensors = sensorHashMap.size();
             mHandler.post(new Runnable() {
@@ -1432,7 +1609,7 @@ public class MainActivity extends Activity {
 
             for (int i = 0; i < keyList.size();i++){
                 if (sensorLastTimestampHashMap.get(keyList.get(i)) != null )
-                    SensorList_text.add(keyList.get(i) + ": " + Arrays.toString(sensorHashMap.get(keyList.get(i))) +
+                    SensorList_text.add(keyList.get(i) + ":\n" + sensorHashMap.get(keyList.get(i)) +
                             " in " + (sensorCurrentTimestampHashMap.get(keyList.get(i)) - sensorLastTimestampHashMap.get(keyList.get(i)))/1000000 + "msec" + ", isWakeup: " );
             }
 
@@ -1469,6 +1646,9 @@ public class MainActivity extends Activity {
 
             running = true;
 
+            // Reset sensorHashMap
+            sensorHashMap = new HashMap<>();
+
             startSensors();
 
             while (running) {
@@ -1481,6 +1661,8 @@ public class MainActivity extends Activity {
                         if (s_light != null)
                             WiFiScanTime.setText(" Light: " + s_light[0]);
                         //prepareListData();
+                        if (state != State.RUNNING)
+                            updateExpandableListView();
                     }
                 });
 
@@ -1537,7 +1719,9 @@ public class MainActivity extends Activity {
             public void onSensorChanged(SensorEvent event) {
                 senor_event_counter++;
 
+                String sensor_values_for_hashmap;
                 //list_sensor_readings.add(prepareSensorProtobuf(event));
+
 
                 if (state == State.RUNNING) {
                     seq_nr_sensorevent = seq_nr_sensorevent + 1;
@@ -1550,9 +1734,11 @@ public class MainActivity extends Activity {
                     }
 
                     // For displaying on the screen
-
                     onScreenVerbose.put("seq_nr_sensorevent", Integer.toString(sensor_event.getSequenceNr()));
+                    sensor_values_for_hashmap = sensor_event.toString();
                 }
+                else
+                    sensor_values_for_hashmap = Arrays.toString(event.values);
 
                 mHandler.post(new Runnable() {
                     @Override
@@ -1561,17 +1747,19 @@ public class MainActivity extends Activity {
                     }
                 });
 
+                if(event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
+                    float[] time_x = {(float) Calendar.getInstance().get(Calendar.SECOND)};
+                    sensor_values_for_hashmap = Arrays.toString(time_x);
+                }
+
+                if (event.sensor.getType() == Sensor.TYPE_LIGHT)
+                    s_light = event.values;
+
                 Sensor sensorHashKey = event.sensor;
-                sensorHashMap.put(sensorHashKey, event.values);
+                sensorHashMap.put(sensorHashKey, sensor_values_for_hashmap);
                 sensorLastTimestampHashMap.put(sensorHashKey,sensorCurrentTimestampHashMap.get(sensorHashKey));
                 sensorCurrentTimestampHashMap.put(sensorHashKey, new Long(event.timestamp));
 
-                if(event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
-                    float[] time_x = {(float) Calendar.getInstance().get(Calendar.SECOND)};
-                    sensorHashMap.put(sensorHashKey, time_x);
-                }
-                else if (event.sensor.getType() == Sensor.TYPE_LIGHT)
-                    s_light = event.values;
             }
         };
 
@@ -1691,15 +1879,18 @@ public class MainActivity extends Activity {
         if (show) {
             gotGpsFix = true;
             StartStopButton.setBackgroundColor(Color.GREEN);
-            setTitle(TITLE + "   GPS signal found.");
+            //setTitle(TITLE + "   GPS signal found.");
+            GPS_STATUS = "GPS found";
         }
         else {
             gotGpsFix = false;
             StartStopButton.setBackgroundColor(Color.LTGRAY);
             if (gpsSwitch.isChecked()) {
-                setTitle(TITLE + "   GPS searching.");
+                //setTitle(TITLE + "   GPS searching.");
+                GPS_STATUS = "GPS searching";
             }
         }
+        makeTitle();
     }
 
     private LocationListener getLocationListener() {
@@ -1806,9 +1997,9 @@ public class MainActivity extends Activity {
                 }
             }
             @Override
-            public void onCallStateChanged(int state, String incomingNumber) {
-                super.onCallStateChanged(state, incomingNumber);
-                switch (state) {
+            public void onCallStateChanged(int callState, String incomingNumber) {
+                super.onCallStateChanged(callState, incomingNumber);
+                switch (callState) {
                     case TelephonyManager.CALL_STATE_IDLE:
                         phoneStateHashMap.put(sCallState,"idle");
                         break;
