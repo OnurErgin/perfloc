@@ -22,10 +22,11 @@ message Metadata {
 	optional string experiment_description = 5;   // Description of a data collection procedure
 	optional string environment_description = 6;  // Environment description
 	optional string interference_description = 7; // Interference description ??? DO WE NEED THIS?  
-	optional string additional_info = 8;          // Additional information      
+	optional string additional_info = 8;          // Additional information   
+	optional float  initial_average_pressure = 9; // Average of first few pressure values at the start of the measurements
 
-	optional DeviceDescription device = 9;        // Description of a experimentation scenario
-  	repeated Sensor sensor = 10;         		  // Description of each sensor used for generating sensor readings 
+	optional DeviceDescription device = 10;       // Description of a experimentation scenario
+  	repeated Sensor sensor = 11;         		  // Description of each sensor used for generating sensor readings 
 	
 	message DeviceDescription {
 		optional string board = 1; 		// The name of the underlying board, like "goldfish".

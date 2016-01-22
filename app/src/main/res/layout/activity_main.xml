@@ -78,7 +78,8 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
         android:background="@android:color/darker_gray"
-        android:layout_alignEnd="@+id/expandableListView" />
+        android:layout_alignEnd="@+id/expandableListView"
+        android:nestedScrollingEnabled="false" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -125,5 +126,14 @@
         android:checked="false"
         android:layout_below="@+id/toggleButton"
         android:enabled="false" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Metadata is NOT ready!"
+        android:id="@+id/tv_metadata"
+        android:layout_below="@+id/sensor_switch"
+        android:layout_alignEnd="@+id/sensor_event_counter" />
 
 </RelativeLayout>

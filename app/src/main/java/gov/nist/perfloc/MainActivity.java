@@ -24,6 +24,7 @@ import android.media.session.MediaSession;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -49,6 +50,7 @@ import android.telephony.ServiceState;
 import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 import android.text.InputType;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -108,7 +110,8 @@ public class MainActivity extends Activity {
             tv_dotcounter,
             tv_sensor_event_counter,
             tv_timer_sec,
-            tv_bottomView;
+            tv_bottomView,
+            tv_metadata;
     static CheckBox geomagnetic_checkbox;
 
     // Expandable List Adapter related definitions
@@ -219,11 +222,12 @@ public class MainActivity extends Activity {
         WiFiScanTime    = (TextView) findViewById(R.id.WiFiScanTime);
         tv_dotcounter   = (TextView) findViewById(R.id.dotCounter);
         tv_timer_sec    = (TextView) findViewById(R.id.timer_sec);
-        tv_bottomView   = (TextView) findViewById(R.id.bottomView);
+        tv_bottomView   = (TextView) findViewById(R.id.bottomView); tv_bottomView.setMovementMethod(new ScrollingMovementMethod());
         tv_sensor_event_counter = (TextView) findViewById(R.id.sensor_event_counter);
+        tv_metadata     = (TextView) findViewById(R.id.tv_metadata);
         expListView     = (ExpandableListView) findViewById(R.id.expandableListView);
         geomagnetic_checkbox   = (CheckBox) findViewById(R.id.geomagnetic_checkbox);
-        sensorSwitch    = (Switch) findViewById(R.id.sensor_switch);
+         sensorSwitch    = (Switch) findViewById(R.id.sensor_switch);
 
         // Start WiFi Service
         wifi=(WifiManager)getSystemService(Context.WIFI_SERVICE);
@@ -418,7 +422,10 @@ public class MainActivity extends Activity {
 
             //ToneGenerator toneG = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
             //toneG.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 200);
-            toneG.startTone(ToneGenerator.TONE_PROP_BEEP, 200);
+            if (seq_nr_dot % 2 == 1)
+                toneG.startTone(ToneGenerator.TONE_PROP_BEEP, 200);
+            else
+                toneG.startTone(ToneGenerator.TONE_CDMA_ONE_MIN_BEEP, 100);
             //toneG.startTone(ToneGenerator.TONE_PROP_BEEP2, 200);
 
         }
@@ -777,11 +784,13 @@ public class MainActivity extends Activity {
         boolean WiFiGroupExpanded = false;
         boolean CellGroupExpanded = false;
         boolean SensorGroupExpanded = false;
+        boolean DotGroupExpanded = false;
 
         if (expListAdapter != null) {
             WiFiGroupExpanded = expListView.isGroupExpanded(0);
             CellGroupExpanded = expListView.isGroupExpanded(1);
             SensorGroupExpanded = expListView.isGroupExpanded(2);
+            DotGroupExpanded = expListView.isGroupExpanded(3);
             //int mListPosition = expListView.getVerticalScrollbarPosition();
         }
 
@@ -793,6 +802,7 @@ public class MainActivity extends Activity {
         if (WiFiGroupExpanded) expListView.expandGroup(0);
         if (CellGroupExpanded) expListView.expandGroup(1);
         if (SensorGroupExpanded) expListView.expandGroup(2);
+        if (DotGroupExpanded) expListView.expandGroup(3);
     }
 
     private void prepareListData() {
@@ -808,6 +818,7 @@ public class MainActivity extends Activity {
         listDataChild.put(listDataHeader.get(0), WiFiList_text);
         listDataChild.put(listDataHeader.get(1), CellList_text);
         listDataChild.put(listDataHeader.get(2), SensorList_text);
+        listDataChild.put(listDataHeader.get(3), DotList_text);
 
     }
 
@@ -1393,11 +1404,35 @@ public class MainActivity extends Activity {
         }
     };
 
-    private void saveMetadata () {
-        ScenarioDefinition scenario_metadata = new ScenarioDefinition(0, rbs.sensorList, Metadata_BOS);
-        scenario_metadata.prepare(0, rbs.sensorList, Metadata_BOS);
+    public class SaveMetaDataTask extends AsyncTask <String, Integer, String> {
+        @Override
+        protected String doInBackground(String... params) {
+            ScenarioDefinition scenario_metadata = new ScenarioDefinition(0, rbs.sensorList, rbs.mSensorManager, Metadata_BOS);
 
-        flushFiles();
+            // This while loop's condition must never be true
+            while (scenario_metadata.pressure_value_count < scenario_metadata.pressure_sensor_max_sample_size) {
+                // wait until enough samples are taken, then proceed.
+                try {
+                    Thread.sleep(100);
+                    Log.v(this.getClass().getName(),"Pressure_index=" + scenario_metadata.pressure_value_count);
+                }catch (Exception e) {Log.wtf(this.getClass().getName(),"sleep problem");}
+            }
+            scenario_metadata.prepare(0, rbs.sensorList, Metadata_BOS);
+            Log.v("SaveMetadata", "doInBackground....done.");
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            flushFiles();
+            Log.v("Save Metadata", "Flushed");
+
+        }
+    }
+    private void saveMetadata () {
+        tv_metadata.setText("Preparing Metadata.");
+        new SaveMetaDataTask().execute();
+        tv_metadata.setText("Metadata is saved.");
     }
 
     private void askNewFilePrefix() {
@@ -1526,7 +1561,7 @@ public class MainActivity extends Activity {
 
         private volatile boolean running;
         private volatile int measuringFrequency;
-        SensorManager mSensorManager;
+        public SensorManager mSensorManager;
         volatile int flag = 0;
 
         float[] s_light;
@@ -1551,7 +1586,7 @@ public class MainActivity extends Activity {
             }
 
             if (sensorList.size() != sensorHashMap.size())
-                Log.wtf("DEADLY ERROR!!!!", "defaultSensorList.size() != sensorHashMap.size() " + sensorList.size() + " != " + sensorHashMap.size() );
+                Log.wtf("DEADLY ERROR!!!!", "defaultSensorList.size() != sensorHashMap.size() " + sensorList.size() + " != " + sensorHashMap.size());
 
             List<Sensor> keyList = new ArrayList<>(sensorHashMap.keySet());
 
@@ -1689,7 +1724,7 @@ public class MainActivity extends Activity {
         }
 
         private void unRegisterSensors (SensorManager tSensorManager){
-            mSensorManager.unregisterListener(mSensorListener);
+                mSensorManager.unregisterListener(mSensorListener);
         }
 
         private SensorEventListener mSensorListener = new SensorEventListener() {
@@ -1703,8 +1738,8 @@ public class MainActivity extends Activity {
                     @Override
                     public void run() {
                         if (_s.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-                                geomagnetic_checkbox.setText("GeoMagnetic: " + _acc);
-                            Log.i("GEOMAGNETIC", "Accuracy changed to: " + accuracy);
+                                geomagnetic_checkbox.setText("Magnetic_Field: " + _acc);
+                            Log.i("Magnetic_Field", "Accuracy changed to: " + accuracy);
 
                             // Set checked if accuracy is high
                             geomagnetic_checkbox.setChecked(accuracy == SensorManager.SENSOR_STATUS_ACCURACY_HIGH);

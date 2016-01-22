@@ -171,7 +171,7 @@ public final class MetaData {
      * <code>optional string additional_info = 8;</code>
      *
      * <pre>
-     * Additional information      
+     * Additional information   
      * </pre>
      */
     boolean hasAdditionalInfo();
@@ -179,7 +179,7 @@ public final class MetaData {
      * <code>optional string additional_info = 8;</code>
      *
      * <pre>
-     * Additional information      
+     * Additional information   
      * </pre>
      */
     java.lang.String getAdditionalInfo();
@@ -187,14 +187,31 @@ public final class MetaData {
      * <code>optional string additional_info = 8;</code>
      *
      * <pre>
-     * Additional information      
+     * Additional information   
      * </pre>
      */
     com.google.protobuf.ByteString
         getAdditionalInfoBytes();
 
     /**
-     * <code>optional .perfloc.Metadata.DeviceDescription device = 9;</code>
+     * <code>optional float initial_average_pressure = 9;</code>
+     *
+     * <pre>
+     * Average of first few pressure values at the start of the measurements
+     * </pre>
+     */
+    boolean hasInitialAveragePressure();
+    /**
+     * <code>optional float initial_average_pressure = 9;</code>
+     *
+     * <pre>
+     * Average of first few pressure values at the start of the measurements
+     * </pre>
+     */
+    float getInitialAveragePressure();
+
+    /**
+     * <code>optional .perfloc.Metadata.DeviceDescription device = 10;</code>
      *
      * <pre>
      * Description of a experimentation scenario
@@ -202,7 +219,7 @@ public final class MetaData {
      */
     boolean hasDevice();
     /**
-     * <code>optional .perfloc.Metadata.DeviceDescription device = 9;</code>
+     * <code>optional .perfloc.Metadata.DeviceDescription device = 10;</code>
      *
      * <pre>
      * Description of a experimentation scenario
@@ -210,7 +227,7 @@ public final class MetaData {
      */
     gov.nist.perfloc.MetaData.Metadata.DeviceDescription getDevice();
     /**
-     * <code>optional .perfloc.Metadata.DeviceDescription device = 9;</code>
+     * <code>optional .perfloc.Metadata.DeviceDescription device = 10;</code>
      *
      * <pre>
      * Description of a experimentation scenario
@@ -219,7 +236,7 @@ public final class MetaData {
     gov.nist.perfloc.MetaData.Metadata.DeviceDescriptionOrBuilder getDeviceOrBuilder();
 
     /**
-     * <code>repeated .perfloc.Metadata.Sensor sensor = 10;</code>
+     * <code>repeated .perfloc.Metadata.Sensor sensor = 11;</code>
      *
      * <pre>
      * Description of each sensor used for generating sensor readings 
@@ -228,7 +245,7 @@ public final class MetaData {
     java.util.List<gov.nist.perfloc.MetaData.Metadata.Sensor> 
         getSensorList();
     /**
-     * <code>repeated .perfloc.Metadata.Sensor sensor = 10;</code>
+     * <code>repeated .perfloc.Metadata.Sensor sensor = 11;</code>
      *
      * <pre>
      * Description of each sensor used for generating sensor readings 
@@ -236,7 +253,7 @@ public final class MetaData {
      */
     gov.nist.perfloc.MetaData.Metadata.Sensor getSensor(int index);
     /**
-     * <code>repeated .perfloc.Metadata.Sensor sensor = 10;</code>
+     * <code>repeated .perfloc.Metadata.Sensor sensor = 11;</code>
      *
      * <pre>
      * Description of each sensor used for generating sensor readings 
@@ -244,7 +261,7 @@ public final class MetaData {
      */
     int getSensorCount();
     /**
-     * <code>repeated .perfloc.Metadata.Sensor sensor = 10;</code>
+     * <code>repeated .perfloc.Metadata.Sensor sensor = 11;</code>
      *
      * <pre>
      * Description of each sensor used for generating sensor readings 
@@ -253,7 +270,7 @@ public final class MetaData {
     java.util.List<? extends gov.nist.perfloc.MetaData.Metadata.SensorOrBuilder> 
         getSensorOrBuilderList();
     /**
-     * <code>repeated .perfloc.Metadata.Sensor sensor = 10;</code>
+     * <code>repeated .perfloc.Metadata.Sensor sensor = 11;</code>
      *
      * <pre>
      * Description of each sensor used for generating sensor readings 
@@ -359,9 +376,14 @@ public final class MetaData {
               additionalInfo_ = bs;
               break;
             }
-            case 74: {
+            case 77: {
+              bitField0_ |= 0x00000100;
+              initialAveragePressure_ = input.readFloat();
+              break;
+            }
+            case 82: {
               gov.nist.perfloc.MetaData.Metadata.DeviceDescription.Builder subBuilder = null;
-              if (((bitField0_ & 0x00000100) == 0x00000100)) {
+              if (((bitField0_ & 0x00000200) == 0x00000200)) {
                 subBuilder = device_.toBuilder();
               }
               device_ = input.readMessage(gov.nist.perfloc.MetaData.Metadata.DeviceDescription.PARSER, extensionRegistry);
@@ -369,13 +391,13 @@ public final class MetaData {
                 subBuilder.mergeFrom(device_);
                 device_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x00000100;
+              bitField0_ |= 0x00000200;
               break;
             }
-            case 82: {
-              if (!((mutable_bitField0_ & 0x00000200) == 0x00000200)) {
+            case 90: {
+              if (!((mutable_bitField0_ & 0x00000400) == 0x00000400)) {
                 sensor_ = new java.util.ArrayList<gov.nist.perfloc.MetaData.Metadata.Sensor>();
-                mutable_bitField0_ |= 0x00000200;
+                mutable_bitField0_ |= 0x00000400;
               }
               sensor_.add(input.readMessage(gov.nist.perfloc.MetaData.Metadata.Sensor.PARSER, extensionRegistry));
               break;
@@ -388,7 +410,7 @@ public final class MetaData {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000200) == 0x00000200)) {
+        if (((mutable_bitField0_ & 0x00000400) == 0x00000400)) {
           sensor_ = java.util.Collections.unmodifiableList(sensor_);
         }
         this.unknownFields = unknownFields.build();
@@ -5527,7 +5549,7 @@ public final class MetaData {
      * <code>optional string additional_info = 8;</code>
      *
      * <pre>
-     * Additional information      
+     * Additional information   
      * </pre>
      */
     public boolean hasAdditionalInfo() {
@@ -5537,7 +5559,7 @@ public final class MetaData {
      * <code>optional string additional_info = 8;</code>
      *
      * <pre>
-     * Additional information      
+     * Additional information   
      * </pre>
      */
     public java.lang.String getAdditionalInfo() {
@@ -5558,7 +5580,7 @@ public final class MetaData {
      * <code>optional string additional_info = 8;</code>
      *
      * <pre>
-     * Additional information      
+     * Additional information   
      * </pre>
      */
     public com.google.protobuf.ByteString
@@ -5575,20 +5597,43 @@ public final class MetaData {
       }
     }
 
-    public static final int DEVICE_FIELD_NUMBER = 9;
+    public static final int INITIAL_AVERAGE_PRESSURE_FIELD_NUMBER = 9;
+    private float initialAveragePressure_;
+    /**
+     * <code>optional float initial_average_pressure = 9;</code>
+     *
+     * <pre>
+     * Average of first few pressure values at the start of the measurements
+     * </pre>
+     */
+    public boolean hasInitialAveragePressure() {
+      return ((bitField0_ & 0x00000100) == 0x00000100);
+    }
+    /**
+     * <code>optional float initial_average_pressure = 9;</code>
+     *
+     * <pre>
+     * Average of first few pressure values at the start of the measurements
+     * </pre>
+     */
+    public float getInitialAveragePressure() {
+      return initialAveragePressure_;
+    }
+
+    public static final int DEVICE_FIELD_NUMBER = 10;
     private gov.nist.perfloc.MetaData.Metadata.DeviceDescription device_;
     /**
-     * <code>optional .perfloc.Metadata.DeviceDescription device = 9;</code>
+     * <code>optional .perfloc.Metadata.DeviceDescription device = 10;</code>
      *
      * <pre>
      * Description of a experimentation scenario
      * </pre>
      */
     public boolean hasDevice() {
-      return ((bitField0_ & 0x00000100) == 0x00000100);
+      return ((bitField0_ & 0x00000200) == 0x00000200);
     }
     /**
-     * <code>optional .perfloc.Metadata.DeviceDescription device = 9;</code>
+     * <code>optional .perfloc.Metadata.DeviceDescription device = 10;</code>
      *
      * <pre>
      * Description of a experimentation scenario
@@ -5598,7 +5643,7 @@ public final class MetaData {
       return device_;
     }
     /**
-     * <code>optional .perfloc.Metadata.DeviceDescription device = 9;</code>
+     * <code>optional .perfloc.Metadata.DeviceDescription device = 10;</code>
      *
      * <pre>
      * Description of a experimentation scenario
@@ -5608,10 +5653,10 @@ public final class MetaData {
       return device_;
     }
 
-    public static final int SENSOR_FIELD_NUMBER = 10;
+    public static final int SENSOR_FIELD_NUMBER = 11;
     private java.util.List<gov.nist.perfloc.MetaData.Metadata.Sensor> sensor_;
     /**
-     * <code>repeated .perfloc.Metadata.Sensor sensor = 10;</code>
+     * <code>repeated .perfloc.Metadata.Sensor sensor = 11;</code>
      *
      * <pre>
      * Description of each sensor used for generating sensor readings 
@@ -5621,7 +5666,7 @@ public final class MetaData {
       return sensor_;
     }
     /**
-     * <code>repeated .perfloc.Metadata.Sensor sensor = 10;</code>
+     * <code>repeated .perfloc.Metadata.Sensor sensor = 11;</code>
      *
      * <pre>
      * Description of each sensor used for generating sensor readings 
@@ -5632,7 +5677,7 @@ public final class MetaData {
       return sensor_;
     }
     /**
-     * <code>repeated .perfloc.Metadata.Sensor sensor = 10;</code>
+     * <code>repeated .perfloc.Metadata.Sensor sensor = 11;</code>
      *
      * <pre>
      * Description of each sensor used for generating sensor readings 
@@ -5642,7 +5687,7 @@ public final class MetaData {
       return sensor_.size();
     }
     /**
-     * <code>repeated .perfloc.Metadata.Sensor sensor = 10;</code>
+     * <code>repeated .perfloc.Metadata.Sensor sensor = 11;</code>
      *
      * <pre>
      * Description of each sensor used for generating sensor readings 
@@ -5652,7 +5697,7 @@ public final class MetaData {
       return sensor_.get(index);
     }
     /**
-     * <code>repeated .perfloc.Metadata.Sensor sensor = 10;</code>
+     * <code>repeated .perfloc.Metadata.Sensor sensor = 11;</code>
      *
      * <pre>
      * Description of each sensor used for generating sensor readings 
@@ -5672,6 +5717,7 @@ public final class MetaData {
       environmentDescription_ = "";
       interferenceDescription_ = "";
       additionalInfo_ = "";
+      initialAveragePressure_ = 0F;
       device_ = gov.nist.perfloc.MetaData.Metadata.DeviceDescription.getDefaultInstance();
       sensor_ = java.util.Collections.emptyList();
     }
@@ -5713,10 +5759,13 @@ public final class MetaData {
         output.writeBytes(8, getAdditionalInfoBytes());
       }
       if (((bitField0_ & 0x00000100) == 0x00000100)) {
-        output.writeMessage(9, device_);
+        output.writeFloat(9, initialAveragePressure_);
+      }
+      if (((bitField0_ & 0x00000200) == 0x00000200)) {
+        output.writeMessage(10, device_);
       }
       for (int i = 0; i < sensor_.size(); i++) {
-        output.writeMessage(10, sensor_.get(i));
+        output.writeMessage(11, sensor_.get(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -5761,11 +5810,15 @@ public final class MetaData {
       }
       if (((bitField0_ & 0x00000100) == 0x00000100)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(9, device_);
+          .computeFloatSize(9, initialAveragePressure_);
+      }
+      if (((bitField0_ & 0x00000200) == 0x00000200)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(10, device_);
       }
       for (int i = 0; i < sensor_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(10, sensor_.get(i));
+          .computeMessageSize(11, sensor_.get(i));
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -5902,15 +5955,17 @@ public final class MetaData {
         bitField0_ = (bitField0_ & ~0x00000040);
         additionalInfo_ = "";
         bitField0_ = (bitField0_ & ~0x00000080);
+        initialAveragePressure_ = 0F;
+        bitField0_ = (bitField0_ & ~0x00000100);
         if (deviceBuilder_ == null) {
           device_ = gov.nist.perfloc.MetaData.Metadata.DeviceDescription.getDefaultInstance();
         } else {
           deviceBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000100);
+        bitField0_ = (bitField0_ & ~0x00000200);
         if (sensorBuilder_ == null) {
           sensor_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000200);
+          bitField0_ = (bitField0_ & ~0x00000400);
         } else {
           sensorBuilder_.clear();
         }
@@ -5977,15 +6032,19 @@ public final class MetaData {
         if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
           to_bitField0_ |= 0x00000100;
         }
+        result.initialAveragePressure_ = initialAveragePressure_;
+        if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
+          to_bitField0_ |= 0x00000200;
+        }
         if (deviceBuilder_ == null) {
           result.device_ = device_;
         } else {
           result.device_ = deviceBuilder_.build();
         }
         if (sensorBuilder_ == null) {
-          if (((bitField0_ & 0x00000200) == 0x00000200)) {
+          if (((bitField0_ & 0x00000400) == 0x00000400)) {
             sensor_ = java.util.Collections.unmodifiableList(sensor_);
-            bitField0_ = (bitField0_ & ~0x00000200);
+            bitField0_ = (bitField0_ & ~0x00000400);
           }
           result.sensor_ = sensor_;
         } else {
@@ -6041,6 +6100,9 @@ public final class MetaData {
           additionalInfo_ = other.additionalInfo_;
           onChanged();
         }
+        if (other.hasInitialAveragePressure()) {
+          setInitialAveragePressure(other.getInitialAveragePressure());
+        }
         if (other.hasDevice()) {
           mergeDevice(other.getDevice());
         }
@@ -6048,7 +6110,7 @@ public final class MetaData {
           if (!other.sensor_.isEmpty()) {
             if (sensor_.isEmpty()) {
               sensor_ = other.sensor_;
-              bitField0_ = (bitField0_ & ~0x00000200);
+              bitField0_ = (bitField0_ & ~0x00000400);
             } else {
               ensureSensorIsMutable();
               sensor_.addAll(other.sensor_);
@@ -6061,7 +6123,7 @@ public final class MetaData {
               sensorBuilder_.dispose();
               sensorBuilder_ = null;
               sensor_ = other.sensor_;
-              bitField0_ = (bitField0_ & ~0x00000200);
+              bitField0_ = (bitField0_ & ~0x00000400);
               sensorBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getSensorFieldBuilder() : null;
@@ -6646,7 +6708,7 @@ public final class MetaData {
        * <code>optional string additional_info = 8;</code>
        *
        * <pre>
-       * Additional information      
+       * Additional information   
        * </pre>
        */
       public boolean hasAdditionalInfo() {
@@ -6656,7 +6718,7 @@ public final class MetaData {
        * <code>optional string additional_info = 8;</code>
        *
        * <pre>
-       * Additional information      
+       * Additional information   
        * </pre>
        */
       public java.lang.String getAdditionalInfo() {
@@ -6677,7 +6739,7 @@ public final class MetaData {
        * <code>optional string additional_info = 8;</code>
        *
        * <pre>
-       * Additional information      
+       * Additional information   
        * </pre>
        */
       public com.google.protobuf.ByteString
@@ -6697,7 +6759,7 @@ public final class MetaData {
        * <code>optional string additional_info = 8;</code>
        *
        * <pre>
-       * Additional information      
+       * Additional information   
        * </pre>
        */
       public Builder setAdditionalInfo(
@@ -6714,7 +6776,7 @@ public final class MetaData {
        * <code>optional string additional_info = 8;</code>
        *
        * <pre>
-       * Additional information      
+       * Additional information   
        * </pre>
        */
       public Builder clearAdditionalInfo() {
@@ -6727,7 +6789,7 @@ public final class MetaData {
        * <code>optional string additional_info = 8;</code>
        *
        * <pre>
-       * Additional information      
+       * Additional information   
        * </pre>
        */
       public Builder setAdditionalInfoBytes(
@@ -6741,21 +6803,69 @@ public final class MetaData {
         return this;
       }
 
+      private float initialAveragePressure_ ;
+      /**
+       * <code>optional float initial_average_pressure = 9;</code>
+       *
+       * <pre>
+       * Average of first few pressure values at the start of the measurements
+       * </pre>
+       */
+      public boolean hasInitialAveragePressure() {
+        return ((bitField0_ & 0x00000100) == 0x00000100);
+      }
+      /**
+       * <code>optional float initial_average_pressure = 9;</code>
+       *
+       * <pre>
+       * Average of first few pressure values at the start of the measurements
+       * </pre>
+       */
+      public float getInitialAveragePressure() {
+        return initialAveragePressure_;
+      }
+      /**
+       * <code>optional float initial_average_pressure = 9;</code>
+       *
+       * <pre>
+       * Average of first few pressure values at the start of the measurements
+       * </pre>
+       */
+      public Builder setInitialAveragePressure(float value) {
+        bitField0_ |= 0x00000100;
+        initialAveragePressure_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional float initial_average_pressure = 9;</code>
+       *
+       * <pre>
+       * Average of first few pressure values at the start of the measurements
+       * </pre>
+       */
+      public Builder clearInitialAveragePressure() {
+        bitField0_ = (bitField0_ & ~0x00000100);
+        initialAveragePressure_ = 0F;
+        onChanged();
+        return this;
+      }
+
       private gov.nist.perfloc.MetaData.Metadata.DeviceDescription device_ = gov.nist.perfloc.MetaData.Metadata.DeviceDescription.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           gov.nist.perfloc.MetaData.Metadata.DeviceDescription, gov.nist.perfloc.MetaData.Metadata.DeviceDescription.Builder, gov.nist.perfloc.MetaData.Metadata.DeviceDescriptionOrBuilder> deviceBuilder_;
       /**
-       * <code>optional .perfloc.Metadata.DeviceDescription device = 9;</code>
+       * <code>optional .perfloc.Metadata.DeviceDescription device = 10;</code>
        *
        * <pre>
        * Description of a experimentation scenario
        * </pre>
        */
       public boolean hasDevice() {
-        return ((bitField0_ & 0x00000100) == 0x00000100);
+        return ((bitField0_ & 0x00000200) == 0x00000200);
       }
       /**
-       * <code>optional .perfloc.Metadata.DeviceDescription device = 9;</code>
+       * <code>optional .perfloc.Metadata.DeviceDescription device = 10;</code>
        *
        * <pre>
        * Description of a experimentation scenario
@@ -6769,7 +6879,7 @@ public final class MetaData {
         }
       }
       /**
-       * <code>optional .perfloc.Metadata.DeviceDescription device = 9;</code>
+       * <code>optional .perfloc.Metadata.DeviceDescription device = 10;</code>
        *
        * <pre>
        * Description of a experimentation scenario
@@ -6785,11 +6895,11 @@ public final class MetaData {
         } else {
           deviceBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x00000100;
+        bitField0_ |= 0x00000200;
         return this;
       }
       /**
-       * <code>optional .perfloc.Metadata.DeviceDescription device = 9;</code>
+       * <code>optional .perfloc.Metadata.DeviceDescription device = 10;</code>
        *
        * <pre>
        * Description of a experimentation scenario
@@ -6803,11 +6913,11 @@ public final class MetaData {
         } else {
           deviceBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x00000100;
+        bitField0_ |= 0x00000200;
         return this;
       }
       /**
-       * <code>optional .perfloc.Metadata.DeviceDescription device = 9;</code>
+       * <code>optional .perfloc.Metadata.DeviceDescription device = 10;</code>
        *
        * <pre>
        * Description of a experimentation scenario
@@ -6815,7 +6925,7 @@ public final class MetaData {
        */
       public Builder mergeDevice(gov.nist.perfloc.MetaData.Metadata.DeviceDescription value) {
         if (deviceBuilder_ == null) {
-          if (((bitField0_ & 0x00000100) == 0x00000100) &&
+          if (((bitField0_ & 0x00000200) == 0x00000200) &&
               device_ != gov.nist.perfloc.MetaData.Metadata.DeviceDescription.getDefaultInstance()) {
             device_ =
               gov.nist.perfloc.MetaData.Metadata.DeviceDescription.newBuilder(device_).mergeFrom(value).buildPartial();
@@ -6826,11 +6936,11 @@ public final class MetaData {
         } else {
           deviceBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x00000100;
+        bitField0_ |= 0x00000200;
         return this;
       }
       /**
-       * <code>optional .perfloc.Metadata.DeviceDescription device = 9;</code>
+       * <code>optional .perfloc.Metadata.DeviceDescription device = 10;</code>
        *
        * <pre>
        * Description of a experimentation scenario
@@ -6843,23 +6953,23 @@ public final class MetaData {
         } else {
           deviceBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000100);
+        bitField0_ = (bitField0_ & ~0x00000200);
         return this;
       }
       /**
-       * <code>optional .perfloc.Metadata.DeviceDescription device = 9;</code>
+       * <code>optional .perfloc.Metadata.DeviceDescription device = 10;</code>
        *
        * <pre>
        * Description of a experimentation scenario
        * </pre>
        */
       public gov.nist.perfloc.MetaData.Metadata.DeviceDescription.Builder getDeviceBuilder() {
-        bitField0_ |= 0x00000100;
+        bitField0_ |= 0x00000200;
         onChanged();
         return getDeviceFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .perfloc.Metadata.DeviceDescription device = 9;</code>
+       * <code>optional .perfloc.Metadata.DeviceDescription device = 10;</code>
        *
        * <pre>
        * Description of a experimentation scenario
@@ -6873,7 +6983,7 @@ public final class MetaData {
         }
       }
       /**
-       * <code>optional .perfloc.Metadata.DeviceDescription device = 9;</code>
+       * <code>optional .perfloc.Metadata.DeviceDescription device = 10;</code>
        *
        * <pre>
        * Description of a experimentation scenario
@@ -6896,9 +7006,9 @@ public final class MetaData {
       private java.util.List<gov.nist.perfloc.MetaData.Metadata.Sensor> sensor_ =
         java.util.Collections.emptyList();
       private void ensureSensorIsMutable() {
-        if (!((bitField0_ & 0x00000200) == 0x00000200)) {
+        if (!((bitField0_ & 0x00000400) == 0x00000400)) {
           sensor_ = new java.util.ArrayList<gov.nist.perfloc.MetaData.Metadata.Sensor>(sensor_);
-          bitField0_ |= 0x00000200;
+          bitField0_ |= 0x00000400;
          }
       }
 
@@ -6906,7 +7016,7 @@ public final class MetaData {
           gov.nist.perfloc.MetaData.Metadata.Sensor, gov.nist.perfloc.MetaData.Metadata.Sensor.Builder, gov.nist.perfloc.MetaData.Metadata.SensorOrBuilder> sensorBuilder_;
 
       /**
-       * <code>repeated .perfloc.Metadata.Sensor sensor = 10;</code>
+       * <code>repeated .perfloc.Metadata.Sensor sensor = 11;</code>
        *
        * <pre>
        * Description of each sensor used for generating sensor readings 
@@ -6920,7 +7030,7 @@ public final class MetaData {
         }
       }
       /**
-       * <code>repeated .perfloc.Metadata.Sensor sensor = 10;</code>
+       * <code>repeated .perfloc.Metadata.Sensor sensor = 11;</code>
        *
        * <pre>
        * Description of each sensor used for generating sensor readings 
@@ -6934,7 +7044,7 @@ public final class MetaData {
         }
       }
       /**
-       * <code>repeated .perfloc.Metadata.Sensor sensor = 10;</code>
+       * <code>repeated .perfloc.Metadata.Sensor sensor = 11;</code>
        *
        * <pre>
        * Description of each sensor used for generating sensor readings 
@@ -6948,7 +7058,7 @@ public final class MetaData {
         }
       }
       /**
-       * <code>repeated .perfloc.Metadata.Sensor sensor = 10;</code>
+       * <code>repeated .perfloc.Metadata.Sensor sensor = 11;</code>
        *
        * <pre>
        * Description of each sensor used for generating sensor readings 
@@ -6969,7 +7079,7 @@ public final class MetaData {
         return this;
       }
       /**
-       * <code>repeated .perfloc.Metadata.Sensor sensor = 10;</code>
+       * <code>repeated .perfloc.Metadata.Sensor sensor = 11;</code>
        *
        * <pre>
        * Description of each sensor used for generating sensor readings 
@@ -6987,7 +7097,7 @@ public final class MetaData {
         return this;
       }
       /**
-       * <code>repeated .perfloc.Metadata.Sensor sensor = 10;</code>
+       * <code>repeated .perfloc.Metadata.Sensor sensor = 11;</code>
        *
        * <pre>
        * Description of each sensor used for generating sensor readings 
@@ -7007,7 +7117,7 @@ public final class MetaData {
         return this;
       }
       /**
-       * <code>repeated .perfloc.Metadata.Sensor sensor = 10;</code>
+       * <code>repeated .perfloc.Metadata.Sensor sensor = 11;</code>
        *
        * <pre>
        * Description of each sensor used for generating sensor readings 
@@ -7028,7 +7138,7 @@ public final class MetaData {
         return this;
       }
       /**
-       * <code>repeated .perfloc.Metadata.Sensor sensor = 10;</code>
+       * <code>repeated .perfloc.Metadata.Sensor sensor = 11;</code>
        *
        * <pre>
        * Description of each sensor used for generating sensor readings 
@@ -7046,7 +7156,7 @@ public final class MetaData {
         return this;
       }
       /**
-       * <code>repeated .perfloc.Metadata.Sensor sensor = 10;</code>
+       * <code>repeated .perfloc.Metadata.Sensor sensor = 11;</code>
        *
        * <pre>
        * Description of each sensor used for generating sensor readings 
@@ -7064,7 +7174,7 @@ public final class MetaData {
         return this;
       }
       /**
-       * <code>repeated .perfloc.Metadata.Sensor sensor = 10;</code>
+       * <code>repeated .perfloc.Metadata.Sensor sensor = 11;</code>
        *
        * <pre>
        * Description of each sensor used for generating sensor readings 
@@ -7083,7 +7193,7 @@ public final class MetaData {
         return this;
       }
       /**
-       * <code>repeated .perfloc.Metadata.Sensor sensor = 10;</code>
+       * <code>repeated .perfloc.Metadata.Sensor sensor = 11;</code>
        *
        * <pre>
        * Description of each sensor used for generating sensor readings 
@@ -7092,7 +7202,7 @@ public final class MetaData {
       public Builder clearSensor() {
         if (sensorBuilder_ == null) {
           sensor_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000200);
+          bitField0_ = (bitField0_ & ~0x00000400);
           onChanged();
         } else {
           sensorBuilder_.clear();
@@ -7100,7 +7210,7 @@ public final class MetaData {
         return this;
       }
       /**
-       * <code>repeated .perfloc.Metadata.Sensor sensor = 10;</code>
+       * <code>repeated .perfloc.Metadata.Sensor sensor = 11;</code>
        *
        * <pre>
        * Description of each sensor used for generating sensor readings 
@@ -7117,7 +7227,7 @@ public final class MetaData {
         return this;
       }
       /**
-       * <code>repeated .perfloc.Metadata.Sensor sensor = 10;</code>
+       * <code>repeated .perfloc.Metadata.Sensor sensor = 11;</code>
        *
        * <pre>
        * Description of each sensor used for generating sensor readings 
@@ -7128,7 +7238,7 @@ public final class MetaData {
         return getSensorFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .perfloc.Metadata.Sensor sensor = 10;</code>
+       * <code>repeated .perfloc.Metadata.Sensor sensor = 11;</code>
        *
        * <pre>
        * Description of each sensor used for generating sensor readings 
@@ -7142,7 +7252,7 @@ public final class MetaData {
         }
       }
       /**
-       * <code>repeated .perfloc.Metadata.Sensor sensor = 10;</code>
+       * <code>repeated .perfloc.Metadata.Sensor sensor = 11;</code>
        *
        * <pre>
        * Description of each sensor used for generating sensor readings 
@@ -7157,7 +7267,7 @@ public final class MetaData {
         }
       }
       /**
-       * <code>repeated .perfloc.Metadata.Sensor sensor = 10;</code>
+       * <code>repeated .perfloc.Metadata.Sensor sensor = 11;</code>
        *
        * <pre>
        * Description of each sensor used for generating sensor readings 
@@ -7168,7 +7278,7 @@ public final class MetaData {
             gov.nist.perfloc.MetaData.Metadata.Sensor.getDefaultInstance());
       }
       /**
-       * <code>repeated .perfloc.Metadata.Sensor sensor = 10;</code>
+       * <code>repeated .perfloc.Metadata.Sensor sensor = 11;</code>
        *
        * <pre>
        * Description of each sensor used for generating sensor readings 
@@ -7180,7 +7290,7 @@ public final class MetaData {
             index, gov.nist.perfloc.MetaData.Metadata.Sensor.getDefaultInstance());
       }
       /**
-       * <code>repeated .perfloc.Metadata.Sensor sensor = 10;</code>
+       * <code>repeated .perfloc.Metadata.Sensor sensor = 11;</code>
        *
        * <pre>
        * Description of each sensor used for generating sensor readings 
@@ -7197,7 +7307,7 @@ public final class MetaData {
           sensorBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               gov.nist.perfloc.MetaData.Metadata.Sensor, gov.nist.perfloc.MetaData.Metadata.Sensor.Builder, gov.nist.perfloc.MetaData.Metadata.SensorOrBuilder>(
                   sensor_,
-                  ((bitField0_ & 0x00000200) == 0x00000200),
+                  ((bitField0_ & 0x00000400) == 0x00000400),
                   getParentForChildren(),
                   isClean());
           sensor_ = null;
@@ -7240,29 +7350,29 @@ public final class MetaData {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\017meta_data.proto\022\007perfloc\"\303\006\n\010Metadata\022" +
+      "\n\017meta_data.proto\022\007perfloc\"\345\006\n\010Metadata\022" +
       "\026\n\016measurement_id\030\001 \001(\005\022\024\n\014time_created\030" +
       "\002 \001(\003\022\017\n\007license\030\003 \001(\t\022\033\n\023experiment_dur" +
       "ation\030\004 \001(\001\022\036\n\026experiment_description\030\005 " +
       "\001(\t\022\037\n\027environment_description\030\006 \001(\t\022 \n\030" +
       "interference_description\030\007 \001(\t\022\027\n\017additi" +
-      "onal_info\030\010 \001(\t\0223\n\006device\030\t \001(\0132#.perflo" +
-      "c.Metadata.DeviceDescription\022(\n\006sensor\030\n" +
-      " \003(\0132\030.perfloc.Metadata.Sensor\032\342\001\n\021Devic" +
-      "eDescription\022\r\n\005board\030\001 \001(\t\022\r\n\005brand\030\002 \001",
-      "(\t\022\016\n\006device\030\003 \001(\t\022\017\n\007display\030\004 \001(\t\022\023\n\013f" +
-      "ingerprint\030\005 \001(\t\022\020\n\010hardware\030\006 \001(\t\022\n\n\002id" +
-      "\030\007 \001(\t\022\024\n\014manufacturer\030\010 \001(\t\022\r\n\005model\030\t " +
-      "\001(\t\022\017\n\007product\030\n \001(\t\022\016\n\006serial\030\013 \001(\t\022\025\n\r" +
-      "radio_version\030\014 \001(\t\032\232\002\n\006Sensor\022\014\n\004type\030\001" +
-      " \001(\005\022\023\n\013string_type\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\022" +
-      "\030\n\020is_wakeup_sensor\030\004 \001(\010\022\016\n\006vendor\030\005 \001(" +
-      "\t\022\017\n\007version\030\006 \001(\005\022\022\n\nresolution\030\007 \001(\002\022\026" +
-      "\n\016reporting_mode\030\010 \001(\005\022\r\n\005power\030\t \001(\002\022\034\n" +
-      "\024fifo_max_event_count\030\n \001(\005\022!\n\031fifo_rese",
-      "rved_event_count\030\013 \001(\005\022\025\n\rmaximum_range\030" +
-      "\014 \001(\002\022\021\n\tmin_delay\030\r \001(\002B\022\n\020gov.nist.per" +
-      "floc"
+      "onal_info\030\010 \001(\t\022 \n\030initial_average_press" +
+      "ure\030\t \001(\002\0223\n\006device\030\n \001(\0132#.perfloc.Meta" +
+      "data.DeviceDescription\022(\n\006sensor\030\013 \003(\0132\030" +
+      ".perfloc.Metadata.Sensor\032\342\001\n\021DeviceDescr",
+      "iption\022\r\n\005board\030\001 \001(\t\022\r\n\005brand\030\002 \001(\t\022\016\n\006" +
+      "device\030\003 \001(\t\022\017\n\007display\030\004 \001(\t\022\023\n\013fingerp" +
+      "rint\030\005 \001(\t\022\020\n\010hardware\030\006 \001(\t\022\n\n\002id\030\007 \001(\t" +
+      "\022\024\n\014manufacturer\030\010 \001(\t\022\r\n\005model\030\t \001(\t\022\017\n" +
+      "\007product\030\n \001(\t\022\016\n\006serial\030\013 \001(\t\022\025\n\rradio_" +
+      "version\030\014 \001(\t\032\232\002\n\006Sensor\022\014\n\004type\030\001 \001(\005\022\023" +
+      "\n\013string_type\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\022\030\n\020is_" +
+      "wakeup_sensor\030\004 \001(\010\022\016\n\006vendor\030\005 \001(\t\022\017\n\007v" +
+      "ersion\030\006 \001(\005\022\022\n\nresolution\030\007 \001(\002\022\026\n\016repo" +
+      "rting_mode\030\010 \001(\005\022\r\n\005power\030\t \001(\002\022\034\n\024fifo_",
+      "max_event_count\030\n \001(\005\022!\n\031fifo_reserved_e" +
+      "vent_count\030\013 \001(\005\022\025\n\rmaximum_range\030\014 \001(\002\022" +
+      "\021\n\tmin_delay\030\r \001(\002B\022\n\020gov.nist.perfloc"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -7281,7 +7391,7 @@ public final class MetaData {
     internal_static_perfloc_Metadata_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_perfloc_Metadata_descriptor,
-        new java.lang.String[] { "MeasurementId", "TimeCreated", "License", "ExperimentDuration", "ExperimentDescription", "EnvironmentDescription", "InterferenceDescription", "AdditionalInfo", "Device", "Sensor", });
+        new java.lang.String[] { "MeasurementId", "TimeCreated", "License", "ExperimentDuration", "ExperimentDescription", "EnvironmentDescription", "InterferenceDescription", "AdditionalInfo", "InitialAveragePressure", "Device", "Sensor", });
     internal_static_perfloc_Metadata_DeviceDescription_descriptor =
       internal_static_perfloc_Metadata_descriptor.getNestedTypes().get(0);
     internal_static_perfloc_Metadata_DeviceDescription_fieldAccessorTable = new

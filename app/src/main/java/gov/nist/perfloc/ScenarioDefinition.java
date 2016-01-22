@@ -1,12 +1,15 @@
 package gov.nist.perfloc;
 
 import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Build;
 import android.util.Log;
 
 import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -22,12 +25,45 @@ public class ScenarioDefinition {
     public String INTERFERENCE_DESC = "";
     public String ADDITIONAL_INFO = "";
 
+    public int pressure_sensor_sample_size = 5,
+                pressure_sensor_max_sample_size = 100;
+
+    float[] pressure_values;
+    public int pressure_value_count = 0;
+
     public MetaData.Metadata metadata;
 
-    public ScenarioDefinition (int _id, List<Sensor> sensors, BufferedOutputStream Metadata_BOS) {
-        Log.v (TAG_VERBOSE, "object created" + _id + sensors.toString().replaceAll("\\}, ","\\}\n") + Metadata_BOS.toString());
+    public ScenarioDefinition (int _id, List<Sensor> sensors, SensorManager mSensorManager, BufferedOutputStream Metadata_BOS)  {
+        Log.v(TAG_VERBOSE, "object created" + _id + sensors.toString().replaceAll("\\}, ", "\\}\n") + Metadata_BOS.toString());
+
+        pressure_values = new float[pressure_sensor_sample_size];
+
+        mSensorManager.registerListener(mSensorListener,
+                                        mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE),
+                                        SensorManager.SENSOR_DELAY_FASTEST);
+
+        // Wait until enough observations are made and unregister the listener
+        while(pressure_value_count <= pressure_sensor_max_sample_size) {
+            try {
+                Thread.sleep(10);
+            }catch (Exception e) {
+                Log.wtf(TAG_VERBOSE,"sleep problem");
+            }
+
+        }
+        mSensorManager.unregisterListener(mSensorListener);
+
+        Log.v(TAG_VERBOSE,
+                "Average Pressure: " + getPressureValueAvg() + " from " + Arrays.toString(pressure_values)
+                );
+
     }
 
+    public float getPressureValueAvg () {
+        float sum = 0;
+        for (float f : pressure_values) sum += f;
+        return sum/(float)pressure_values.length;
+    }
     public void prepare (int _id, List<Sensor> sensors, BufferedOutputStream Metadata_BOS) {
         metadata = prepareMetadataProtoBuf(_id, sensors);
         Log.v(TAG_VERBOSE, metadata.toString());
@@ -45,6 +81,7 @@ public class ScenarioDefinition {
         metadata.setEnvironmentDescription(ENVIRONMENT_DESC);
         metadata.setInterferenceDescription(INTERFERENCE_DESC);
         metadata.setAdditionalInfo(ADDITIONAL_INFO);
+        metadata.setInitialAveragePressure(getPressureValueAvg());
 
         MetaData.Metadata.DeviceDescription.Builder device_description = MetaData.Metadata.DeviceDescription.newBuilder();
         device_description.setBoard(Build.BOARD)
@@ -94,4 +131,32 @@ public class ScenarioDefinition {
             Log.e(TAG_VERBOSE + "Exception: ", e.toString());
         }
     }
+
+    private SensorEventListener mSensorListener = new SensorEventListener() {
+
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, final int accuracy) {
+
+        }
+
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            Log.v(TAG_VERBOSE, "Event received from: " + event.sensor.getStringType());
+
+            Log.v(TAG_VERBOSE,event.toString());
+
+            if (event.sensor.getType() == Sensor.TYPE_PRESSURE) {
+                pressure_values[(pressure_value_count++) % pressure_sensor_sample_size] = event.values[0];
+
+                Log.v(TAG_VERBOSE, event.sensor.getStringType() + "_values[" +
+                        (pressure_value_count -1) % pressure_sensor_sample_size + "] = " +
+                        pressure_values[(pressure_value_count -1)%pressure_sensor_sample_size] +
+                        ", pressure_value_count=" + pressure_value_count);
+
+            }
+        }
+
+    };
+
 }
