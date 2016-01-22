@@ -134,6 +134,6 @@
         android:text="Metadata is NOT ready!"
         android:id="@+id/tv_metadata"
         android:layout_below="@+id/sensor_switch"
-        android:layout_alignEnd="@+id/sensor_event_counter" />
+        android:layout_alignEnd="@id/sensor_switch" />
 
 </RelativeLayout>

@@ -151,7 +151,7 @@ public class MainActivity extends Activity {
     SensorHandler rbs;
 
     //HashMap<Sensor, float[]> sensorHashMap; // 21Ocak
-    HashMap<Sensor, String> sensorHashMap;
+    HashMap<Sensor, float[]> sensorHashMap;
     HashMap<Sensor, Long> sensorLastTimestampHashMap;
     HashMap<Sensor, Long> sensorCurrentTimestampHashMap;
 
@@ -635,6 +635,16 @@ public class MainActivity extends Activity {
         return true;
     }
 
+    private void stopEverything() {
+        unregisterReceiver(wifiReceiver);
+
+        aT.terminate();
+        flushFiles();
+
+        sensorSwitch.setChecked(false);
+        //gpsSwitch.setChecked(false);
+    }
+
     private void changeState (State nextState) {  // 21Ocak
         String _LOG = "State change";
         Log.v(_LOG, state.name() + " => " + nextState.name());
@@ -648,13 +658,7 @@ public class MainActivity extends Activity {
                     case STOPPED:
                         state = State.STOPPED;
 
-                        unregisterReceiver(wifiReceiver);
-
-                        aT.terminate();
-                        flushFiles();
-
-                        sensorSwitch.setChecked(false);
-                        //gpsSwitch.setChecked(false);
+                        stopEverything();
                         break;
                     case WAITING:
                         state = State.WAITING;
@@ -680,6 +684,8 @@ public class MainActivity extends Activity {
                     case PAUSED:
                         break;
                     case STOPPED:
+                        state = State.STOPPED;
+                        stopEverything();
                         break;
                     default:
                         Log.wtf(_LOG,"Unhandled or Weird state change");
@@ -1252,27 +1258,30 @@ public class MainActivity extends Activity {
             time_current = System.currentTimeMillis();
             WiFiScanDuration = (int) (time_current - time_prev);
 
-            /* Increment WiFi Scan Counter */
-            seq_nr_wifi = seq_nr_wifi + 1;
+            /* Re-scan WiFi */
+            //wifi.startScan();
 
-            WifiData.WiFiReading wifi_reading = prepareWiFiProtobuf( wifi.getScanResults() );
+            if (state == State.RUNNING) {       // This check must be unnecessary
+            /* Increment WiFi Scan Counter */
+                seq_nr_wifi = seq_nr_wifi + 1;
+
+                WifiData.WiFiReading wifi_reading = prepareWiFiProtobuf(wifi.getScanResults());
 
             /* Write scan results into file */
-            try {
-                wifi_reading.writeDelimitedTo(WiFi_BOS);
-            } catch (IOException e) {
-                Log.e("WiFi_BOS exception:", e.toString());
+                try {
+                    wifi_reading.writeDelimitedTo(WiFi_BOS);
+                } catch (IOException e) {
+                    Log.e("WiFi_BOS exception:", e.toString());
+                }
+                //list_wifi_readings.add(wifi_reading);
+
+                /* Re-scan WiFi */
+                wifi.startScan();
+
+                // Display
+                onScreenVerbose.put("seq_nr_wifi", Integer.toString(wifi_reading.getSequenceNr()));
+                displayWiFiScan(wifi_reading.getWifiApList());
             }
-            //list_wifi_readings.add(wifi_reading);
-
-            /* Re-scan WiFi */
-            wifi.startScan();
-
-            // Display
-            onScreenVerbose.put("seq_nr_wifi", Integer.toString(wifi_reading.getSequenceNr()));
-            displayWiFiScan(wifi_reading.getWifiApList());
-
-
         }
     }
 
@@ -1384,12 +1393,17 @@ public class MainActivity extends Activity {
             switch (which){
                 case DialogInterface.BUTTON_POSITIVE:
                     //Yes button clicked
+                    Toast.makeText(getApplicationContext(), "Deleting files in:\n" + dirname.getName(), Toast.LENGTH_SHORT).show();
 
                     unIndexFiles();
-                    for(File file: dirname.listFiles()) file.delete();
+                    for(File file: dirname.listFiles()) {
+                        file.delete();
+                        Log.v("Deleted", file.getName());
+                        Toast.makeText(getApplicationContext(), "Deleted:\n" + file.getName(), Toast.LENGTH_SHORT).show();
+                    }
                     createOutputFiles(current_file_prefix);
-                    list_dot_readings.clear();
-                    list_sensor_readings.clear();
+                    list_dot_readings.clear();      // unnecessary
+                    list_sensor_readings.clear();   // unnecessary
 
                     break;
 
@@ -1429,10 +1443,22 @@ public class MainActivity extends Activity {
 
         }
     }
-    private void saveMetadata () {
+    private boolean saveMetadata () {
+
+        if (!sensorSwitch.isChecked()) {
+            //Dialog
+            new AlertDialog.Builder(this).setMessage("Start the Sensors first!!")
+                    .setNeutralButton("Close Dialog",null)
+                    .setCancelable(true)
+                                         .show();
+            return false;
+        }
+
         tv_metadata.setText("Preparing Metadata.");
         new SaveMetaDataTask().execute();
         tv_metadata.setText("Metadata is saved.");
+
+        return true;
     }
 
     private void askNewFilePrefix() {
@@ -1592,7 +1618,7 @@ public class MainActivity extends Activity {
 
             SensorList_text = new ArrayList<String>();
             for (int i = 0; i < keyList.size();i++){
-                SensorList_text.add(keyList.get(i) + ": " + sensorHashMap.get(keyList.get(i)) + ", isWakeup?"  + keyList.get(i).isWakeUpSensor());
+                SensorList_text.add(keyList.get(i) + ": " + Arrays.toString(sensorHashMap.get(keyList.get(i))) + ", isWakeup?"  + keyList.get(i).isWakeUpSensor());
             }
             numberOfSensors = sensorHashMap.size();
             mHandler.post(new Runnable() {
@@ -1644,7 +1670,7 @@ public class MainActivity extends Activity {
 
             for (int i = 0; i < keyList.size();i++){
                 if (sensorLastTimestampHashMap.get(keyList.get(i)) != null )
-                    SensorList_text.add(keyList.get(i) + ":\n" + sensorHashMap.get(keyList.get(i)) +
+                    SensorList_text.add(keyList.get(i) + ":\n" + Arrays.toString(sensorHashMap.get(keyList.get(i))) +
                             " in " + (sensorCurrentTimestampHashMap.get(keyList.get(i)) - sensorLastTimestampHashMap.get(keyList.get(i)))/1000000 + "msec" + ", isWakeup: " );
             }
 
@@ -1696,8 +1722,8 @@ public class MainActivity extends Activity {
                         if (s_light != null)
                             WiFiScanTime.setText(" Light: " + s_light[0]);
                         //prepareListData();
-                        if (state != State.RUNNING)
-                            updateExpandableListView();
+                        if (state != State.RUNNING) // I don't remember why.. ok, to cross-check the pressure sensor values.
+                            ;//updateExpandableListView();
                     }
                 });
 
@@ -1745,7 +1771,6 @@ public class MainActivity extends Activity {
                             geomagnetic_checkbox.setChecked(accuracy == SensorManager.SENSOR_STATUS_ACCURACY_HIGH);
                         }
 
-
                     }
                 });
             }
@@ -1754,9 +1779,8 @@ public class MainActivity extends Activity {
             public void onSensorChanged(SensorEvent event) {
                 senor_event_counter++;
 
-                String sensor_values_for_hashmap;
+                float[] sensor_values_for_hashmap;
                 //list_sensor_readings.add(prepareSensorProtobuf(event));
-
 
                 if (state == State.RUNNING) {
                     seq_nr_sensorevent = seq_nr_sensorevent + 1;
@@ -1770,10 +1794,8 @@ public class MainActivity extends Activity {
 
                     // For displaying on the screen
                     onScreenVerbose.put("seq_nr_sensorevent", Integer.toString(sensor_event.getSequenceNr()));
-                    sensor_values_for_hashmap = sensor_event.toString();
                 }
-                else
-                    sensor_values_for_hashmap = Arrays.toString(event.values);
+
 
                 mHandler.post(new Runnable() {
                     @Override
@@ -1784,8 +1806,10 @@ public class MainActivity extends Activity {
 
                 if(event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
                     float[] time_x = {(float) Calendar.getInstance().get(Calendar.SECOND)};
-                    sensor_values_for_hashmap = Arrays.toString(time_x);
+                    sensor_values_for_hashmap = time_x;
                 }
+                else
+                    sensor_values_for_hashmap = event.values;
 
                 if (event.sensor.getType() == Sensor.TYPE_LIGHT)
                     s_light = event.values;

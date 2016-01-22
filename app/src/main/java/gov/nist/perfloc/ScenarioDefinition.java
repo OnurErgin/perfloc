@@ -1,11 +1,13 @@
 package gov.nist.perfloc;
 
+import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -17,7 +19,7 @@ import java.util.List;
  */
 public class ScenarioDefinition {
 
-    private String TAG_VERBOSE = "Metadata: ";
+    private String TAG_VERBOSE = this.getClass().getName();
 
     public String LICENSE = "GPL-Test-License";
     public String EXPERIMENT_DESC = "Indoor Scenario";
@@ -25,48 +27,66 @@ public class ScenarioDefinition {
     public String INTERFERENCE_DESC = "";
     public String ADDITIONAL_INFO = "";
 
+    private Sensor pressureSensor;
+
     public int pressure_sensor_sample_size = 5,
                 pressure_sensor_max_sample_size = 100;
 
     float[] pressure_values;
     public int pressure_value_count = 0;
+    public int average_pressure = 0;
 
     public MetaData.Metadata metadata;
 
     public ScenarioDefinition (int _id, List<Sensor> sensors, SensorManager mSensorManager, BufferedOutputStream Metadata_BOS)  {
-        Log.v(TAG_VERBOSE, "object created" + _id + sensors.toString().replaceAll("\\}, ", "\\}\n") + Metadata_BOS.toString());
+        Log.i(TAG_VERBOSE, "object created " + _id +
+                            sensors.toString().replaceAll("\\}, ", "\\}\n") + " " +
+                            mSensorManager.toString() + " " +
+                            Metadata_BOS.toString());
 
-        pressure_values = new float[pressure_sensor_sample_size];
+        pressureSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
 
-        mSensorManager.registerListener(mSensorListener,
-                                        mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE),
-                                        SensorManager.SENSOR_DELAY_FASTEST);
+        if (pressureSensor != null) {
 
-        // Wait until enough observations are made and unregister the listener
-        while(pressure_value_count <= pressure_sensor_max_sample_size) {
-            try {
-                Thread.sleep(10);
-            }catch (Exception e) {
-                Log.wtf(TAG_VERBOSE,"sleep problem");
-            }
+            pressure_values = new float[pressure_sensor_sample_size];
 
+            mSensorManager.registerListener(mSensorListener, pressureSensor, SensorManager.SENSOR_DELAY_FASTEST);
+
+                // Wait until enough observations are made and unregister the listener
+                while (pressure_value_count <= pressure_sensor_max_sample_size) {
+                    try {
+                        Thread.sleep(10);
+                    } catch (Exception e) {
+                        Log.wtf(TAG_VERBOSE, "sleep problem");
+                    }
+
+                }
+
+            mSensorManager.unregisterListener(mSensorListener);
+
+            Log.v(TAG_VERBOSE,
+                    "Average Pressure: " + getPressureValueAvg() + " from " + Arrays.toString(pressure_values)
+            );
+        } else {
+            pressure_sensor_max_sample_size = 0; // You no samples can be taken.
+            Log.w(TAG_VERBOSE,"The pressure sensor is NULL.");
         }
-        mSensorManager.unregisterListener(mSensorListener);
-
-        Log.v(TAG_VERBOSE,
-                "Average Pressure: " + getPressureValueAvg() + " from " + Arrays.toString(pressure_values)
-                );
 
     }
 
     public float getPressureValueAvg () {
-        float sum = 0;
-        for (float f : pressure_values) sum += f;
-        return sum/(float)pressure_values.length;
+        if (pressureSensor == null || pressure_value_count == 0)
+            return 0f;
+        else {
+            float sum = 0;
+            for (float f : pressure_values)
+                sum += f;
+            return sum / (float) pressure_values.length;
+        }
     }
     public void prepare (int _id, List<Sensor> sensors, BufferedOutputStream Metadata_BOS) {
         metadata = prepareMetadataProtoBuf(_id, sensors);
-        Log.v(TAG_VERBOSE, metadata.toString());
+        Log.i(TAG_VERBOSE, metadata.toString());
         writeMetadataToFile(Metadata_BOS);
     }
 
