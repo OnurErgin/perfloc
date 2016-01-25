@@ -22,15 +22,15 @@ public class ScenarioDefinition {
     private String TAG_VERBOSE = this.getClass().getName();
 
     public String LICENSE = "GPL-Test-License";
-    public String EXPERIMENT_DESC = "Indoor Scenario";
+    public String EXPERIMENT_DESC = "Indoor Scenario 1";
     public String ENVIRONMENT_DESC = "NIST-222";
-    public String INTERFERENCE_DESC = "";
+    public String INTERFERENCE_DESC = "Regular";
     public String ADDITIONAL_INFO = "";
 
     private Sensor pressureSensor;
 
     public int pressure_sensor_sample_size = 5,
-                pressure_sensor_max_sample_size = 100;
+                pressure_sensor_max_sample_size = 10;
 
     float[] pressure_values;
     public int pressure_value_count = 0;
@@ -55,7 +55,8 @@ public class ScenarioDefinition {
                 // Wait until enough observations are made and unregister the listener
                 while (pressure_value_count <= pressure_sensor_max_sample_size) {
                     try {
-                        Thread.sleep(10);
+                        Thread.sleep(pressureSensor.getMinDelay()/1000);
+                        //Log.v(TAG_VERBOSE,"Sleeping for pressure values");
                     } catch (Exception e) {
                         Log.wtf(TAG_VERBOSE, "sleep problem");
                     }
@@ -132,7 +133,8 @@ public class ScenarioDefinition {
                     .setFifoMaxEventCount(s.getFifoMaxEventCount())
                     .setFifoReservedEventCount(s.getFifoReservedEventCount())
                     .setMaximumRange(s.getMaximumRange())
-                    .setMinDelay(s.getMinDelay());
+                    .setMinDelay(s.getMinDelay())
+                    .setMaxDelay(s.getMaxDelay());
 
             metadata.addSensor(sensor);
         }

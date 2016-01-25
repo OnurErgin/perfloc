@@ -8,12 +8,12 @@ public final class SensorData {
   public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistry registry) {
   }
-  public interface SensorReadingOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:perfloc.SensorReading)
-      com.google.protobuf.MessageOrBuilder {
+  public interface SensorReadingOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
 
+    // optional int64 sequence_nr = 1;
     /**
-     * <code>optional int32 sequence_nr = 1;</code>
+     * <code>optional int64 sequence_nr = 1;</code>
      *
      * <pre>
      * Sequence number of a reading
@@ -21,14 +21,15 @@ public final class SensorData {
      */
     boolean hasSequenceNr();
     /**
-     * <code>optional int32 sequence_nr = 1;</code>
+     * <code>optional int64 sequence_nr = 1;</code>
      *
      * <pre>
      * Sequence number of a reading
      * </pre>
      */
-    int getSequenceNr();
+    long getSequenceNr();
 
+    // optional int64 timestamp = 2;
     /**
      * <code>optional int64 timestamp = 2;</code>
      *
@@ -46,6 +47,7 @@ public final class SensorData {
      */
     long getTimestamp();
 
+    // optional int32 last_dot_nr = 3;
     /**
      * <code>optional int32 last_dot_nr = 3;</code>
      *
@@ -63,6 +65,7 @@ public final class SensorData {
      */
     int getLastDotNr();
 
+    // optional .perfloc.SensorReading.SensorEvent sensor_event = 4;
     /**
      * <code>optional .perfloc.SensorReading.SensorEvent sensor_event = 4;</code>
      *
@@ -92,9 +95,8 @@ public final class SensorData {
    * Protobuf type {@code perfloc.SensorReading}
    */
   public static final class SensorReading extends
-      com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:perfloc.SensorReading)
-      SensorReadingOrBuilder {
+      com.google.protobuf.GeneratedMessage
+      implements SensorReadingOrBuilder {
     // Use SensorReading.newBuilder() to construct.
     private SensorReading(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -142,7 +144,7 @@ public final class SensorData {
             }
             case 8: {
               bitField0_ |= 0x00000001;
-              sequenceNr_ = input.readInt32();
+              sequenceNr_ = input.readInt64();
               break;
             }
             case 16: {
@@ -207,10 +209,10 @@ public final class SensorData {
       return PARSER;
     }
 
-    public interface SensorEventOrBuilder extends
-        // @@protoc_insertion_point(interface_extends:perfloc.SensorReading.SensorEvent)
-        com.google.protobuf.MessageOrBuilder {
+    public interface SensorEventOrBuilder
+        extends com.google.protobuf.MessageOrBuilder {
 
+      // optional int32 sensor_type = 1;
       /**
        * <code>optional int32 sensor_type = 1;</code>
        *
@@ -228,6 +230,7 @@ public final class SensorData {
        */
       int getSensorType();
 
+      // optional int64 timestamp = 2;
       /**
        * <code>optional int64 timestamp = 2;</code>
        *
@@ -245,6 +248,7 @@ public final class SensorData {
        */
       long getTimestamp();
 
+      // optional int32 accuracy = 3;
       /**
        * <code>optional int32 accuracy = 3;</code>
        */
@@ -254,6 +258,7 @@ public final class SensorData {
        */
       int getAccuracy();
 
+      // optional .perfloc.SensorReading.SensorEvent.SensorValues values = 4;
       /**
        * <code>optional .perfloc.SensorReading.SensorEvent.SensorValues values = 4;</code>
        *
@@ -283,9 +288,8 @@ public final class SensorData {
      * Protobuf type {@code perfloc.SensorReading.SensorEvent}
      */
     public static final class SensorEvent extends
-        com.google.protobuf.GeneratedMessage implements
-        // @@protoc_insertion_point(message_implements:perfloc.SensorReading.SensorEvent)
-        SensorEventOrBuilder {
+        com.google.protobuf.GeneratedMessage
+        implements SensorEventOrBuilder {
       // Use SensorEvent.newBuilder() to construct.
       private SensorEvent(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
         super(builder);
@@ -398,10 +402,10 @@ public final class SensorData {
         return PARSER;
       }
 
-      public interface SensorValuesOrBuilder extends
-          // @@protoc_insertion_point(interface_extends:perfloc.SensorReading.SensorEvent.SensorValues)
-          com.google.protobuf.MessageOrBuilder {
+      public interface SensorValuesOrBuilder
+          extends com.google.protobuf.MessageOrBuilder {
 
+        // repeated float value = 1 [packed = true];
         /**
          * <code>repeated float value = 1 [packed = true];</code>
          *
@@ -431,9 +435,8 @@ public final class SensorData {
        * Protobuf type {@code perfloc.SensorReading.SensorEvent.SensorValues}
        */
       public static final class SensorValues extends
-          com.google.protobuf.GeneratedMessage implements
-          // @@protoc_insertion_point(message_implements:perfloc.SensorReading.SensorEvent.SensorValues)
-          SensorValuesOrBuilder {
+          com.google.protobuf.GeneratedMessage
+          implements SensorValuesOrBuilder {
         // Use SensorValues.newBuilder() to construct.
         private SensorValues(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
           super(builder);
@@ -542,6 +545,7 @@ public final class SensorData {
           return PARSER;
         }
 
+        // repeated float value = 1 [packed = true];
         public static final int VALUE_FIELD_NUMBER = 1;
         private java.util.List<java.lang.Float> value_;
         /**
@@ -583,8 +587,7 @@ public final class SensorData {
         private byte memoizedIsInitialized = -1;
         public final boolean isInitialized() {
           byte isInitialized = memoizedIsInitialized;
-          if (isInitialized == 1) return true;
-          if (isInitialized == 0) return false;
+          if (isInitialized != -1) return isInitialized == 1;
 
           memoizedIsInitialized = 1;
           return true;
@@ -702,9 +705,8 @@ public final class SensorData {
          * Protobuf type {@code perfloc.SensorReading.SensorEvent.SensorValues}
          */
         public static final class Builder extends
-            com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-            // @@protoc_insertion_point(builder_implements:perfloc.SensorReading.SensorEvent.SensorValues)
-            gov.nist.perfloc.SensorData.SensorReading.SensorEvent.SensorValuesOrBuilder {
+            com.google.protobuf.GeneratedMessage.Builder<Builder>
+           implements gov.nist.perfloc.SensorData.SensorReading.SensorEvent.SensorValuesOrBuilder {
           public static final com.google.protobuf.Descriptors.Descriptor
               getDescriptor() {
             return gov.nist.perfloc.SensorData.internal_static_perfloc_SensorReading_SensorEvent_SensorValues_descriptor;
@@ -823,6 +825,7 @@ public final class SensorData {
           }
           private int bitField0_;
 
+          // repeated float value = 1 [packed = true];
           private java.util.List<java.lang.Float> value_ = java.util.Collections.emptyList();
           private void ensureValueIsMutable() {
             if (!((bitField0_ & 0x00000001) == 0x00000001)) {
@@ -898,8 +901,7 @@ public final class SensorData {
           public Builder addAllValue(
               java.lang.Iterable<? extends java.lang.Float> values) {
             ensureValueIsMutable();
-            com.google.protobuf.AbstractMessageLite.Builder.addAll(
-                values, value_);
+            super.addAll(values, value_);
             onChanged();
             return this;
           }
@@ -928,10 +930,10 @@ public final class SensorData {
         // @@protoc_insertion_point(class_scope:perfloc.SensorReading.SensorEvent.SensorValues)
       }
 
-      public interface SensorOrBuilder extends
-          // @@protoc_insertion_point(interface_extends:perfloc.SensorReading.SensorEvent.Sensor)
-          com.google.protobuf.MessageOrBuilder {
+      public interface SensorOrBuilder
+          extends com.google.protobuf.MessageOrBuilder {
 
+        // optional int32 type = 1;
         /**
          * <code>optional int32 type = 1;</code>
          *
@@ -949,6 +951,7 @@ public final class SensorData {
          */
         int getType();
 
+        // optional string string_type = 2;
         /**
          * <code>optional string string_type = 2;</code>
          *
@@ -975,6 +978,7 @@ public final class SensorData {
         com.google.protobuf.ByteString
             getStringTypeBytes();
 
+        // optional string name = 3;
         /**
          * <code>optional string name = 3;</code>
          *
@@ -1001,6 +1005,7 @@ public final class SensorData {
         com.google.protobuf.ByteString
             getNameBytes();
 
+        // optional bool is_wakeup_sensor = 4;
         /**
          * <code>optional bool is_wakeup_sensor = 4;</code>
          *
@@ -1018,6 +1023,7 @@ public final class SensorData {
          */
         boolean getIsWakeupSensor();
 
+        // optional string vendor = 5;
         /**
          * <code>optional string vendor = 5;</code>
          *
@@ -1044,6 +1050,7 @@ public final class SensorData {
         com.google.protobuf.ByteString
             getVendorBytes();
 
+        // optional int32 version = 6;
         /**
          * <code>optional int32 version = 6;</code>
          *
@@ -1061,6 +1068,7 @@ public final class SensorData {
          */
         int getVersion();
 
+        // optional float resolution = 7;
         /**
          * <code>optional float resolution = 7;</code>
          *
@@ -1078,6 +1086,7 @@ public final class SensorData {
          */
         float getResolution();
 
+        // optional int32 reporting_mode = 8;
         /**
          * <code>optional int32 reporting_mode = 8;</code>
          *
@@ -1095,6 +1104,7 @@ public final class SensorData {
          */
         int getReportingMode();
 
+        // optional float power = 9;
         /**
          * <code>optional float power = 9;</code>
          *
@@ -1120,9 +1130,8 @@ public final class SensorData {
        * </pre>
        */
       public static final class Sensor extends
-          com.google.protobuf.GeneratedMessage implements
-          // @@protoc_insertion_point(message_implements:perfloc.SensorReading.SensorEvent.Sensor)
-          SensorOrBuilder {
+          com.google.protobuf.GeneratedMessage
+          implements SensorOrBuilder {
         // Use Sensor.newBuilder() to construct.
         private Sensor(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
           super(builder);
@@ -1174,15 +1183,13 @@ public final class SensorData {
                   break;
                 }
                 case 18: {
-                  com.google.protobuf.ByteString bs = input.readBytes();
                   bitField0_ |= 0x00000002;
-                  stringType_ = bs;
+                  stringType_ = input.readBytes();
                   break;
                 }
                 case 26: {
-                  com.google.protobuf.ByteString bs = input.readBytes();
                   bitField0_ |= 0x00000004;
-                  name_ = bs;
+                  name_ = input.readBytes();
                   break;
                 }
                 case 32: {
@@ -1191,9 +1198,8 @@ public final class SensorData {
                   break;
                 }
                 case 42: {
-                  com.google.protobuf.ByteString bs = input.readBytes();
                   bitField0_ |= 0x00000010;
-                  vendor_ = bs;
+                  vendor_ = input.readBytes();
                   break;
                 }
                 case 48: {
@@ -1256,6 +1262,7 @@ public final class SensorData {
         }
 
         private int bitField0_;
+        // optional int32 type = 1;
         public static final int TYPE_FIELD_NUMBER = 1;
         private int type_;
         /**
@@ -1279,6 +1286,7 @@ public final class SensorData {
           return type_;
         }
 
+        // optional string string_type = 2;
         public static final int STRING_TYPE_FIELD_NUMBER = 2;
         private java.lang.Object stringType_;
         /**
@@ -1333,6 +1341,7 @@ public final class SensorData {
           }
         }
 
+        // optional string name = 3;
         public static final int NAME_FIELD_NUMBER = 3;
         private java.lang.Object name_;
         /**
@@ -1387,6 +1396,7 @@ public final class SensorData {
           }
         }
 
+        // optional bool is_wakeup_sensor = 4;
         public static final int IS_WAKEUP_SENSOR_FIELD_NUMBER = 4;
         private boolean isWakeupSensor_;
         /**
@@ -1410,6 +1420,7 @@ public final class SensorData {
           return isWakeupSensor_;
         }
 
+        // optional string vendor = 5;
         public static final int VENDOR_FIELD_NUMBER = 5;
         private java.lang.Object vendor_;
         /**
@@ -1464,6 +1475,7 @@ public final class SensorData {
           }
         }
 
+        // optional int32 version = 6;
         public static final int VERSION_FIELD_NUMBER = 6;
         private int version_;
         /**
@@ -1487,6 +1499,7 @@ public final class SensorData {
           return version_;
         }
 
+        // optional float resolution = 7;
         public static final int RESOLUTION_FIELD_NUMBER = 7;
         private float resolution_;
         /**
@@ -1510,6 +1523,7 @@ public final class SensorData {
           return resolution_;
         }
 
+        // optional int32 reporting_mode = 8;
         public static final int REPORTING_MODE_FIELD_NUMBER = 8;
         private int reportingMode_;
         /**
@@ -1533,6 +1547,7 @@ public final class SensorData {
           return reportingMode_;
         }
 
+        // optional float power = 9;
         public static final int POWER_FIELD_NUMBER = 9;
         private float power_;
         /**
@@ -1570,8 +1585,7 @@ public final class SensorData {
         private byte memoizedIsInitialized = -1;
         public final boolean isInitialized() {
           byte isInitialized = memoizedIsInitialized;
-          if (isInitialized == 1) return true;
-          if (isInitialized == 0) return false;
+          if (isInitialized != -1) return isInitialized == 1;
 
           memoizedIsInitialized = 1;
           return true;
@@ -1738,9 +1752,8 @@ public final class SensorData {
          * </pre>
          */
         public static final class Builder extends
-            com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-            // @@protoc_insertion_point(builder_implements:perfloc.SensorReading.SensorEvent.Sensor)
-            gov.nist.perfloc.SensorData.SensorReading.SensorEvent.SensorOrBuilder {
+            com.google.protobuf.GeneratedMessage.Builder<Builder>
+           implements gov.nist.perfloc.SensorData.SensorReading.SensorEvent.SensorOrBuilder {
           public static final com.google.protobuf.Descriptors.Descriptor
               getDescriptor() {
             return gov.nist.perfloc.SensorData.internal_static_perfloc_SensorReading_SensorEvent_Sensor_descriptor;
@@ -1931,6 +1944,7 @@ public final class SensorData {
           }
           private int bitField0_;
 
+          // optional int32 type = 1;
           private int type_ ;
           /**
            * <code>optional int32 type = 1;</code>
@@ -1979,6 +1993,7 @@ public final class SensorData {
             return this;
           }
 
+          // optional string string_type = 2;
           private java.lang.Object stringType_ = "";
           /**
            * <code>optional string string_type = 2;</code>
@@ -2000,12 +2015,9 @@ public final class SensorData {
           public java.lang.String getStringType() {
             java.lang.Object ref = stringType_;
             if (!(ref instanceof java.lang.String)) {
-              com.google.protobuf.ByteString bs =
-                  (com.google.protobuf.ByteString) ref;
-              java.lang.String s = bs.toStringUtf8();
-              if (bs.isValidUtf8()) {
-                stringType_ = s;
-              }
+              java.lang.String s = ((com.google.protobuf.ByteString) ref)
+                  .toStringUtf8();
+              stringType_ = s;
               return s;
             } else {
               return (java.lang.String) ref;
@@ -2079,6 +2091,7 @@ public final class SensorData {
             return this;
           }
 
+          // optional string name = 3;
           private java.lang.Object name_ = "";
           /**
            * <code>optional string name = 3;</code>
@@ -2100,12 +2113,9 @@ public final class SensorData {
           public java.lang.String getName() {
             java.lang.Object ref = name_;
             if (!(ref instanceof java.lang.String)) {
-              com.google.protobuf.ByteString bs =
-                  (com.google.protobuf.ByteString) ref;
-              java.lang.String s = bs.toStringUtf8();
-              if (bs.isValidUtf8()) {
-                name_ = s;
-              }
+              java.lang.String s = ((com.google.protobuf.ByteString) ref)
+                  .toStringUtf8();
+              name_ = s;
               return s;
             } else {
               return (java.lang.String) ref;
@@ -2179,6 +2189,7 @@ public final class SensorData {
             return this;
           }
 
+          // optional bool is_wakeup_sensor = 4;
           private boolean isWakeupSensor_ ;
           /**
            * <code>optional bool is_wakeup_sensor = 4;</code>
@@ -2227,6 +2238,7 @@ public final class SensorData {
             return this;
           }
 
+          // optional string vendor = 5;
           private java.lang.Object vendor_ = "";
           /**
            * <code>optional string vendor = 5;</code>
@@ -2248,12 +2260,9 @@ public final class SensorData {
           public java.lang.String getVendor() {
             java.lang.Object ref = vendor_;
             if (!(ref instanceof java.lang.String)) {
-              com.google.protobuf.ByteString bs =
-                  (com.google.protobuf.ByteString) ref;
-              java.lang.String s = bs.toStringUtf8();
-              if (bs.isValidUtf8()) {
-                vendor_ = s;
-              }
+              java.lang.String s = ((com.google.protobuf.ByteString) ref)
+                  .toStringUtf8();
+              vendor_ = s;
               return s;
             } else {
               return (java.lang.String) ref;
@@ -2327,6 +2336,7 @@ public final class SensorData {
             return this;
           }
 
+          // optional int32 version = 6;
           private int version_ ;
           /**
            * <code>optional int32 version = 6;</code>
@@ -2375,6 +2385,7 @@ public final class SensorData {
             return this;
           }
 
+          // optional float resolution = 7;
           private float resolution_ ;
           /**
            * <code>optional float resolution = 7;</code>
@@ -2423,6 +2434,7 @@ public final class SensorData {
             return this;
           }
 
+          // optional int32 reporting_mode = 8;
           private int reportingMode_ ;
           /**
            * <code>optional int32 reporting_mode = 8;</code>
@@ -2471,6 +2483,7 @@ public final class SensorData {
             return this;
           }
 
+          // optional float power = 9;
           private float power_ ;
           /**
            * <code>optional float power = 9;</code>
@@ -2531,6 +2544,7 @@ public final class SensorData {
       }
 
       private int bitField0_;
+      // optional int32 sensor_type = 1;
       public static final int SENSOR_TYPE_FIELD_NUMBER = 1;
       private int sensorType_;
       /**
@@ -2554,6 +2568,7 @@ public final class SensorData {
         return sensorType_;
       }
 
+      // optional int64 timestamp = 2;
       public static final int TIMESTAMP_FIELD_NUMBER = 2;
       private long timestamp_;
       /**
@@ -2577,6 +2592,7 @@ public final class SensorData {
         return timestamp_;
       }
 
+      // optional int32 accuracy = 3;
       public static final int ACCURACY_FIELD_NUMBER = 3;
       private int accuracy_;
       /**
@@ -2592,6 +2608,7 @@ public final class SensorData {
         return accuracy_;
       }
 
+      // optional .perfloc.SensorReading.SensorEvent.SensorValues values = 4;
       public static final int VALUES_FIELD_NUMBER = 4;
       private gov.nist.perfloc.SensorData.SensorReading.SensorEvent.SensorValues values_;
       /**
@@ -2634,8 +2651,7 @@ public final class SensorData {
       private byte memoizedIsInitialized = -1;
       public final boolean isInitialized() {
         byte isInitialized = memoizedIsInitialized;
-        if (isInitialized == 1) return true;
-        if (isInitialized == 0) return false;
+        if (isInitialized != -1) return isInitialized == 1;
 
         memoizedIsInitialized = 1;
         return true;
@@ -2763,9 +2779,8 @@ public final class SensorData {
        * Protobuf type {@code perfloc.SensorReading.SensorEvent}
        */
       public static final class Builder extends
-          com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-          // @@protoc_insertion_point(builder_implements:perfloc.SensorReading.SensorEvent)
-          gov.nist.perfloc.SensorData.SensorReading.SensorEventOrBuilder {
+          com.google.protobuf.GeneratedMessage.Builder<Builder>
+         implements gov.nist.perfloc.SensorData.SensorReading.SensorEventOrBuilder {
         public static final com.google.protobuf.Descriptors.Descriptor
             getDescriptor() {
           return gov.nist.perfloc.SensorData.internal_static_perfloc_SensorReading_SensorEvent_descriptor;
@@ -2914,6 +2929,7 @@ public final class SensorData {
         }
         private int bitField0_;
 
+        // optional int32 sensor_type = 1;
         private int sensorType_ ;
         /**
          * <code>optional int32 sensor_type = 1;</code>
@@ -2962,6 +2978,7 @@ public final class SensorData {
           return this;
         }
 
+        // optional int64 timestamp = 2;
         private long timestamp_ ;
         /**
          * <code>optional int64 timestamp = 2;</code>
@@ -3010,6 +3027,7 @@ public final class SensorData {
           return this;
         }
 
+        // optional int32 accuracy = 3;
         private int accuracy_ ;
         /**
          * <code>optional int32 accuracy = 3;</code>
@@ -3042,6 +3060,7 @@ public final class SensorData {
           return this;
         }
 
+        // optional .perfloc.SensorReading.SensorEvent.SensorValues values = 4;
         private gov.nist.perfloc.SensorData.SensorReading.SensorEvent.SensorValues values_ = gov.nist.perfloc.SensorData.SensorReading.SensorEvent.SensorValues.getDefaultInstance();
         private com.google.protobuf.SingleFieldBuilder<
             gov.nist.perfloc.SensorData.SensorReading.SensorEvent.SensorValues, gov.nist.perfloc.SensorData.SensorReading.SensorEvent.SensorValues.Builder, gov.nist.perfloc.SensorData.SensorReading.SensorEvent.SensorValuesOrBuilder> valuesBuilder_;
@@ -3186,7 +3205,7 @@ public final class SensorData {
           if (valuesBuilder_ == null) {
             valuesBuilder_ = new com.google.protobuf.SingleFieldBuilder<
                 gov.nist.perfloc.SensorData.SensorReading.SensorEvent.SensorValues, gov.nist.perfloc.SensorData.SensorReading.SensorEvent.SensorValues.Builder, gov.nist.perfloc.SensorData.SensorReading.SensorEvent.SensorValuesOrBuilder>(
-                    getValues(),
+                    values_,
                     getParentForChildren(),
                     isClean());
             values_ = null;
@@ -3206,10 +3225,11 @@ public final class SensorData {
     }
 
     private int bitField0_;
+    // optional int64 sequence_nr = 1;
     public static final int SEQUENCE_NR_FIELD_NUMBER = 1;
-    private int sequenceNr_;
+    private long sequenceNr_;
     /**
-     * <code>optional int32 sequence_nr = 1;</code>
+     * <code>optional int64 sequence_nr = 1;</code>
      *
      * <pre>
      * Sequence number of a reading
@@ -3219,16 +3239,17 @@ public final class SensorData {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>optional int32 sequence_nr = 1;</code>
+     * <code>optional int64 sequence_nr = 1;</code>
      *
      * <pre>
      * Sequence number of a reading
      * </pre>
      */
-    public int getSequenceNr() {
+    public long getSequenceNr() {
       return sequenceNr_;
     }
 
+    // optional int64 timestamp = 2;
     public static final int TIMESTAMP_FIELD_NUMBER = 2;
     private long timestamp_;
     /**
@@ -3252,6 +3273,7 @@ public final class SensorData {
       return timestamp_;
     }
 
+    // optional int32 last_dot_nr = 3;
     public static final int LAST_DOT_NR_FIELD_NUMBER = 3;
     private int lastDotNr_;
     /**
@@ -3275,6 +3297,7 @@ public final class SensorData {
       return lastDotNr_;
     }
 
+    // optional .perfloc.SensorReading.SensorEvent sensor_event = 4;
     public static final int SENSOR_EVENT_FIELD_NUMBER = 4;
     private gov.nist.perfloc.SensorData.SensorReading.SensorEvent sensorEvent_;
     /**
@@ -3309,7 +3332,7 @@ public final class SensorData {
     }
 
     private void initFields() {
-      sequenceNr_ = 0;
+      sequenceNr_ = 0L;
       timestamp_ = 0L;
       lastDotNr_ = 0;
       sensorEvent_ = gov.nist.perfloc.SensorData.SensorReading.SensorEvent.getDefaultInstance();
@@ -3317,8 +3340,7 @@ public final class SensorData {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
+      if (isInitialized != -1) return isInitialized == 1;
 
       memoizedIsInitialized = 1;
       return true;
@@ -3328,7 +3350,7 @@ public final class SensorData {
                         throws java.io.IOException {
       getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeInt32(1, sequenceNr_);
+        output.writeInt64(1, sequenceNr_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeInt64(2, timestamp_);
@@ -3350,7 +3372,7 @@ public final class SensorData {
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(1, sequenceNr_);
+          .computeInt64Size(1, sequenceNr_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
@@ -3446,9 +3468,8 @@ public final class SensorData {
      * Protobuf type {@code perfloc.SensorReading}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:perfloc.SensorReading)
-        gov.nist.perfloc.SensorData.SensorReadingOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements gov.nist.perfloc.SensorData.SensorReadingOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return gov.nist.perfloc.SensorData.internal_static_perfloc_SensorReading_descriptor;
@@ -3482,7 +3503,7 @@ public final class SensorData {
 
       public Builder clear() {
         super.clear();
-        sequenceNr_ = 0;
+        sequenceNr_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000001);
         timestamp_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000002);
@@ -3597,9 +3618,10 @@ public final class SensorData {
       }
       private int bitField0_;
 
-      private int sequenceNr_ ;
+      // optional int64 sequence_nr = 1;
+      private long sequenceNr_ ;
       /**
-       * <code>optional int32 sequence_nr = 1;</code>
+       * <code>optional int64 sequence_nr = 1;</code>
        *
        * <pre>
        * Sequence number of a reading
@@ -3609,30 +3631,30 @@ public final class SensorData {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>optional int32 sequence_nr = 1;</code>
+       * <code>optional int64 sequence_nr = 1;</code>
        *
        * <pre>
        * Sequence number of a reading
        * </pre>
        */
-      public int getSequenceNr() {
+      public long getSequenceNr() {
         return sequenceNr_;
       }
       /**
-       * <code>optional int32 sequence_nr = 1;</code>
+       * <code>optional int64 sequence_nr = 1;</code>
        *
        * <pre>
        * Sequence number of a reading
        * </pre>
        */
-      public Builder setSequenceNr(int value) {
+      public Builder setSequenceNr(long value) {
         bitField0_ |= 0x00000001;
         sequenceNr_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional int32 sequence_nr = 1;</code>
+       * <code>optional int64 sequence_nr = 1;</code>
        *
        * <pre>
        * Sequence number of a reading
@@ -3640,11 +3662,12 @@ public final class SensorData {
        */
       public Builder clearSequenceNr() {
         bitField0_ = (bitField0_ & ~0x00000001);
-        sequenceNr_ = 0;
+        sequenceNr_ = 0L;
         onChanged();
         return this;
       }
 
+      // optional int64 timestamp = 2;
       private long timestamp_ ;
       /**
        * <code>optional int64 timestamp = 2;</code>
@@ -3693,6 +3716,7 @@ public final class SensorData {
         return this;
       }
 
+      // optional int32 last_dot_nr = 3;
       private int lastDotNr_ ;
       /**
        * <code>optional int32 last_dot_nr = 3;</code>
@@ -3741,6 +3765,7 @@ public final class SensorData {
         return this;
       }
 
+      // optional .perfloc.SensorReading.SensorEvent sensor_event = 4;
       private gov.nist.perfloc.SensorData.SensorReading.SensorEvent sensorEvent_ = gov.nist.perfloc.SensorData.SensorReading.SensorEvent.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           gov.nist.perfloc.SensorData.SensorReading.SensorEvent, gov.nist.perfloc.SensorData.SensorReading.SensorEvent.Builder, gov.nist.perfloc.SensorData.SensorReading.SensorEventOrBuilder> sensorEventBuilder_;
@@ -3885,7 +3910,7 @@ public final class SensorData {
         if (sensorEventBuilder_ == null) {
           sensorEventBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               gov.nist.perfloc.SensorData.SensorReading.SensorEvent, gov.nist.perfloc.SensorData.SensorReading.SensorEvent.Builder, gov.nist.perfloc.SensorData.SensorReading.SensorEventOrBuilder>(
-                  getSensorEvent(),
+                  sensorEvent_,
                   getParentForChildren(),
                   isClean());
           sensorEvent_ = null;
@@ -3904,22 +3929,22 @@ public final class SensorData {
     // @@protoc_insertion_point(class_scope:perfloc.SensorReading)
   }
 
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_perfloc_SensorReading_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_perfloc_SensorReading_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_perfloc_SensorReading_SensorEvent_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_perfloc_SensorReading_SensorEvent_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_perfloc_SensorReading_SensorEvent_SensorValues_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_perfloc_SensorReading_SensorEvent_SensorValues_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_perfloc_SensorReading_SensorEvent_Sensor_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -3934,7 +3959,7 @@ public final class SensorData {
   static {
     java.lang.String[] descriptorData = {
       "\n\021sensor_data.proto\022\007perfloc\"\346\003\n\rSensorR" +
-      "eading\022\023\n\013sequence_nr\030\001 \001(\005\022\021\n\ttimestamp" +
+      "eading\022\023\n\013sequence_nr\030\001 \001(\003\022\021\n\ttimestamp" +
       "\030\002 \001(\003\022\023\n\013last_dot_nr\030\003 \001(\005\0228\n\014sensor_ev" +
       "ent\030\004 \001(\0132\".perfloc.SensorReading.Sensor" +
       "Event\032\335\002\n\013SensorEvent\022\023\n\013sensor_type\030\001 \001" +
@@ -3949,41 +3974,41 @@ public final class SensorData {
       "\020gov.nist.perfloc"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
-          public com.google.protobuf.ExtensionRegistry assignDescriptors(
-              com.google.protobuf.Descriptors.FileDescriptor root) {
-            descriptor = root;
-            return null;
-          }
-        };
+      new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
+        public com.google.protobuf.ExtensionRegistry assignDescriptors(
+            com.google.protobuf.Descriptors.FileDescriptor root) {
+          descriptor = root;
+          internal_static_perfloc_SensorReading_descriptor =
+            getDescriptor().getMessageTypes().get(0);
+          internal_static_perfloc_SensorReading_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_perfloc_SensorReading_descriptor,
+              new java.lang.String[] { "SequenceNr", "Timestamp", "LastDotNr", "SensorEvent", });
+          internal_static_perfloc_SensorReading_SensorEvent_descriptor =
+            internal_static_perfloc_SensorReading_descriptor.getNestedTypes().get(0);
+          internal_static_perfloc_SensorReading_SensorEvent_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_perfloc_SensorReading_SensorEvent_descriptor,
+              new java.lang.String[] { "SensorType", "Timestamp", "Accuracy", "Values", });
+          internal_static_perfloc_SensorReading_SensorEvent_SensorValues_descriptor =
+            internal_static_perfloc_SensorReading_SensorEvent_descriptor.getNestedTypes().get(0);
+          internal_static_perfloc_SensorReading_SensorEvent_SensorValues_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_perfloc_SensorReading_SensorEvent_SensorValues_descriptor,
+              new java.lang.String[] { "Value", });
+          internal_static_perfloc_SensorReading_SensorEvent_Sensor_descriptor =
+            internal_static_perfloc_SensorReading_SensorEvent_descriptor.getNestedTypes().get(1);
+          internal_static_perfloc_SensorReading_SensorEvent_Sensor_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_perfloc_SensorReading_SensorEvent_Sensor_descriptor,
+              new java.lang.String[] { "Type", "StringType", "Name", "IsWakeupSensor", "Vendor", "Version", "Resolution", "ReportingMode", "Power", });
+          return null;
+        }
+      };
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         }, assigner);
-    internal_static_perfloc_SensorReading_descriptor =
-      getDescriptor().getMessageTypes().get(0);
-    internal_static_perfloc_SensorReading_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_perfloc_SensorReading_descriptor,
-        new java.lang.String[] { "SequenceNr", "Timestamp", "LastDotNr", "SensorEvent", });
-    internal_static_perfloc_SensorReading_SensorEvent_descriptor =
-      internal_static_perfloc_SensorReading_descriptor.getNestedTypes().get(0);
-    internal_static_perfloc_SensorReading_SensorEvent_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_perfloc_SensorReading_SensorEvent_descriptor,
-        new java.lang.String[] { "SensorType", "Timestamp", "Accuracy", "Values", });
-    internal_static_perfloc_SensorReading_SensorEvent_SensorValues_descriptor =
-      internal_static_perfloc_SensorReading_SensorEvent_descriptor.getNestedTypes().get(0);
-    internal_static_perfloc_SensorReading_SensorEvent_SensorValues_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_perfloc_SensorReading_SensorEvent_SensorValues_descriptor,
-        new java.lang.String[] { "Value", });
-    internal_static_perfloc_SensorReading_SensorEvent_Sensor_descriptor =
-      internal_static_perfloc_SensorReading_SensorEvent_descriptor.getNestedTypes().get(1);
-    internal_static_perfloc_SensorReading_SensorEvent_Sensor_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_perfloc_SensorReading_SensorEvent_Sensor_descriptor,
-        new java.lang.String[] { "Type", "StringType", "Name", "IsWakeupSensor", "Vendor", "Version", "Resolution", "ReportingMode", "Power", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

@@ -1,5 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="wrap_content"
     android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
@@ -135,5 +135,15 @@
         android:id="@+id/tv_metadata"
         android:layout_below="@+id/sensor_switch"
         android:layout_alignEnd="@id/sensor_switch" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Button"
+        android:id="@+id/push_button"
+        android:layout_below="@+id/geomagnetic_checkbox"
+        android:layout_alignParentStart="true"
+        android:enabled="false"/>
 
 </RelativeLayout>

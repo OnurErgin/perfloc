@@ -57,5 +57,6 @@ message Metadata {
 		optional int32 fifo_reserved_event_count = 11; //Number of events reserved for this sensor in the batch mode FIFO
 		optional float maximum_range = 12;			// Maximum range of the sensor in the sensor's unit
 		optional float min_delay = 13;				// The minimum delay allowed between two events in microsecond or zero if this sensor only returns a value when the data it's measuring changes.
+		optional float max_delay = 14;              // This value is defined only for continuous and on-change sensors. It is the delay between two sensor events corresponding to the lowest frequency that this sensor supports. When lower frequencies are requested through registerListener() the events will be generated at this frequency instead. It can be used to estimate when the batch FIFO may be full. Older devices may set this value to zero. Ignore this value in case it is negative or zero.
     }
 }

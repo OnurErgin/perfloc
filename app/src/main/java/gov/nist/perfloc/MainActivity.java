@@ -57,6 +57,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -98,12 +99,13 @@ public class MainActivity extends Activity {
     Vibrator v;
     private final Handler main_handler = new Handler();
     ToneGenerator toneG;
-    static int VOLUME = 100;
+    static int VOLUME = 60;
 
     // View related definitions
     ExpandableListView expListView;
     ToggleButton StartStopButton;
     Switch gpsSwitch, sensorSwitch;
+    Button pushButton;
 
     static TextView numAPs,
             WiFiScanTime,
@@ -158,7 +160,8 @@ public class MainActivity extends Activity {
     // Verbose info
     HashMap<String, String> onScreenVerbose;
 
-    private int SENSOR_DELAY = SensorManager.SENSOR_DELAY_FASTEST;
+    private int SENSOR_DELAY = 10000;//SensorManager.SENSOR_DELAY_FASTEST; // 10000 microseconds = 100 Hz
+                                        // SENSOR_DELAY_FASTEST (instead of 100Hz) causes too many data to be produced
 
     volatile int dotCounter, gpsFixCounter;
 
@@ -189,7 +192,8 @@ public class MainActivity extends Activity {
     List<CellularData.CellularReading> list_cellular_readings;
     List<SensorData.SensorReading> list_sensor_readings;
 
-    int seq_nr_dot, seq_nr_wifi, seq_nr_cellular, seq_nr_sensorevent, seq_nr_gpsfix;
+    int seq_nr_dot, seq_nr_wifi, seq_nr_cellular, seq_nr_gpsfix;
+    long seq_nr_sensorevent;
 
     MeasurementTimer aT;
 
@@ -228,6 +232,7 @@ public class MainActivity extends Activity {
         expListView     = (ExpandableListView) findViewById(R.id.expandableListView);
         geomagnetic_checkbox   = (CheckBox) findViewById(R.id.geomagnetic_checkbox);
          sensorSwitch    = (Switch) findViewById(R.id.sensor_switch);
+        pushButton      = (Button) findViewById(R.id.push_button);
 
         // Start WiFi Service
         wifi=(WifiManager)getSystemService(Context.WIFI_SERVICE);
@@ -367,6 +372,13 @@ public class MainActivity extends Activity {
         updateExpandableListView();
         makeTitle();
 
+        pushButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                onKeyDown(KeyEvent.KEYCODE_HEADSETHOOK, new KeyEvent(KeyEvent.ACTION_DOWN,KeyEvent.KEYCODE_HEADSETHOOK));
+            }
+        });
+
+
     } // onCreate()
 
     private void makeTitle () {
@@ -413,7 +425,10 @@ public class MainActivity extends Activity {
             last_button_press_time = current_button_press_time;
 
             Log.v("__MEDIA_BUTTON__", "DOWN Pressed.");
-            //am.playSoundEffect(AudioManager.FX_KEYPRESS_INVALID);
+
+            dotCounter++;
+            tv_dotcounter.setText(dotCounter + "");
+
             markDot();
 
             // This is safe (seq_nr_dot is 0) because there is no Running -> Waiting
@@ -422,7 +437,7 @@ public class MainActivity extends Activity {
 
             //ToneGenerator toneG = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
             //toneG.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 200);
-            if (seq_nr_dot % 2 == 1)
+            if (seq_nr_dot % 2 == 0)
                 toneG.startTone(ToneGenerator.TONE_PROP_BEEP, 200);
             else
                 toneG.startTone(ToneGenerator.TONE_CDMA_ONE_MIN_BEEP, 100);
@@ -560,8 +575,7 @@ public class MainActivity extends Activity {
     }
 
     public void markDot() {
-        dotCounter++;
-        tv_dotcounter.setText(dotCounter + "");
+
         //list_dot_readings.add(prepareDotProtobuf(++seq_nr_dot));
 
         if (state != State.STOPPED) { // RUNNING or WAITING
@@ -636,12 +650,18 @@ public class MainActivity extends Activity {
     }
 
     private void stopEverything() {
+
+        // Stop the Sensors
+        sensorSwitch.setChecked(false);
+
+        // Stop Wi-Fi
         unregisterReceiver(wifiReceiver);
 
+        // Stop Timer (that also contains cellular measurements)
         aT.terminate();
+
         flushFiles();
 
-        sensorSwitch.setChecked(false);
         //gpsSwitch.setChecked(false);
     }
 
@@ -1420,8 +1440,12 @@ public class MainActivity extends Activity {
 
     public class SaveMetaDataTask extends AsyncTask <String, Integer, String> {
         @Override
+        protected void onPreExecute() {
+            tv_metadata.setText("Preparing Metadata.");
+        }
+        @Override
         protected String doInBackground(String... params) {
-            ScenarioDefinition scenario_metadata = new ScenarioDefinition(0, rbs.sensorList, rbs.mSensorManager, Metadata_BOS);
+            ScenarioDefinition scenario_metadata = new ScenarioDefinition(Integer.parseInt(current_file_prefix), rbs.sensorList, rbs.mSensorManager, Metadata_BOS);
 
             // This while loop's condition must never be true
             while (scenario_metadata.pressure_value_count < scenario_metadata.pressure_sensor_max_sample_size) {
@@ -1438,8 +1462,10 @@ public class MainActivity extends Activity {
 
         @Override
         protected void onPostExecute(String s) {
+            Toast.makeText(getApplicationContext(), "Metadata saved.", Toast.LENGTH_SHORT).show();
             flushFiles();
             Log.v("Save Metadata", "Flushed");
+            tv_metadata.setText("Metadata is saved.");
 
         }
     }
@@ -1454,9 +1480,8 @@ public class MainActivity extends Activity {
             return false;
         }
 
-        tv_metadata.setText("Preparing Metadata.");
+        //tv_metadata.setText("Preparing Metadata.");
         new SaveMetaDataTask().execute();
-        tv_metadata.setText("Metadata is saved.");
 
         return true;
     }
@@ -1576,6 +1601,7 @@ public class MainActivity extends Activity {
                     }
                 }
         );
+        Toast.makeText(getApplicationContext(), "Files Flushed", Toast.LENGTH_SHORT).show();
         return true;
     }
 
@@ -1752,10 +1778,10 @@ public class MainActivity extends Activity {
         private void unRegisterSensors (SensorManager tSensorManager){
                 mSensorManager.unregisterListener(mSensorListener);
         }
-
+        volatile long senor_event_counter = 0;
         private SensorEventListener mSensorListener = new SensorEventListener() {
 
-            volatile long senor_event_counter = 0;
+
             @Override
             public void onAccuracyChanged(Sensor sensor, final int accuracy) {
                 final Sensor _s = sensor;
@@ -1779,7 +1805,7 @@ public class MainActivity extends Activity {
             public void onSensorChanged(SensorEvent event) {
                 senor_event_counter++;
 
-                float[] sensor_values_for_hashmap;
+
                 //list_sensor_readings.add(prepareSensorProtobuf(event));
 
                 if (state == State.RUNNING) {
@@ -1793,10 +1819,12 @@ public class MainActivity extends Activity {
                     }
 
                     // For displaying on the screen
-                    onScreenVerbose.put("seq_nr_sensorevent", Integer.toString(sensor_event.getSequenceNr()));
+                    onScreenVerbose.put("seq_nr_sensorevent", Long.toString(sensor_event.getSequenceNr()));
                 }
 
+                //new SensorDataDisplayer().execute(event);
 
+                float[] sensor_values_for_hashmap;
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -1822,6 +1850,39 @@ public class MainActivity extends Activity {
             }
         };
 
+        // This AsyncTask class was implemented to separate part of the task from SensorEventListener
+        // to improve the speed, but it had no effect, if not negative.
+        public class SensorDataDisplayer extends AsyncTask <SensorEvent, Integer, String> {
+            @Override
+            protected String doInBackground(SensorEvent... params) {
+
+                SensorEvent ev = params[0];
+                float[] sensor_values_for_hashmap;
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        tv_sensor_event_counter.setText(senor_event_counter + "");
+                    }
+                });
+
+                if(ev.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
+                    float[] time_x = {(float) Calendar.getInstance().get(Calendar.SECOND)};
+                    sensor_values_for_hashmap = time_x;
+                }
+                else
+                    sensor_values_for_hashmap = ev.values;
+
+                if (ev.sensor.getType() == Sensor.TYPE_LIGHT)
+                    s_light = ev.values;
+
+                Sensor sensorHashKey = ev.sensor;
+                sensorHashMap.put(sensorHashKey, sensor_values_for_hashmap);
+                sensorLastTimestampHashMap.put(sensorHashKey,sensorCurrentTimestampHashMap.get(sensorHashKey));
+                sensorCurrentTimestampHashMap.put(sensorHashKey, new Long(ev.timestamp));
+
+                return null;
+            }
+        }
         // Terminate the running thread
         public void terminate() {
             //unRegisterSensors(mSensorManager);
@@ -2265,6 +2326,9 @@ public class MainActivity extends Activity {
             Log.e("FIS: ", e.toString());
         }
 
+        AlertDialog.Builder indicate_counting = new AlertDialog.Builder(this);
+        indicate_counting.setMessage("Counting the output").show();
+
         try {
             while (WifiData.WiFiReading.parseDelimitedFrom(WiFi_FIS) != null) {
                 wifi_messages++;
@@ -2300,6 +2364,8 @@ public class MainActivity extends Activity {
         } catch (IOException e) {
             Log.e("Read_FIS", e.toString());
         }
+
+        //indicate_counting.create().dismiss();
 
         AlertDialog.Builder message_count_dialog_builder = new AlertDialog.Builder(this);
 

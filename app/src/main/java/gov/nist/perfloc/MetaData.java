@@ -8,10 +8,10 @@ public final class MetaData {
   public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistry registry) {
   }
-  public interface MetadataOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:perfloc.Metadata)
-      com.google.protobuf.MessageOrBuilder {
+  public interface MetadataOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
 
+    // optional int32 measurement_id = 1;
     /**
      * <code>optional int32 measurement_id = 1;</code>
      *
@@ -29,6 +29,7 @@ public final class MetaData {
      */
     int getMeasurementId();
 
+    // optional int64 time_created = 2;
     /**
      * <code>optional int64 time_created = 2;</code>
      *
@@ -46,6 +47,7 @@ public final class MetaData {
      */
     long getTimeCreated();
 
+    // optional string license = 3;
     /**
      * <code>optional string license = 3;</code>
      *
@@ -72,6 +74,7 @@ public final class MetaData {
     com.google.protobuf.ByteString
         getLicenseBytes();
 
+    // optional double experiment_duration = 4;
     /**
      * <code>optional double experiment_duration = 4;</code>
      *
@@ -89,6 +92,7 @@ public final class MetaData {
      */
     double getExperimentDuration();
 
+    // optional string experiment_description = 5;
     /**
      * <code>optional string experiment_description = 5;</code>
      *
@@ -115,6 +119,7 @@ public final class MetaData {
     com.google.protobuf.ByteString
         getExperimentDescriptionBytes();
 
+    // optional string environment_description = 6;
     /**
      * <code>optional string environment_description = 6;</code>
      *
@@ -141,6 +146,7 @@ public final class MetaData {
     com.google.protobuf.ByteString
         getEnvironmentDescriptionBytes();
 
+    // optional string interference_description = 7;
     /**
      * <code>optional string interference_description = 7;</code>
      *
@@ -167,6 +173,7 @@ public final class MetaData {
     com.google.protobuf.ByteString
         getInterferenceDescriptionBytes();
 
+    // optional string additional_info = 8;
     /**
      * <code>optional string additional_info = 8;</code>
      *
@@ -193,6 +200,7 @@ public final class MetaData {
     com.google.protobuf.ByteString
         getAdditionalInfoBytes();
 
+    // optional float initial_average_pressure = 9;
     /**
      * <code>optional float initial_average_pressure = 9;</code>
      *
@@ -210,6 +218,7 @@ public final class MetaData {
      */
     float getInitialAveragePressure();
 
+    // optional .perfloc.Metadata.DeviceDescription device = 10;
     /**
      * <code>optional .perfloc.Metadata.DeviceDescription device = 10;</code>
      *
@@ -235,6 +244,7 @@ public final class MetaData {
      */
     gov.nist.perfloc.MetaData.Metadata.DeviceDescriptionOrBuilder getDeviceOrBuilder();
 
+    // repeated .perfloc.Metadata.Sensor sensor = 11;
     /**
      * <code>repeated .perfloc.Metadata.Sensor sensor = 11;</code>
      *
@@ -283,9 +293,8 @@ public final class MetaData {
    * Protobuf type {@code perfloc.Metadata}
    */
   public static final class Metadata extends
-      com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:perfloc.Metadata)
-      MetadataOrBuilder {
+      com.google.protobuf.GeneratedMessage
+      implements MetadataOrBuilder {
     // Use Metadata.newBuilder() to construct.
     private Metadata(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -342,9 +351,8 @@ public final class MetaData {
               break;
             }
             case 26: {
-              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000004;
-              license_ = bs;
+              license_ = input.readBytes();
               break;
             }
             case 33: {
@@ -353,27 +361,23 @@ public final class MetaData {
               break;
             }
             case 42: {
-              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000010;
-              experimentDescription_ = bs;
+              experimentDescription_ = input.readBytes();
               break;
             }
             case 50: {
-              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000020;
-              environmentDescription_ = bs;
+              environmentDescription_ = input.readBytes();
               break;
             }
             case 58: {
-              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000040;
-              interferenceDescription_ = bs;
+              interferenceDescription_ = input.readBytes();
               break;
             }
             case 66: {
-              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000080;
-              additionalInfo_ = bs;
+              additionalInfo_ = input.readBytes();
               break;
             }
             case 77: {
@@ -444,10 +448,10 @@ public final class MetaData {
       return PARSER;
     }
 
-    public interface DeviceDescriptionOrBuilder extends
-        // @@protoc_insertion_point(interface_extends:perfloc.Metadata.DeviceDescription)
-        com.google.protobuf.MessageOrBuilder {
+    public interface DeviceDescriptionOrBuilder
+        extends com.google.protobuf.MessageOrBuilder {
 
+      // optional string board = 1;
       /**
        * <code>optional string board = 1;</code>
        *
@@ -474,6 +478,7 @@ public final class MetaData {
       com.google.protobuf.ByteString
           getBoardBytes();
 
+      // optional string brand = 2;
       /**
        * <code>optional string brand = 2;</code>
        *
@@ -500,6 +505,7 @@ public final class MetaData {
       com.google.protobuf.ByteString
           getBrandBytes();
 
+      // optional string device = 3;
       /**
        * <code>optional string device = 3;</code>
        *
@@ -526,6 +532,7 @@ public final class MetaData {
       com.google.protobuf.ByteString
           getDeviceBytes();
 
+      // optional string display = 4;
       /**
        * <code>optional string display = 4;</code>
        *
@@ -552,6 +559,7 @@ public final class MetaData {
       com.google.protobuf.ByteString
           getDisplayBytes();
 
+      // optional string fingerprint = 5;
       /**
        * <code>optional string fingerprint = 5;</code>
        *
@@ -578,6 +586,7 @@ public final class MetaData {
       com.google.protobuf.ByteString
           getFingerprintBytes();
 
+      // optional string hardware = 6;
       /**
        * <code>optional string hardware = 6;</code>
        *
@@ -604,6 +613,7 @@ public final class MetaData {
       com.google.protobuf.ByteString
           getHardwareBytes();
 
+      // optional string id = 7;
       /**
        * <code>optional string id = 7;</code>
        *
@@ -630,6 +640,7 @@ public final class MetaData {
       com.google.protobuf.ByteString
           getIdBytes();
 
+      // optional string manufacturer = 8;
       /**
        * <code>optional string manufacturer = 8;</code>
        *
@@ -656,6 +667,7 @@ public final class MetaData {
       com.google.protobuf.ByteString
           getManufacturerBytes();
 
+      // optional string model = 9;
       /**
        * <code>optional string model = 9;</code>
        *
@@ -682,6 +694,7 @@ public final class MetaData {
       com.google.protobuf.ByteString
           getModelBytes();
 
+      // optional string product = 10;
       /**
        * <code>optional string product = 10;</code>
        *
@@ -708,6 +721,7 @@ public final class MetaData {
       com.google.protobuf.ByteString
           getProductBytes();
 
+      // optional string serial = 11;
       /**
        * <code>optional string serial = 11;</code>
        *
@@ -734,6 +748,7 @@ public final class MetaData {
       com.google.protobuf.ByteString
           getSerialBytes();
 
+      // optional string radio_version = 12;
       /**
        * <code>optional string radio_version = 12;</code>
        *
@@ -764,9 +779,8 @@ public final class MetaData {
      * Protobuf type {@code perfloc.Metadata.DeviceDescription}
      */
     public static final class DeviceDescription extends
-        com.google.protobuf.GeneratedMessage implements
-        // @@protoc_insertion_point(message_implements:perfloc.Metadata.DeviceDescription)
-        DeviceDescriptionOrBuilder {
+        com.google.protobuf.GeneratedMessage
+        implements DeviceDescriptionOrBuilder {
       // Use DeviceDescription.newBuilder() to construct.
       private DeviceDescription(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
         super(builder);
@@ -813,75 +827,63 @@ public final class MetaData {
                 break;
               }
               case 10: {
-                com.google.protobuf.ByteString bs = input.readBytes();
                 bitField0_ |= 0x00000001;
-                board_ = bs;
+                board_ = input.readBytes();
                 break;
               }
               case 18: {
-                com.google.protobuf.ByteString bs = input.readBytes();
                 bitField0_ |= 0x00000002;
-                brand_ = bs;
+                brand_ = input.readBytes();
                 break;
               }
               case 26: {
-                com.google.protobuf.ByteString bs = input.readBytes();
                 bitField0_ |= 0x00000004;
-                device_ = bs;
+                device_ = input.readBytes();
                 break;
               }
               case 34: {
-                com.google.protobuf.ByteString bs = input.readBytes();
                 bitField0_ |= 0x00000008;
-                display_ = bs;
+                display_ = input.readBytes();
                 break;
               }
               case 42: {
-                com.google.protobuf.ByteString bs = input.readBytes();
                 bitField0_ |= 0x00000010;
-                fingerprint_ = bs;
+                fingerprint_ = input.readBytes();
                 break;
               }
               case 50: {
-                com.google.protobuf.ByteString bs = input.readBytes();
                 bitField0_ |= 0x00000020;
-                hardware_ = bs;
+                hardware_ = input.readBytes();
                 break;
               }
               case 58: {
-                com.google.protobuf.ByteString bs = input.readBytes();
                 bitField0_ |= 0x00000040;
-                id_ = bs;
+                id_ = input.readBytes();
                 break;
               }
               case 66: {
-                com.google.protobuf.ByteString bs = input.readBytes();
                 bitField0_ |= 0x00000080;
-                manufacturer_ = bs;
+                manufacturer_ = input.readBytes();
                 break;
               }
               case 74: {
-                com.google.protobuf.ByteString bs = input.readBytes();
                 bitField0_ |= 0x00000100;
-                model_ = bs;
+                model_ = input.readBytes();
                 break;
               }
               case 82: {
-                com.google.protobuf.ByteString bs = input.readBytes();
                 bitField0_ |= 0x00000200;
-                product_ = bs;
+                product_ = input.readBytes();
                 break;
               }
               case 90: {
-                com.google.protobuf.ByteString bs = input.readBytes();
                 bitField0_ |= 0x00000400;
-                serial_ = bs;
+                serial_ = input.readBytes();
                 break;
               }
               case 98: {
-                com.google.protobuf.ByteString bs = input.readBytes();
                 bitField0_ |= 0x00000800;
-                radioVersion_ = bs;
+                radioVersion_ = input.readBytes();
                 break;
               }
             }
@@ -924,6 +926,7 @@ public final class MetaData {
       }
 
       private int bitField0_;
+      // optional string board = 1;
       public static final int BOARD_FIELD_NUMBER = 1;
       private java.lang.Object board_;
       /**
@@ -978,6 +981,7 @@ public final class MetaData {
         }
       }
 
+      // optional string brand = 2;
       public static final int BRAND_FIELD_NUMBER = 2;
       private java.lang.Object brand_;
       /**
@@ -1032,6 +1036,7 @@ public final class MetaData {
         }
       }
 
+      // optional string device = 3;
       public static final int DEVICE_FIELD_NUMBER = 3;
       private java.lang.Object device_;
       /**
@@ -1086,6 +1091,7 @@ public final class MetaData {
         }
       }
 
+      // optional string display = 4;
       public static final int DISPLAY_FIELD_NUMBER = 4;
       private java.lang.Object display_;
       /**
@@ -1140,6 +1146,7 @@ public final class MetaData {
         }
       }
 
+      // optional string fingerprint = 5;
       public static final int FINGERPRINT_FIELD_NUMBER = 5;
       private java.lang.Object fingerprint_;
       /**
@@ -1194,6 +1201,7 @@ public final class MetaData {
         }
       }
 
+      // optional string hardware = 6;
       public static final int HARDWARE_FIELD_NUMBER = 6;
       private java.lang.Object hardware_;
       /**
@@ -1248,6 +1256,7 @@ public final class MetaData {
         }
       }
 
+      // optional string id = 7;
       public static final int ID_FIELD_NUMBER = 7;
       private java.lang.Object id_;
       /**
@@ -1302,6 +1311,7 @@ public final class MetaData {
         }
       }
 
+      // optional string manufacturer = 8;
       public static final int MANUFACTURER_FIELD_NUMBER = 8;
       private java.lang.Object manufacturer_;
       /**
@@ -1356,6 +1366,7 @@ public final class MetaData {
         }
       }
 
+      // optional string model = 9;
       public static final int MODEL_FIELD_NUMBER = 9;
       private java.lang.Object model_;
       /**
@@ -1410,6 +1421,7 @@ public final class MetaData {
         }
       }
 
+      // optional string product = 10;
       public static final int PRODUCT_FIELD_NUMBER = 10;
       private java.lang.Object product_;
       /**
@@ -1464,6 +1476,7 @@ public final class MetaData {
         }
       }
 
+      // optional string serial = 11;
       public static final int SERIAL_FIELD_NUMBER = 11;
       private java.lang.Object serial_;
       /**
@@ -1518,6 +1531,7 @@ public final class MetaData {
         }
       }
 
+      // optional string radio_version = 12;
       public static final int RADIO_VERSION_FIELD_NUMBER = 12;
       private java.lang.Object radioVersion_;
       /**
@@ -1589,8 +1603,7 @@ public final class MetaData {
       private byte memoizedIsInitialized = -1;
       public final boolean isInitialized() {
         byte isInitialized = memoizedIsInitialized;
-        if (isInitialized == 1) return true;
-        if (isInitialized == 0) return false;
+        if (isInitialized != -1) return isInitialized == 1;
 
         memoizedIsInitialized = 1;
         return true;
@@ -1774,9 +1787,8 @@ public final class MetaData {
        * Protobuf type {@code perfloc.Metadata.DeviceDescription}
        */
       public static final class Builder extends
-          com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-          // @@protoc_insertion_point(builder_implements:perfloc.Metadata.DeviceDescription)
-          gov.nist.perfloc.MetaData.Metadata.DeviceDescriptionOrBuilder {
+          com.google.protobuf.GeneratedMessage.Builder<Builder>
+         implements gov.nist.perfloc.MetaData.Metadata.DeviceDescriptionOrBuilder {
         public static final com.google.protobuf.Descriptors.Descriptor
             getDescriptor() {
           return gov.nist.perfloc.MetaData.internal_static_perfloc_Metadata_DeviceDescription_descriptor;
@@ -2012,6 +2024,7 @@ public final class MetaData {
         }
         private int bitField0_;
 
+        // optional string board = 1;
         private java.lang.Object board_ = "";
         /**
          * <code>optional string board = 1;</code>
@@ -2033,12 +2046,9 @@ public final class MetaData {
         public java.lang.String getBoard() {
           java.lang.Object ref = board_;
           if (!(ref instanceof java.lang.String)) {
-            com.google.protobuf.ByteString bs =
-                (com.google.protobuf.ByteString) ref;
-            java.lang.String s = bs.toStringUtf8();
-            if (bs.isValidUtf8()) {
-              board_ = s;
-            }
+            java.lang.String s = ((com.google.protobuf.ByteString) ref)
+                .toStringUtf8();
+            board_ = s;
             return s;
           } else {
             return (java.lang.String) ref;
@@ -2112,6 +2122,7 @@ public final class MetaData {
           return this;
         }
 
+        // optional string brand = 2;
         private java.lang.Object brand_ = "";
         /**
          * <code>optional string brand = 2;</code>
@@ -2133,12 +2144,9 @@ public final class MetaData {
         public java.lang.String getBrand() {
           java.lang.Object ref = brand_;
           if (!(ref instanceof java.lang.String)) {
-            com.google.protobuf.ByteString bs =
-                (com.google.protobuf.ByteString) ref;
-            java.lang.String s = bs.toStringUtf8();
-            if (bs.isValidUtf8()) {
-              brand_ = s;
-            }
+            java.lang.String s = ((com.google.protobuf.ByteString) ref)
+                .toStringUtf8();
+            brand_ = s;
             return s;
           } else {
             return (java.lang.String) ref;
@@ -2212,6 +2220,7 @@ public final class MetaData {
           return this;
         }
 
+        // optional string device = 3;
         private java.lang.Object device_ = "";
         /**
          * <code>optional string device = 3;</code>
@@ -2233,12 +2242,9 @@ public final class MetaData {
         public java.lang.String getDevice() {
           java.lang.Object ref = device_;
           if (!(ref instanceof java.lang.String)) {
-            com.google.protobuf.ByteString bs =
-                (com.google.protobuf.ByteString) ref;
-            java.lang.String s = bs.toStringUtf8();
-            if (bs.isValidUtf8()) {
-              device_ = s;
-            }
+            java.lang.String s = ((com.google.protobuf.ByteString) ref)
+                .toStringUtf8();
+            device_ = s;
             return s;
           } else {
             return (java.lang.String) ref;
@@ -2312,6 +2318,7 @@ public final class MetaData {
           return this;
         }
 
+        // optional string display = 4;
         private java.lang.Object display_ = "";
         /**
          * <code>optional string display = 4;</code>
@@ -2333,12 +2340,9 @@ public final class MetaData {
         public java.lang.String getDisplay() {
           java.lang.Object ref = display_;
           if (!(ref instanceof java.lang.String)) {
-            com.google.protobuf.ByteString bs =
-                (com.google.protobuf.ByteString) ref;
-            java.lang.String s = bs.toStringUtf8();
-            if (bs.isValidUtf8()) {
-              display_ = s;
-            }
+            java.lang.String s = ((com.google.protobuf.ByteString) ref)
+                .toStringUtf8();
+            display_ = s;
             return s;
           } else {
             return (java.lang.String) ref;
@@ -2412,6 +2416,7 @@ public final class MetaData {
           return this;
         }
 
+        // optional string fingerprint = 5;
         private java.lang.Object fingerprint_ = "";
         /**
          * <code>optional string fingerprint = 5;</code>
@@ -2433,12 +2438,9 @@ public final class MetaData {
         public java.lang.String getFingerprint() {
           java.lang.Object ref = fingerprint_;
           if (!(ref instanceof java.lang.String)) {
-            com.google.protobuf.ByteString bs =
-                (com.google.protobuf.ByteString) ref;
-            java.lang.String s = bs.toStringUtf8();
-            if (bs.isValidUtf8()) {
-              fingerprint_ = s;
-            }
+            java.lang.String s = ((com.google.protobuf.ByteString) ref)
+                .toStringUtf8();
+            fingerprint_ = s;
             return s;
           } else {
             return (java.lang.String) ref;
@@ -2512,6 +2514,7 @@ public final class MetaData {
           return this;
         }
 
+        // optional string hardware = 6;
         private java.lang.Object hardware_ = "";
         /**
          * <code>optional string hardware = 6;</code>
@@ -2533,12 +2536,9 @@ public final class MetaData {
         public java.lang.String getHardware() {
           java.lang.Object ref = hardware_;
           if (!(ref instanceof java.lang.String)) {
-            com.google.protobuf.ByteString bs =
-                (com.google.protobuf.ByteString) ref;
-            java.lang.String s = bs.toStringUtf8();
-            if (bs.isValidUtf8()) {
-              hardware_ = s;
-            }
+            java.lang.String s = ((com.google.protobuf.ByteString) ref)
+                .toStringUtf8();
+            hardware_ = s;
             return s;
           } else {
             return (java.lang.String) ref;
@@ -2612,6 +2612,7 @@ public final class MetaData {
           return this;
         }
 
+        // optional string id = 7;
         private java.lang.Object id_ = "";
         /**
          * <code>optional string id = 7;</code>
@@ -2633,12 +2634,9 @@ public final class MetaData {
         public java.lang.String getId() {
           java.lang.Object ref = id_;
           if (!(ref instanceof java.lang.String)) {
-            com.google.protobuf.ByteString bs =
-                (com.google.protobuf.ByteString) ref;
-            java.lang.String s = bs.toStringUtf8();
-            if (bs.isValidUtf8()) {
-              id_ = s;
-            }
+            java.lang.String s = ((com.google.protobuf.ByteString) ref)
+                .toStringUtf8();
+            id_ = s;
             return s;
           } else {
             return (java.lang.String) ref;
@@ -2712,6 +2710,7 @@ public final class MetaData {
           return this;
         }
 
+        // optional string manufacturer = 8;
         private java.lang.Object manufacturer_ = "";
         /**
          * <code>optional string manufacturer = 8;</code>
@@ -2733,12 +2732,9 @@ public final class MetaData {
         public java.lang.String getManufacturer() {
           java.lang.Object ref = manufacturer_;
           if (!(ref instanceof java.lang.String)) {
-            com.google.protobuf.ByteString bs =
-                (com.google.protobuf.ByteString) ref;
-            java.lang.String s = bs.toStringUtf8();
-            if (bs.isValidUtf8()) {
-              manufacturer_ = s;
-            }
+            java.lang.String s = ((com.google.protobuf.ByteString) ref)
+                .toStringUtf8();
+            manufacturer_ = s;
             return s;
           } else {
             return (java.lang.String) ref;
@@ -2812,6 +2808,7 @@ public final class MetaData {
           return this;
         }
 
+        // optional string model = 9;
         private java.lang.Object model_ = "";
         /**
          * <code>optional string model = 9;</code>
@@ -2833,12 +2830,9 @@ public final class MetaData {
         public java.lang.String getModel() {
           java.lang.Object ref = model_;
           if (!(ref instanceof java.lang.String)) {
-            com.google.protobuf.ByteString bs =
-                (com.google.protobuf.ByteString) ref;
-            java.lang.String s = bs.toStringUtf8();
-            if (bs.isValidUtf8()) {
-              model_ = s;
-            }
+            java.lang.String s = ((com.google.protobuf.ByteString) ref)
+                .toStringUtf8();
+            model_ = s;
             return s;
           } else {
             return (java.lang.String) ref;
@@ -2912,6 +2906,7 @@ public final class MetaData {
           return this;
         }
 
+        // optional string product = 10;
         private java.lang.Object product_ = "";
         /**
          * <code>optional string product = 10;</code>
@@ -2933,12 +2928,9 @@ public final class MetaData {
         public java.lang.String getProduct() {
           java.lang.Object ref = product_;
           if (!(ref instanceof java.lang.String)) {
-            com.google.protobuf.ByteString bs =
-                (com.google.protobuf.ByteString) ref;
-            java.lang.String s = bs.toStringUtf8();
-            if (bs.isValidUtf8()) {
-              product_ = s;
-            }
+            java.lang.String s = ((com.google.protobuf.ByteString) ref)
+                .toStringUtf8();
+            product_ = s;
             return s;
           } else {
             return (java.lang.String) ref;
@@ -3012,6 +3004,7 @@ public final class MetaData {
           return this;
         }
 
+        // optional string serial = 11;
         private java.lang.Object serial_ = "";
         /**
          * <code>optional string serial = 11;</code>
@@ -3033,12 +3026,9 @@ public final class MetaData {
         public java.lang.String getSerial() {
           java.lang.Object ref = serial_;
           if (!(ref instanceof java.lang.String)) {
-            com.google.protobuf.ByteString bs =
-                (com.google.protobuf.ByteString) ref;
-            java.lang.String s = bs.toStringUtf8();
-            if (bs.isValidUtf8()) {
-              serial_ = s;
-            }
+            java.lang.String s = ((com.google.protobuf.ByteString) ref)
+                .toStringUtf8();
+            serial_ = s;
             return s;
           } else {
             return (java.lang.String) ref;
@@ -3112,6 +3102,7 @@ public final class MetaData {
           return this;
         }
 
+        // optional string radio_version = 12;
         private java.lang.Object radioVersion_ = "";
         /**
          * <code>optional string radio_version = 12;</code>
@@ -3133,12 +3124,9 @@ public final class MetaData {
         public java.lang.String getRadioVersion() {
           java.lang.Object ref = radioVersion_;
           if (!(ref instanceof java.lang.String)) {
-            com.google.protobuf.ByteString bs =
-                (com.google.protobuf.ByteString) ref;
-            java.lang.String s = bs.toStringUtf8();
-            if (bs.isValidUtf8()) {
-              radioVersion_ = s;
-            }
+            java.lang.String s = ((com.google.protobuf.ByteString) ref)
+                .toStringUtf8();
+            radioVersion_ = s;
             return s;
           } else {
             return (java.lang.String) ref;
@@ -3223,10 +3211,10 @@ public final class MetaData {
       // @@protoc_insertion_point(class_scope:perfloc.Metadata.DeviceDescription)
     }
 
-    public interface SensorOrBuilder extends
-        // @@protoc_insertion_point(interface_extends:perfloc.Metadata.Sensor)
-        com.google.protobuf.MessageOrBuilder {
+    public interface SensorOrBuilder
+        extends com.google.protobuf.MessageOrBuilder {
 
+      // optional int32 type = 1;
       /**
        * <code>optional int32 type = 1;</code>
        *
@@ -3244,6 +3232,7 @@ public final class MetaData {
        */
       int getType();
 
+      // optional string string_type = 2;
       /**
        * <code>optional string string_type = 2;</code>
        *
@@ -3270,6 +3259,7 @@ public final class MetaData {
       com.google.protobuf.ByteString
           getStringTypeBytes();
 
+      // optional string name = 3;
       /**
        * <code>optional string name = 3;</code>
        *
@@ -3296,6 +3286,7 @@ public final class MetaData {
       com.google.protobuf.ByteString
           getNameBytes();
 
+      // optional bool is_wakeup_sensor = 4;
       /**
        * <code>optional bool is_wakeup_sensor = 4;</code>
        *
@@ -3313,6 +3304,7 @@ public final class MetaData {
        */
       boolean getIsWakeupSensor();
 
+      // optional string vendor = 5;
       /**
        * <code>optional string vendor = 5;</code>
        *
@@ -3339,6 +3331,7 @@ public final class MetaData {
       com.google.protobuf.ByteString
           getVendorBytes();
 
+      // optional int32 version = 6;
       /**
        * <code>optional int32 version = 6;</code>
        *
@@ -3356,6 +3349,7 @@ public final class MetaData {
        */
       int getVersion();
 
+      // optional float resolution = 7;
       /**
        * <code>optional float resolution = 7;</code>
        *
@@ -3373,6 +3367,7 @@ public final class MetaData {
        */
       float getResolution();
 
+      // optional int32 reporting_mode = 8;
       /**
        * <code>optional int32 reporting_mode = 8;</code>
        *
@@ -3390,6 +3385,7 @@ public final class MetaData {
        */
       int getReportingMode();
 
+      // optional float power = 9;
       /**
        * <code>optional float power = 9;</code>
        *
@@ -3407,6 +3403,7 @@ public final class MetaData {
        */
       float getPower();
 
+      // optional int32 fifo_max_event_count = 10;
       /**
        * <code>optional int32 fifo_max_event_count = 10;</code>
        *
@@ -3424,6 +3421,7 @@ public final class MetaData {
        */
       int getFifoMaxEventCount();
 
+      // optional int32 fifo_reserved_event_count = 11;
       /**
        * <code>optional int32 fifo_reserved_event_count = 11;</code>
        *
@@ -3441,6 +3439,7 @@ public final class MetaData {
        */
       int getFifoReservedEventCount();
 
+      // optional float maximum_range = 12;
       /**
        * <code>optional float maximum_range = 12;</code>
        *
@@ -3458,6 +3457,7 @@ public final class MetaData {
        */
       float getMaximumRange();
 
+      // optional float min_delay = 13;
       /**
        * <code>optional float min_delay = 13;</code>
        *
@@ -3474,14 +3474,31 @@ public final class MetaData {
        * </pre>
        */
       float getMinDelay();
+
+      // optional float max_delay = 14;
+      /**
+       * <code>optional float max_delay = 14;</code>
+       *
+       * <pre>
+       * This value is defined only for continuous and on-change sensors. It is the delay between two sensor events corresponding to the lowest frequency that this sensor supports. When lower frequencies are requested through registerListener() the events will be generated at this frequency instead. It can be used to estimate when the batch FIFO may be full. Older devices may set this value to zero. Ignore this value in case it is negative or zero.
+       * </pre>
+       */
+      boolean hasMaxDelay();
+      /**
+       * <code>optional float max_delay = 14;</code>
+       *
+       * <pre>
+       * This value is defined only for continuous and on-change sensors. It is the delay between two sensor events corresponding to the lowest frequency that this sensor supports. When lower frequencies are requested through registerListener() the events will be generated at this frequency instead. It can be used to estimate when the batch FIFO may be full. Older devices may set this value to zero. Ignore this value in case it is negative or zero.
+       * </pre>
+       */
+      float getMaxDelay();
     }
     /**
      * Protobuf type {@code perfloc.Metadata.Sensor}
      */
     public static final class Sensor extends
-        com.google.protobuf.GeneratedMessage implements
-        // @@protoc_insertion_point(message_implements:perfloc.Metadata.Sensor)
-        SensorOrBuilder {
+        com.google.protobuf.GeneratedMessage
+        implements SensorOrBuilder {
       // Use Sensor.newBuilder() to construct.
       private Sensor(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
         super(builder);
@@ -3533,15 +3550,13 @@ public final class MetaData {
                 break;
               }
               case 18: {
-                com.google.protobuf.ByteString bs = input.readBytes();
                 bitField0_ |= 0x00000002;
-                stringType_ = bs;
+                stringType_ = input.readBytes();
                 break;
               }
               case 26: {
-                com.google.protobuf.ByteString bs = input.readBytes();
                 bitField0_ |= 0x00000004;
-                name_ = bs;
+                name_ = input.readBytes();
                 break;
               }
               case 32: {
@@ -3550,9 +3565,8 @@ public final class MetaData {
                 break;
               }
               case 42: {
-                com.google.protobuf.ByteString bs = input.readBytes();
                 bitField0_ |= 0x00000010;
-                vendor_ = bs;
+                vendor_ = input.readBytes();
                 break;
               }
               case 48: {
@@ -3595,6 +3609,11 @@ public final class MetaData {
                 minDelay_ = input.readFloat();
                 break;
               }
+              case 117: {
+                bitField0_ |= 0x00002000;
+                maxDelay_ = input.readFloat();
+                break;
+              }
             }
           }
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -3635,6 +3654,7 @@ public final class MetaData {
       }
 
       private int bitField0_;
+      // optional int32 type = 1;
       public static final int TYPE_FIELD_NUMBER = 1;
       private int type_;
       /**
@@ -3658,6 +3678,7 @@ public final class MetaData {
         return type_;
       }
 
+      // optional string string_type = 2;
       public static final int STRING_TYPE_FIELD_NUMBER = 2;
       private java.lang.Object stringType_;
       /**
@@ -3712,6 +3733,7 @@ public final class MetaData {
         }
       }
 
+      // optional string name = 3;
       public static final int NAME_FIELD_NUMBER = 3;
       private java.lang.Object name_;
       /**
@@ -3766,6 +3788,7 @@ public final class MetaData {
         }
       }
 
+      // optional bool is_wakeup_sensor = 4;
       public static final int IS_WAKEUP_SENSOR_FIELD_NUMBER = 4;
       private boolean isWakeupSensor_;
       /**
@@ -3789,6 +3812,7 @@ public final class MetaData {
         return isWakeupSensor_;
       }
 
+      // optional string vendor = 5;
       public static final int VENDOR_FIELD_NUMBER = 5;
       private java.lang.Object vendor_;
       /**
@@ -3843,6 +3867,7 @@ public final class MetaData {
         }
       }
 
+      // optional int32 version = 6;
       public static final int VERSION_FIELD_NUMBER = 6;
       private int version_;
       /**
@@ -3866,6 +3891,7 @@ public final class MetaData {
         return version_;
       }
 
+      // optional float resolution = 7;
       public static final int RESOLUTION_FIELD_NUMBER = 7;
       private float resolution_;
       /**
@@ -3889,6 +3915,7 @@ public final class MetaData {
         return resolution_;
       }
 
+      // optional int32 reporting_mode = 8;
       public static final int REPORTING_MODE_FIELD_NUMBER = 8;
       private int reportingMode_;
       /**
@@ -3912,6 +3939,7 @@ public final class MetaData {
         return reportingMode_;
       }
 
+      // optional float power = 9;
       public static final int POWER_FIELD_NUMBER = 9;
       private float power_;
       /**
@@ -3935,6 +3963,7 @@ public final class MetaData {
         return power_;
       }
 
+      // optional int32 fifo_max_event_count = 10;
       public static final int FIFO_MAX_EVENT_COUNT_FIELD_NUMBER = 10;
       private int fifoMaxEventCount_;
       /**
@@ -3958,6 +3987,7 @@ public final class MetaData {
         return fifoMaxEventCount_;
       }
 
+      // optional int32 fifo_reserved_event_count = 11;
       public static final int FIFO_RESERVED_EVENT_COUNT_FIELD_NUMBER = 11;
       private int fifoReservedEventCount_;
       /**
@@ -3981,6 +4011,7 @@ public final class MetaData {
         return fifoReservedEventCount_;
       }
 
+      // optional float maximum_range = 12;
       public static final int MAXIMUM_RANGE_FIELD_NUMBER = 12;
       private float maximumRange_;
       /**
@@ -4004,6 +4035,7 @@ public final class MetaData {
         return maximumRange_;
       }
 
+      // optional float min_delay = 13;
       public static final int MIN_DELAY_FIELD_NUMBER = 13;
       private float minDelay_;
       /**
@@ -4027,6 +4059,30 @@ public final class MetaData {
         return minDelay_;
       }
 
+      // optional float max_delay = 14;
+      public static final int MAX_DELAY_FIELD_NUMBER = 14;
+      private float maxDelay_;
+      /**
+       * <code>optional float max_delay = 14;</code>
+       *
+       * <pre>
+       * This value is defined only for continuous and on-change sensors. It is the delay between two sensor events corresponding to the lowest frequency that this sensor supports. When lower frequencies are requested through registerListener() the events will be generated at this frequency instead. It can be used to estimate when the batch FIFO may be full. Older devices may set this value to zero. Ignore this value in case it is negative or zero.
+       * </pre>
+       */
+      public boolean hasMaxDelay() {
+        return ((bitField0_ & 0x00002000) == 0x00002000);
+      }
+      /**
+       * <code>optional float max_delay = 14;</code>
+       *
+       * <pre>
+       * This value is defined only for continuous and on-change sensors. It is the delay between two sensor events corresponding to the lowest frequency that this sensor supports. When lower frequencies are requested through registerListener() the events will be generated at this frequency instead. It can be used to estimate when the batch FIFO may be full. Older devices may set this value to zero. Ignore this value in case it is negative or zero.
+       * </pre>
+       */
+      public float getMaxDelay() {
+        return maxDelay_;
+      }
+
       private void initFields() {
         type_ = 0;
         stringType_ = "";
@@ -4041,12 +4097,12 @@ public final class MetaData {
         fifoReservedEventCount_ = 0;
         maximumRange_ = 0F;
         minDelay_ = 0F;
+        maxDelay_ = 0F;
       }
       private byte memoizedIsInitialized = -1;
       public final boolean isInitialized() {
         byte isInitialized = memoizedIsInitialized;
-        if (isInitialized == 1) return true;
-        if (isInitialized == 0) return false;
+        if (isInitialized != -1) return isInitialized == 1;
 
         memoizedIsInitialized = 1;
         return true;
@@ -4093,6 +4149,9 @@ public final class MetaData {
         }
         if (((bitField0_ & 0x00001000) == 0x00001000)) {
           output.writeFloat(13, minDelay_);
+        }
+        if (((bitField0_ & 0x00002000) == 0x00002000)) {
+          output.writeFloat(14, maxDelay_);
         }
         getUnknownFields().writeTo(output);
       }
@@ -4154,6 +4213,10 @@ public final class MetaData {
         if (((bitField0_ & 0x00001000) == 0x00001000)) {
           size += com.google.protobuf.CodedOutputStream
             .computeFloatSize(13, minDelay_);
+        }
+        if (((bitField0_ & 0x00002000) == 0x00002000)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeFloatSize(14, maxDelay_);
         }
         size += getUnknownFields().getSerializedSize();
         memoizedSerializedSize = size;
@@ -4237,9 +4300,8 @@ public final class MetaData {
        * Protobuf type {@code perfloc.Metadata.Sensor}
        */
       public static final class Builder extends
-          com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-          // @@protoc_insertion_point(builder_implements:perfloc.Metadata.Sensor)
-          gov.nist.perfloc.MetaData.Metadata.SensorOrBuilder {
+          com.google.protobuf.GeneratedMessage.Builder<Builder>
+         implements gov.nist.perfloc.MetaData.Metadata.SensorOrBuilder {
         public static final com.google.protobuf.Descriptors.Descriptor
             getDescriptor() {
           return gov.nist.perfloc.MetaData.internal_static_perfloc_Metadata_Sensor_descriptor;
@@ -4298,6 +4360,8 @@ public final class MetaData {
           bitField0_ = (bitField0_ & ~0x00000800);
           minDelay_ = 0F;
           bitField0_ = (bitField0_ & ~0x00001000);
+          maxDelay_ = 0F;
+          bitField0_ = (bitField0_ & ~0x00002000);
           return this;
         }
 
@@ -4378,6 +4442,10 @@ public final class MetaData {
             to_bitField0_ |= 0x00001000;
           }
           result.minDelay_ = minDelay_;
+          if (((from_bitField0_ & 0x00002000) == 0x00002000)) {
+            to_bitField0_ |= 0x00002000;
+          }
+          result.maxDelay_ = maxDelay_;
           result.bitField0_ = to_bitField0_;
           onBuilt();
           return result;
@@ -4439,6 +4507,9 @@ public final class MetaData {
           if (other.hasMinDelay()) {
             setMinDelay(other.getMinDelay());
           }
+          if (other.hasMaxDelay()) {
+            setMaxDelay(other.getMaxDelay());
+          }
           this.mergeUnknownFields(other.getUnknownFields());
           return this;
         }
@@ -4466,6 +4537,7 @@ public final class MetaData {
         }
         private int bitField0_;
 
+        // optional int32 type = 1;
         private int type_ ;
         /**
          * <code>optional int32 type = 1;</code>
@@ -4514,6 +4586,7 @@ public final class MetaData {
           return this;
         }
 
+        // optional string string_type = 2;
         private java.lang.Object stringType_ = "";
         /**
          * <code>optional string string_type = 2;</code>
@@ -4535,12 +4608,9 @@ public final class MetaData {
         public java.lang.String getStringType() {
           java.lang.Object ref = stringType_;
           if (!(ref instanceof java.lang.String)) {
-            com.google.protobuf.ByteString bs =
-                (com.google.protobuf.ByteString) ref;
-            java.lang.String s = bs.toStringUtf8();
-            if (bs.isValidUtf8()) {
-              stringType_ = s;
-            }
+            java.lang.String s = ((com.google.protobuf.ByteString) ref)
+                .toStringUtf8();
+            stringType_ = s;
             return s;
           } else {
             return (java.lang.String) ref;
@@ -4614,6 +4684,7 @@ public final class MetaData {
           return this;
         }
 
+        // optional string name = 3;
         private java.lang.Object name_ = "";
         /**
          * <code>optional string name = 3;</code>
@@ -4635,12 +4706,9 @@ public final class MetaData {
         public java.lang.String getName() {
           java.lang.Object ref = name_;
           if (!(ref instanceof java.lang.String)) {
-            com.google.protobuf.ByteString bs =
-                (com.google.protobuf.ByteString) ref;
-            java.lang.String s = bs.toStringUtf8();
-            if (bs.isValidUtf8()) {
-              name_ = s;
-            }
+            java.lang.String s = ((com.google.protobuf.ByteString) ref)
+                .toStringUtf8();
+            name_ = s;
             return s;
           } else {
             return (java.lang.String) ref;
@@ -4714,6 +4782,7 @@ public final class MetaData {
           return this;
         }
 
+        // optional bool is_wakeup_sensor = 4;
         private boolean isWakeupSensor_ ;
         /**
          * <code>optional bool is_wakeup_sensor = 4;</code>
@@ -4762,6 +4831,7 @@ public final class MetaData {
           return this;
         }
 
+        // optional string vendor = 5;
         private java.lang.Object vendor_ = "";
         /**
          * <code>optional string vendor = 5;</code>
@@ -4783,12 +4853,9 @@ public final class MetaData {
         public java.lang.String getVendor() {
           java.lang.Object ref = vendor_;
           if (!(ref instanceof java.lang.String)) {
-            com.google.protobuf.ByteString bs =
-                (com.google.protobuf.ByteString) ref;
-            java.lang.String s = bs.toStringUtf8();
-            if (bs.isValidUtf8()) {
-              vendor_ = s;
-            }
+            java.lang.String s = ((com.google.protobuf.ByteString) ref)
+                .toStringUtf8();
+            vendor_ = s;
             return s;
           } else {
             return (java.lang.String) ref;
@@ -4862,6 +4929,7 @@ public final class MetaData {
           return this;
         }
 
+        // optional int32 version = 6;
         private int version_ ;
         /**
          * <code>optional int32 version = 6;</code>
@@ -4910,6 +4978,7 @@ public final class MetaData {
           return this;
         }
 
+        // optional float resolution = 7;
         private float resolution_ ;
         /**
          * <code>optional float resolution = 7;</code>
@@ -4958,6 +5027,7 @@ public final class MetaData {
           return this;
         }
 
+        // optional int32 reporting_mode = 8;
         private int reportingMode_ ;
         /**
          * <code>optional int32 reporting_mode = 8;</code>
@@ -5006,6 +5076,7 @@ public final class MetaData {
           return this;
         }
 
+        // optional float power = 9;
         private float power_ ;
         /**
          * <code>optional float power = 9;</code>
@@ -5054,6 +5125,7 @@ public final class MetaData {
           return this;
         }
 
+        // optional int32 fifo_max_event_count = 10;
         private int fifoMaxEventCount_ ;
         /**
          * <code>optional int32 fifo_max_event_count = 10;</code>
@@ -5102,6 +5174,7 @@ public final class MetaData {
           return this;
         }
 
+        // optional int32 fifo_reserved_event_count = 11;
         private int fifoReservedEventCount_ ;
         /**
          * <code>optional int32 fifo_reserved_event_count = 11;</code>
@@ -5150,6 +5223,7 @@ public final class MetaData {
           return this;
         }
 
+        // optional float maximum_range = 12;
         private float maximumRange_ ;
         /**
          * <code>optional float maximum_range = 12;</code>
@@ -5198,6 +5272,7 @@ public final class MetaData {
           return this;
         }
 
+        // optional float min_delay = 13;
         private float minDelay_ ;
         /**
          * <code>optional float min_delay = 13;</code>
@@ -5246,6 +5321,55 @@ public final class MetaData {
           return this;
         }
 
+        // optional float max_delay = 14;
+        private float maxDelay_ ;
+        /**
+         * <code>optional float max_delay = 14;</code>
+         *
+         * <pre>
+         * This value is defined only for continuous and on-change sensors. It is the delay between two sensor events corresponding to the lowest frequency that this sensor supports. When lower frequencies are requested through registerListener() the events will be generated at this frequency instead. It can be used to estimate when the batch FIFO may be full. Older devices may set this value to zero. Ignore this value in case it is negative or zero.
+         * </pre>
+         */
+        public boolean hasMaxDelay() {
+          return ((bitField0_ & 0x00002000) == 0x00002000);
+        }
+        /**
+         * <code>optional float max_delay = 14;</code>
+         *
+         * <pre>
+         * This value is defined only for continuous and on-change sensors. It is the delay between two sensor events corresponding to the lowest frequency that this sensor supports. When lower frequencies are requested through registerListener() the events will be generated at this frequency instead. It can be used to estimate when the batch FIFO may be full. Older devices may set this value to zero. Ignore this value in case it is negative or zero.
+         * </pre>
+         */
+        public float getMaxDelay() {
+          return maxDelay_;
+        }
+        /**
+         * <code>optional float max_delay = 14;</code>
+         *
+         * <pre>
+         * This value is defined only for continuous and on-change sensors. It is the delay between two sensor events corresponding to the lowest frequency that this sensor supports. When lower frequencies are requested through registerListener() the events will be generated at this frequency instead. It can be used to estimate when the batch FIFO may be full. Older devices may set this value to zero. Ignore this value in case it is negative or zero.
+         * </pre>
+         */
+        public Builder setMaxDelay(float value) {
+          bitField0_ |= 0x00002000;
+          maxDelay_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional float max_delay = 14;</code>
+         *
+         * <pre>
+         * This value is defined only for continuous and on-change sensors. It is the delay between two sensor events corresponding to the lowest frequency that this sensor supports. When lower frequencies are requested through registerListener() the events will be generated at this frequency instead. It can be used to estimate when the batch FIFO may be full. Older devices may set this value to zero. Ignore this value in case it is negative or zero.
+         * </pre>
+         */
+        public Builder clearMaxDelay() {
+          bitField0_ = (bitField0_ & ~0x00002000);
+          maxDelay_ = 0F;
+          onChanged();
+          return this;
+        }
+
         // @@protoc_insertion_point(builder_scope:perfloc.Metadata.Sensor)
       }
 
@@ -5258,6 +5382,7 @@ public final class MetaData {
     }
 
     private int bitField0_;
+    // optional int32 measurement_id = 1;
     public static final int MEASUREMENT_ID_FIELD_NUMBER = 1;
     private int measurementId_;
     /**
@@ -5281,6 +5406,7 @@ public final class MetaData {
       return measurementId_;
     }
 
+    // optional int64 time_created = 2;
     public static final int TIME_CREATED_FIELD_NUMBER = 2;
     private long timeCreated_;
     /**
@@ -5304,6 +5430,7 @@ public final class MetaData {
       return timeCreated_;
     }
 
+    // optional string license = 3;
     public static final int LICENSE_FIELD_NUMBER = 3;
     private java.lang.Object license_;
     /**
@@ -5358,6 +5485,7 @@ public final class MetaData {
       }
     }
 
+    // optional double experiment_duration = 4;
     public static final int EXPERIMENT_DURATION_FIELD_NUMBER = 4;
     private double experimentDuration_;
     /**
@@ -5381,6 +5509,7 @@ public final class MetaData {
       return experimentDuration_;
     }
 
+    // optional string experiment_description = 5;
     public static final int EXPERIMENT_DESCRIPTION_FIELD_NUMBER = 5;
     private java.lang.Object experimentDescription_;
     /**
@@ -5435,6 +5564,7 @@ public final class MetaData {
       }
     }
 
+    // optional string environment_description = 6;
     public static final int ENVIRONMENT_DESCRIPTION_FIELD_NUMBER = 6;
     private java.lang.Object environmentDescription_;
     /**
@@ -5489,6 +5619,7 @@ public final class MetaData {
       }
     }
 
+    // optional string interference_description = 7;
     public static final int INTERFERENCE_DESCRIPTION_FIELD_NUMBER = 7;
     private java.lang.Object interferenceDescription_;
     /**
@@ -5543,6 +5674,7 @@ public final class MetaData {
       }
     }
 
+    // optional string additional_info = 8;
     public static final int ADDITIONAL_INFO_FIELD_NUMBER = 8;
     private java.lang.Object additionalInfo_;
     /**
@@ -5597,6 +5729,7 @@ public final class MetaData {
       }
     }
 
+    // optional float initial_average_pressure = 9;
     public static final int INITIAL_AVERAGE_PRESSURE_FIELD_NUMBER = 9;
     private float initialAveragePressure_;
     /**
@@ -5620,6 +5753,7 @@ public final class MetaData {
       return initialAveragePressure_;
     }
 
+    // optional .perfloc.Metadata.DeviceDescription device = 10;
     public static final int DEVICE_FIELD_NUMBER = 10;
     private gov.nist.perfloc.MetaData.Metadata.DeviceDescription device_;
     /**
@@ -5653,6 +5787,7 @@ public final class MetaData {
       return device_;
     }
 
+    // repeated .perfloc.Metadata.Sensor sensor = 11;
     public static final int SENSOR_FIELD_NUMBER = 11;
     private java.util.List<gov.nist.perfloc.MetaData.Metadata.Sensor> sensor_;
     /**
@@ -5724,8 +5859,7 @@ public final class MetaData {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
+      if (isInitialized != -1) return isInitialized == 1;
 
       memoizedIsInitialized = 1;
       return true;
@@ -5902,9 +6036,8 @@ public final class MetaData {
      * Protobuf type {@code perfloc.Metadata}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:perfloc.Metadata)
-        gov.nist.perfloc.MetaData.MetadataOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements gov.nist.perfloc.MetaData.MetadataOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return gov.nist.perfloc.MetaData.internal_static_perfloc_Metadata_descriptor;
@@ -6159,6 +6292,7 @@ public final class MetaData {
       }
       private int bitField0_;
 
+      // optional int32 measurement_id = 1;
       private int measurementId_ ;
       /**
        * <code>optional int32 measurement_id = 1;</code>
@@ -6207,6 +6341,7 @@ public final class MetaData {
         return this;
       }
 
+      // optional int64 time_created = 2;
       private long timeCreated_ ;
       /**
        * <code>optional int64 time_created = 2;</code>
@@ -6255,6 +6390,7 @@ public final class MetaData {
         return this;
       }
 
+      // optional string license = 3;
       private java.lang.Object license_ = "";
       /**
        * <code>optional string license = 3;</code>
@@ -6276,12 +6412,9 @@ public final class MetaData {
       public java.lang.String getLicense() {
         java.lang.Object ref = license_;
         if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            license_ = s;
-          }
+          java.lang.String s = ((com.google.protobuf.ByteString) ref)
+              .toStringUtf8();
+          license_ = s;
           return s;
         } else {
           return (java.lang.String) ref;
@@ -6355,6 +6488,7 @@ public final class MetaData {
         return this;
       }
 
+      // optional double experiment_duration = 4;
       private double experimentDuration_ ;
       /**
        * <code>optional double experiment_duration = 4;</code>
@@ -6403,6 +6537,7 @@ public final class MetaData {
         return this;
       }
 
+      // optional string experiment_description = 5;
       private java.lang.Object experimentDescription_ = "";
       /**
        * <code>optional string experiment_description = 5;</code>
@@ -6424,12 +6559,9 @@ public final class MetaData {
       public java.lang.String getExperimentDescription() {
         java.lang.Object ref = experimentDescription_;
         if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            experimentDescription_ = s;
-          }
+          java.lang.String s = ((com.google.protobuf.ByteString) ref)
+              .toStringUtf8();
+          experimentDescription_ = s;
           return s;
         } else {
           return (java.lang.String) ref;
@@ -6503,6 +6635,7 @@ public final class MetaData {
         return this;
       }
 
+      // optional string environment_description = 6;
       private java.lang.Object environmentDescription_ = "";
       /**
        * <code>optional string environment_description = 6;</code>
@@ -6524,12 +6657,9 @@ public final class MetaData {
       public java.lang.String getEnvironmentDescription() {
         java.lang.Object ref = environmentDescription_;
         if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            environmentDescription_ = s;
-          }
+          java.lang.String s = ((com.google.protobuf.ByteString) ref)
+              .toStringUtf8();
+          environmentDescription_ = s;
           return s;
         } else {
           return (java.lang.String) ref;
@@ -6603,6 +6733,7 @@ public final class MetaData {
         return this;
       }
 
+      // optional string interference_description = 7;
       private java.lang.Object interferenceDescription_ = "";
       /**
        * <code>optional string interference_description = 7;</code>
@@ -6624,12 +6755,9 @@ public final class MetaData {
       public java.lang.String getInterferenceDescription() {
         java.lang.Object ref = interferenceDescription_;
         if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            interferenceDescription_ = s;
-          }
+          java.lang.String s = ((com.google.protobuf.ByteString) ref)
+              .toStringUtf8();
+          interferenceDescription_ = s;
           return s;
         } else {
           return (java.lang.String) ref;
@@ -6703,6 +6831,7 @@ public final class MetaData {
         return this;
       }
 
+      // optional string additional_info = 8;
       private java.lang.Object additionalInfo_ = "";
       /**
        * <code>optional string additional_info = 8;</code>
@@ -6724,12 +6853,9 @@ public final class MetaData {
       public java.lang.String getAdditionalInfo() {
         java.lang.Object ref = additionalInfo_;
         if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            additionalInfo_ = s;
-          }
+          java.lang.String s = ((com.google.protobuf.ByteString) ref)
+              .toStringUtf8();
+          additionalInfo_ = s;
           return s;
         } else {
           return (java.lang.String) ref;
@@ -6803,6 +6929,7 @@ public final class MetaData {
         return this;
       }
 
+      // optional float initial_average_pressure = 9;
       private float initialAveragePressure_ ;
       /**
        * <code>optional float initial_average_pressure = 9;</code>
@@ -6851,6 +6978,7 @@ public final class MetaData {
         return this;
       }
 
+      // optional .perfloc.Metadata.DeviceDescription device = 10;
       private gov.nist.perfloc.MetaData.Metadata.DeviceDescription device_ = gov.nist.perfloc.MetaData.Metadata.DeviceDescription.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           gov.nist.perfloc.MetaData.Metadata.DeviceDescription, gov.nist.perfloc.MetaData.Metadata.DeviceDescription.Builder, gov.nist.perfloc.MetaData.Metadata.DeviceDescriptionOrBuilder> deviceBuilder_;
@@ -6995,7 +7123,7 @@ public final class MetaData {
         if (deviceBuilder_ == null) {
           deviceBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               gov.nist.perfloc.MetaData.Metadata.DeviceDescription, gov.nist.perfloc.MetaData.Metadata.DeviceDescription.Builder, gov.nist.perfloc.MetaData.Metadata.DeviceDescriptionOrBuilder>(
-                  getDevice(),
+                  device_,
                   getParentForChildren(),
                   isClean());
           device_ = null;
@@ -7003,6 +7131,7 @@ public final class MetaData {
         return deviceBuilder_;
       }
 
+      // repeated .perfloc.Metadata.Sensor sensor = 11;
       private java.util.List<gov.nist.perfloc.MetaData.Metadata.Sensor> sensor_ =
         java.util.Collections.emptyList();
       private void ensureSensorIsMutable() {
@@ -7184,8 +7313,7 @@ public final class MetaData {
           java.lang.Iterable<? extends gov.nist.perfloc.MetaData.Metadata.Sensor> values) {
         if (sensorBuilder_ == null) {
           ensureSensorIsMutable();
-          com.google.protobuf.AbstractMessageLite.Builder.addAll(
-              values, sensor_);
+          super.addAll(values, sensor_);
           onChanged();
         } else {
           sensorBuilder_.addAllMessages(values);
@@ -7326,17 +7454,17 @@ public final class MetaData {
     // @@protoc_insertion_point(class_scope:perfloc.Metadata)
   }
 
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_perfloc_Metadata_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_perfloc_Metadata_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_perfloc_Metadata_DeviceDescription_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_perfloc_Metadata_DeviceDescription_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_perfloc_Metadata_Sensor_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -7350,7 +7478,7 @@ public final class MetaData {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\017meta_data.proto\022\007perfloc\"\345\006\n\010Metadata\022" +
+      "\n\017meta_data.proto\022\007perfloc\"\370\006\n\010Metadata\022" +
       "\026\n\016measurement_id\030\001 \001(\005\022\024\n\014time_created\030" +
       "\002 \001(\003\022\017\n\007license\030\003 \001(\t\022\033\n\023experiment_dur" +
       "ation\030\004 \001(\001\022\036\n\026experiment_description\030\005 " +
@@ -7365,45 +7493,46 @@ public final class MetaData {
       "rint\030\005 \001(\t\022\020\n\010hardware\030\006 \001(\t\022\n\n\002id\030\007 \001(\t" +
       "\022\024\n\014manufacturer\030\010 \001(\t\022\r\n\005model\030\t \001(\t\022\017\n" +
       "\007product\030\n \001(\t\022\016\n\006serial\030\013 \001(\t\022\025\n\rradio_" +
-      "version\030\014 \001(\t\032\232\002\n\006Sensor\022\014\n\004type\030\001 \001(\005\022\023" +
+      "version\030\014 \001(\t\032\255\002\n\006Sensor\022\014\n\004type\030\001 \001(\005\022\023" +
       "\n\013string_type\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\022\030\n\020is_" +
       "wakeup_sensor\030\004 \001(\010\022\016\n\006vendor\030\005 \001(\t\022\017\n\007v" +
       "ersion\030\006 \001(\005\022\022\n\nresolution\030\007 \001(\002\022\026\n\016repo" +
       "rting_mode\030\010 \001(\005\022\r\n\005power\030\t \001(\002\022\034\n\024fifo_",
       "max_event_count\030\n \001(\005\022!\n\031fifo_reserved_e" +
       "vent_count\030\013 \001(\005\022\025\n\rmaximum_range\030\014 \001(\002\022" +
-      "\021\n\tmin_delay\030\r \001(\002B\022\n\020gov.nist.perfloc"
+      "\021\n\tmin_delay\030\r \001(\002\022\021\n\tmax_delay\030\016 \001(\002B\022\n" +
+      "\020gov.nist.perfloc"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
-          public com.google.protobuf.ExtensionRegistry assignDescriptors(
-              com.google.protobuf.Descriptors.FileDescriptor root) {
-            descriptor = root;
-            return null;
-          }
-        };
+      new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
+        public com.google.protobuf.ExtensionRegistry assignDescriptors(
+            com.google.protobuf.Descriptors.FileDescriptor root) {
+          descriptor = root;
+          internal_static_perfloc_Metadata_descriptor =
+            getDescriptor().getMessageTypes().get(0);
+          internal_static_perfloc_Metadata_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_perfloc_Metadata_descriptor,
+              new java.lang.String[] { "MeasurementId", "TimeCreated", "License", "ExperimentDuration", "ExperimentDescription", "EnvironmentDescription", "InterferenceDescription", "AdditionalInfo", "InitialAveragePressure", "Device", "Sensor", });
+          internal_static_perfloc_Metadata_DeviceDescription_descriptor =
+            internal_static_perfloc_Metadata_descriptor.getNestedTypes().get(0);
+          internal_static_perfloc_Metadata_DeviceDescription_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_perfloc_Metadata_DeviceDescription_descriptor,
+              new java.lang.String[] { "Board", "Brand", "Device", "Display", "Fingerprint", "Hardware", "Id", "Manufacturer", "Model", "Product", "Serial", "RadioVersion", });
+          internal_static_perfloc_Metadata_Sensor_descriptor =
+            internal_static_perfloc_Metadata_descriptor.getNestedTypes().get(1);
+          internal_static_perfloc_Metadata_Sensor_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_perfloc_Metadata_Sensor_descriptor,
+              new java.lang.String[] { "Type", "StringType", "Name", "IsWakeupSensor", "Vendor", "Version", "Resolution", "ReportingMode", "Power", "FifoMaxEventCount", "FifoReservedEventCount", "MaximumRange", "MinDelay", "MaxDelay", });
+          return null;
+        }
+      };
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         }, assigner);
-    internal_static_perfloc_Metadata_descriptor =
-      getDescriptor().getMessageTypes().get(0);
-    internal_static_perfloc_Metadata_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_perfloc_Metadata_descriptor,
-        new java.lang.String[] { "MeasurementId", "TimeCreated", "License", "ExperimentDuration", "ExperimentDescription", "EnvironmentDescription", "InterferenceDescription", "AdditionalInfo", "InitialAveragePressure", "Device", "Sensor", });
-    internal_static_perfloc_Metadata_DeviceDescription_descriptor =
-      internal_static_perfloc_Metadata_descriptor.getNestedTypes().get(0);
-    internal_static_perfloc_Metadata_DeviceDescription_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_perfloc_Metadata_DeviceDescription_descriptor,
-        new java.lang.String[] { "Board", "Brand", "Device", "Display", "Fingerprint", "Hardware", "Id", "Manufacturer", "Model", "Product", "Serial", "RadioVersion", });
-    internal_static_perfloc_Metadata_Sensor_descriptor =
-      internal_static_perfloc_Metadata_descriptor.getNestedTypes().get(1);
-    internal_static_perfloc_Metadata_Sensor_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_perfloc_Metadata_Sensor_descriptor,
-        new java.lang.String[] { "Type", "StringType", "Name", "IsWakeupSensor", "Vendor", "Version", "Resolution", "ReportingMode", "Power", "FifoMaxEventCount", "FifoReservedEventCount", "MaximumRange", "MinDelay", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
