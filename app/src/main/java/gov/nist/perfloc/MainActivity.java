@@ -99,7 +99,7 @@ public class MainActivity extends Activity {
     Vibrator v;
     private final Handler main_handler = new Handler();
     ToneGenerator toneG;
-    static int VOLUME = 60;
+    static int VOLUME = 100;
 
     // View related definitions
     ExpandableListView expListView;
@@ -1419,7 +1419,7 @@ public class MainActivity extends Activity {
                     for(File file: dirname.listFiles()) {
                         file.delete();
                         Log.v("Deleted", file.getName());
-                        Toast.makeText(getApplicationContext(), "Deleted:\n" + file.getName(), Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getApplicationContext(), "Deleted:\n" + file.getName(), Toast.LENGTH_SHORT).show();
                     }
                     createOutputFiles(current_file_prefix);
                     list_dot_readings.clear();      // unnecessary
