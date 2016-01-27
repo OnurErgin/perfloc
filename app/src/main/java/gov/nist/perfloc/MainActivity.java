@@ -437,10 +437,15 @@ public class MainActivity extends Activity {
 
             //ToneGenerator toneG = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
             //toneG.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 200);
+            //toneG.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 200);
+            try { Thread.sleep(100); } catch(InterruptedException ie) { Log.e("ACTION_DOWN", ie.toString()); }
+
             if (seq_nr_dot % 2 == 0)
-                toneG.startTone(ToneGenerator.TONE_PROP_BEEP, 200);
+                toneG.startTone(ToneGenerator.TONE_PROP_BEEP, 250);
             else
-                toneG.startTone(ToneGenerator.TONE_CDMA_ONE_MIN_BEEP, 100);
+                toneG.startTone(ToneGenerator.TONE_CDMA_KEYPAD_VOLUME_KEY_LITE, 200);
+                //toneG.startTone(ToneGenerator.TONE_CDMA_ONE_MIN_BEEP, 100);
+
             //toneG.startTone(ToneGenerator.TONE_PROP_BEEP2, 200);
 
         }
@@ -1239,6 +1244,9 @@ public class MainActivity extends Activity {
 
     private void captureCellularScan() {
         // Get CellInfo and display
+        List<CellInfo> cInfoList = telephony_manager.getAllCellInfo();
+        if (cInfoList == null)
+            return;
 
         /* Increment cellular scan counter */
         seq_nr_cellular = seq_nr_cellular + 1;
@@ -1246,9 +1254,9 @@ public class MainActivity extends Activity {
         /* Prepare protocol buffer and write into file */
         CellularData.CellularReading cellular_reading;
         if (Build.MANUFACTURER.equalsIgnoreCase("samsung"))
-            cellular_reading = prepareCellularProtobufForSamsung(telephony_manager.getAllCellInfo());
+            cellular_reading = prepareCellularProtobufForSamsung(cInfoList);
         else
-            cellular_reading = prepareCellularProtobuf(telephony_manager.getAllCellInfo());
+            cellular_reading = prepareCellularProtobuf(cInfoList);
 
         try {
             cellular_reading.writeDelimitedTo(Cellular_BOS);
@@ -1455,7 +1463,7 @@ public class MainActivity extends Activity {
                     Log.v(this.getClass().getName(),"Pressure_index=" + scenario_metadata.pressure_value_count);
                 }catch (Exception e) {Log.wtf(this.getClass().getName(),"sleep problem");}
             }
-            scenario_metadata.prepare(0, rbs.sensorList, Metadata_BOS);
+            scenario_metadata.prepare(Integer.parseInt(current_file_prefix), rbs.sensorList, Metadata_BOS);
             Log.v("SaveMetadata", "doInBackground....done.");
             return null;
         }
@@ -2326,8 +2334,8 @@ public class MainActivity extends Activity {
             Log.e("FIS: ", e.toString());
         }
 
-        AlertDialog.Builder indicate_counting = new AlertDialog.Builder(this);
-        indicate_counting.setMessage("Counting the output").show();
+        //AlertDialog.Builder indicate_counting = new AlertDialog.Builder(this);
+        //indicate_counting.setMessage("Counting the output").show();
 
         try {
             while (WifiData.WiFiReading.parseDelimitedFrom(WiFi_FIS) != null) {

@@ -144,6 +144,6 @@
         android:id="@+id/push_button"
         android:layout_below="@+id/geomagnetic_checkbox"
         android:layout_alignParentStart="true"
-        android:enabled="false"/>
+        android:enabled="true"/>
 
 </RelativeLayout>

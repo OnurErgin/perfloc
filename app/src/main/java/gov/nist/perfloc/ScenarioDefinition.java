@@ -21,11 +21,11 @@ public class ScenarioDefinition {
 
     private String TAG_VERBOSE = this.getClass().getName();
 
-    public String LICENSE = "GPL-Test-License";
-    public String EXPERIMENT_DESC = "Indoor Scenario 1";
-    public String ENVIRONMENT_DESC = "NIST-222";
+    public String LICENSE = "GPL";
+    public String EXPERIMENT_DESC = "Indoor Scenario";
+    public String ENVIRONMENT_DESC = "NIST-219";
     public String INTERFERENCE_DESC = "Regular";
-    public String ADDITIONAL_INFO = "";
+    public String ADDITIONAL_INFO = "Limited Cellular and GPS reception";
 
     private Sensor pressureSensor;
 
